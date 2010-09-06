@@ -16,7 +16,17 @@ void set_print(const set_t &set);
 
 bool set_member(const set_t &set, const element_t &e); 
 
+template <typename T>
+bool is_sorted(const std::vector<T> &v){
+  if(v.size() < 2)
+    return true; 
 
+  for(typename std::vector<T>::const_iterator it = ++v.begin(); it != v.end(); ++it){
+    if(*it < *(it-1))
+       return false; 
+  }
+  return true; 
+}
 
 
 #endif 	    /* !_UTILS_H_ */

@@ -12,9 +12,11 @@
 
 #include <vector>
 #include "element.hpp" 
-
+#include "itemset_specific.hpp" 
 
 typedef std::vector<element_t> set_t; 
+
+int is_included_1d(const Transaction &t, const set_t &set); 
 
 int membership_oracle(const set_t &set); 
 

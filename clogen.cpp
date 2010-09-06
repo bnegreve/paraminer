@@ -88,20 +88,3 @@ void expand(set_t c){
       }
   }
 }
-
-
-
-
-int main(){
-  set_t x;
-  set_t empty_set; 
-  expand(empty_set); 
-  
-  int nb_expected_patterns = 1; //emtpyset
-  // for(element_t  current = element_first(); current != element_null; current = element_next(current)){
-  //nb_expected_patterns+=std::pow(max_item, PATTERN_MAX_SIZE-i); 
-  // }
-  //  assert(nb_expected_patterns == nb_patterns); 
-  // NB of patterns = SUM 0..PATTERN_MAX_SIZE (MAX_ITEM-^PATTERN_MAX_SIZE 
-}
-
