@@ -22,12 +22,13 @@ int is_included_1d(const Transaction &t, const set_t &set){
     return 0; 
     
   //  assert(is_sorted(t));
+  // if(!is_sorted(set))
+  //   set_print(set); 
   assert(is_sorted(set)); 
   Transaction::const_iterator it = t.begin(); 
   set_t::const_iterator set_it = set.begin(); 
 
   do{
-    cout<<"Compare : "<<*set_it<<" avec "<<*it<<endl; 
     if(*set_it == *it)
       if(++set_it == set.end())
 	return 1;
@@ -37,8 +38,20 @@ int is_included_1d(const Transaction &t, const set_t &set){
   return 0; 
 }
 
+int count_inclusion_1d();
+
+int count_inclusion_2d(const TransactionTable &tt, const set_t &set){
+  int count  = 0; 
+  for(TransactionTable::const_iterator it = tt.begin(); it != tt.end(); ++it){
+    if(is_included_1d(*it, set))
+      count++; 
+  }
+  return count; 
+}
+
 int membership_oracle(const set_t &set){
-  
+  if(count_inclusion_2d(tt, set) >= threshold)
+    return 1; 
 }
 
 set_t clo(const set_t &set){

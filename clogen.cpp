@@ -77,6 +77,7 @@ void expand(set_t c){
 
     d.push_back(current);
       d = clo(d); 
+      std::sort(d.begin(), d.end()); 
       if(membership_oracle(d) != 1)
 	continue; 
     
