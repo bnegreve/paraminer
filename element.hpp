@@ -16,7 +16,7 @@
 typedef int element_t; 
 
 const int ELEMENT_RANGE_START = 0; 
-const int ELEMENT_RANGE_END = 10; 
+const int ELEMENT_RANGE_END = 116; 
 
 const element_t element_null = ELEMENT_RANGE_END; //must not be equal to any valid element 
 

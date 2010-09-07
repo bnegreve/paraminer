@@ -46,8 +46,9 @@ element_t get_tail(const set_t &set){
  };
 
 std::pair<set_t, element_t> get_first_parent(const set_t &set){
+  assert(set.size() >= 0);
   set_t z(set); 
-  while(z.size() != 0){
+  do{
     element_t e = get_tail(z); 
     set_t x;
     for(int i = 0 ; i < z.size(); i++)
@@ -55,13 +56,13 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set){
 	x.push_back(z[i]); 
 
     /*If the closure of z \ {e} is not z itself it's his parent.*/
-    if( clo(x) != z ){
-      set_t xx(clo(x)); 
+    set_t xx(clo(x)); 
+    if( xx != z ){
       std::sort(xx.begin(), xx.end(), element_cmp()); 
       return make_pair(canonical_form(xx, &e), e);
     }
     z = x; 
-  }
+  }while(z.size() != 0);
   assert(false); 
 }
 
@@ -76,10 +77,11 @@ void expand(set_t c){
     set_t d = c; 
 
     d.push_back(current);
+    std::sort(d.begin(), d.end()); 
+    if(membership_oracle(d) != 1)
+      continue; 
+
       d = clo(d); 
-      std::sort(d.begin(), d.end()); 
-      if(membership_oracle(d) != 1)
-	continue; 
     
       /* retreive real parent of d and compare with the set of the current branch*/
       std::pair<set_t, element_t> first_parent = get_first_parent(d); 

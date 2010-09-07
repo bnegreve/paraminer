@@ -31,4 +31,7 @@ element_t canonical_transform_element(const set_t &set, element_t &element);
 /* return the canonical form of a pattern */
 set_t canonical_form(set_t set, element_t *element = NULL);
 
+
+void transpose(const TransactionTable &tt, TransactionTable *ot); 
+
 #endif	    /* _PATTERN_HPP_ */

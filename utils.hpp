@@ -28,5 +28,4 @@ bool is_sorted(const std::vector<T> &v){
   return true; 
 }
 
-
 #endif 	    /* !_UTILS_H_ */
