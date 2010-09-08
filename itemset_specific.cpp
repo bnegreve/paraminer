@@ -44,7 +44,7 @@ void print_transaction(const Transaction &t){
 
 void print_transaction_table(const TransactionTable &tt){
   for(int i = 0; i < tt.size(); i++){
-    print_transaction(tt[i]); 
+    cout<<i<<" : "; print_transaction(tt[i]); 
     cout<<endl; 
   }
 }

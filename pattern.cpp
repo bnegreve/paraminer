@@ -22,6 +22,7 @@ int get_set_presence_1d(const Transaction &t, const set_t &set){
 }
 
 int is_included_1d(const Transaction &t, const set_t &set){
+  assert(is_sorted(t)); 
   if(set.size()==0)
     return 1; 
   if(t.size() == 0)
@@ -64,8 +65,9 @@ void get_occurences_2d(const TransactionTable &tt, const set_t &set, Occurence *
 }
 
 int membership_oracle(const set_t &set){
-  if(count_inclusion_2d(tt, set) >= threshold)
-    return 1; 
+  int freq = count_inclusion_2d(tt, set);
+  if(freq >= threshold)
+    return freq; 
   return 0; 
 }
 
@@ -91,9 +93,9 @@ set_t clo(const set_t &set){
   for(int i = 0 ; i < oc.size(); i++)
     dummy_set.push_back(oc[i]); 
 
-  for(int i = 0; i < ot.size(); i++){
+  for(int i = 0; i < ot.size(); i++){ 
     if(get_set_presence_1d((ot)[i], dummy_set) == 1)
-      clo.push_back(i); 
+      clo.push_back(i); //
   }
   return clo; 
 }
@@ -120,7 +122,7 @@ int main(int argc, char **argv){
 
   set_t x;
   set_t empty_set; 
-  expand(empty_set); 
+  expand(clo(empty_set)); 
   
 }
 

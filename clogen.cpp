@@ -48,13 +48,13 @@ element_t get_tail(const set_t &set){
 std::pair<set_t, element_t> get_first_parent(const set_t &set){
   assert(set.size() >= 0);
   set_t z(set); 
-  do{
+  while(z.size() != 0){
     element_t e = get_tail(z); 
     set_t x;
     for(int i = 0 ; i < z.size(); i++)
       if(z[i] != e)
 	x.push_back(z[i]); 
-
+    /* x = z  \ {e} */
     /*If the closure of z \ {e} is not z itself it's his parent.*/
     set_t xx(clo(x)); 
     if( xx != z ){
@@ -62,14 +62,14 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set){
       return make_pair(canonical_form(xx, &e), e);
     }
     z = x; 
-  }while(z.size() != 0);
+  }
   assert(false); 
 }
 
 
 void expand(set_t c){
   set_print(c); nb_patterns++; 
-
+  cout<<membership_oracle(c)<<endl;
   for(element_t  current = element_first(); current != element_null; current = element_next(current)){
 
     if(set_member(c, current))
@@ -78,7 +78,7 @@ void expand(set_t c){
 
     d.push_back(current);
     std::sort(d.begin(), d.end()); 
-    if(membership_oracle(d) != 1)
+    if(membership_oracle(d) == 0)
       continue; 
 
       d = clo(d); 
