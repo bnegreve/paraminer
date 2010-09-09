@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-cmake_policy(SET CMP0015 NEW)
+#cmake_policy(SET CMP0015 NEW)
 add_definitions(-DTEST -g)
 
 set(SOURCES ../itemset_specific.cpp ../utils.cpp ../element.cpp ../pattern.cpp ../clogen.cpp)
