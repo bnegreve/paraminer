@@ -16,6 +16,10 @@ int nb_patterns = 0;
 using std::cout; 
 using std::endl;
 
+TransactionTable tt; 
+TransactionTable ot; 
+
+int threshold; 
 
 /* Return the maximum element e so set \ {e} is in F */
 /* TODO rewrite this extreamly inefficient function a smarter way */
@@ -92,3 +96,22 @@ void expand(set_t c){
       }
   }
 }
+
+
+#ifndef TEST
+
+int main(int argc, char **argv){
+
+  if(argc != 3) abort; 
+  read_transaction_table(&tt, argv[1]); 
+  transpose(tt, &ot);
+  threshold = atoi(argv[2]); 
+
+  set_t x;
+  set_t empty_set; 
+
+  expand(clo(empty_set)); 
+  
+}
+
+#endif //TEST

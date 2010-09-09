@@ -12,10 +12,10 @@
 
 using namespace std; 
 
-TransactionTable tt; 
-TransactionTable ot; 
+extern TransactionTable tt; 
+extern TransactionTable ot; 
 
-int threshold; 
+extern int threshold; 
 
 int get_set_presence_1d(const Transaction &t, const set_t &set){
   return is_included_1d(t, set); 
@@ -111,19 +111,3 @@ element_t canonical_transform_element(const set_t &set, element_t &element){
 set_t canonical_form(set_t set, element_t *element){
   return set; 
 }
-
-#ifndef TEST
-int main(int argc, char **argv){
-  
-  if(argc != 3) abort; 
-  read_transaction_table(&tt, argv[1]); 
-  transpose(tt, &ot);
-  threshold = atoi(argv[2]); 
-
-  set_t x;
-  set_t empty_set; 
-  expand(clo(empty_set)); 
-  
-}
-
-#endif //TEST
