@@ -152,7 +152,9 @@ int main(int argc, char **argv){
   set_t x;
   set_t empty_set; 
 
-
+#ifndef NDEBUG
+  cout<<"CLOGEN DEBUG"<<endl;
+#endif
 
 #ifdef PARALLEL_PROCESS
 

@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 2.6)
-add_definitions(-g -DNDEBUG -O3)
+add_definitions()
 include_directories(../../melinda)
 
 add_executable(clogen_itemsets clogen.cpp element.cpp pattern.cpp utils.cpp itemset_specific.cpp)
