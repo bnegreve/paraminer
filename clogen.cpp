@@ -24,8 +24,6 @@ extern "C" {
 #include "melinda_local.hpp"
 tuplespace_t ts;
 
-//const int NUM_THREADS = NUM_THREADS_MACRO;
-int numThreads = 1; 
 #endif //PARALLEL_PROCESS
 
 using std::cout; 
@@ -162,13 +160,11 @@ int main(int argc, char **argv){
   m_tuplespace_init(&ts, sizeof(tuple_t), 0, TUPLESPACE_OPTIONAUTOCLOSE); 
   m_thread_register(); 
 
-
   expand(clo(empty_set)); 
-  m_tuplespace_close_at(&ts, numThreads);   
-  
+
   //  Run the threads
-  pthread_t *tids = new pthread_t[num_threads];
-  for(int i = 0; i < num_threads; i++){
+  pthread_t *tids = new pthread_t[num_threads - 1];
+  for(int i = 0; i < num_threads - 1; i++){
     cout<<"Creating thread"<<endl;
     if(pthread_create(&tids[i], NULL, 
   		      (void*(*)(void*))process_tuple, (void*)i)){
@@ -176,9 +172,13 @@ int main(int argc, char **argv){
       exit(EXIT_FAILURE); 
     }
   }
-
-  for(int i = 0; i < num_threads; i++)
+  
+  m_tuplespace_close_at(&ts, num_threads);   
+  process_tuple(0);
+  
+  for(int i = 0; i < num_threads -1; i++)
     pthread_join(tids[i], NULL);
+  delete[] tids;
 
 #else
   expand(clo(empty_set)); 
