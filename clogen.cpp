@@ -8,10 +8,25 @@
 */
 #include <iostream>
 #include <algorithm>
+#include <cstdio>
 #include "utils.hpp"
 #include "element.hpp"
 #include "pattern.hpp"
 int nb_patterns = 0; 
+
+#define PARALLEL_PROCESS
+#ifdef PARALLEL_PROCESS
+extern "C" {
+#include <tuplespace.h>
+#include <thread.h>
+}
+
+#include "melinda_local.hpp"
+tuplespace_t ts;
+
+//const int NUM_THREADS = NUM_THREADS_MACRO;
+int numThreads = 1; 
+#endif //PARALLEL_PROCESS
 
 using std::cout; 
 using std::endl;
@@ -92,26 +107,83 @@ void expand(set_t c){
       std::pair<set_t, element_t> first_parent = get_first_parent(d); 
       
       if(first_parent.first == c && first_parent.second == current){
+#ifdef PARALLEL_PROCESS
+	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
+	//	set_print(c); 
+	tuple_t tuple = new set_t(d); 
+	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
+#else
 	expand(d);
+#endif //PARALLEL_PROCESS	
       }
   }
 }
 
+#ifdef PARALLEL_PROCESS
+
+void *process_tuple(void *){
+  m_thread_register(); 
+  for(;;){
+    tuple_t tuple; 
+    
+    int r = m_tuplespace_get(&ts, 1, (tuple_t*)&tuple);
+    if(r == TUPLESPACE_CLOSED)
+      break; 
+
+    //    cout<<"thread "<<m_thread_id()<<" is processing tuple: "<<endl;
+    //    set_print(*(set_t*)tuple); 
+    expand(*static_cast<set_t*>(tuple)); 
+    delete static_cast<set_t*>(tuple); 
+  }
+}
+
+
+#endif //PARALLEL_PROCESS
 
 #ifndef TEST
 
 int main(int argc, char **argv){
 
-  if(argc != 3) abort; 
+  if(argc != 4)
+    abort(); 
   read_transaction_table(&tt, argv[1]); 
   transpose(tt, &ot);
   threshold = atoi(argv[2]); 
 
+
   set_t x;
   set_t empty_set; 
 
+
+
+#ifdef PARALLEL_PROCESS
+
+  int num_threads = atoi(argv[3]); 
+  m_tuplespace_init(&ts, sizeof(tuple_t), 0, TUPLESPACE_OPTIONAUTOCLOSE); 
+  m_thread_register(); 
+
+
   expand(clo(empty_set)); 
+  m_tuplespace_close_at(&ts, numThreads);   
   
+  //  Run the threads
+  pthread_t *tids = new pthread_t[num_threads];
+  for(int i = 0; i < num_threads; i++){
+    cout<<"Creating thread"<<endl;
+    if(pthread_create(&tids[i], NULL, 
+  		      (void*(*)(void*))process_tuple, (void*)i)){
+      perror("pthread_create ");
+      exit(EXIT_FAILURE); 
+    }
+  }
+
+  for(int i = 0; i < num_threads; i++)
+    pthread_join(tids[i], NULL);
+
+#else
+  expand(clo(empty_set)); 
+#endif//PARALLEL_PROCESS
+
 }
 
 #endif //TEST
