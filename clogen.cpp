@@ -55,9 +55,10 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set){
       if(z[i] != e)
 	x.push_back(z[i]); 
     /* x = z  \ {e} */
+    //    assert(clo(z) == set);
     /*If the closure of z \ {e} is not z itself it's his parent.*/
     set_t xx(clo(x)); 
-    if( xx != z ){
+    if( xx != set ){ //BUG DANS LE PAPIER DE UNO ?
       std::sort(xx.begin(), xx.end(), element_cmp()); 
       return make_pair(canonical_form(xx, &e), e);
     }
@@ -69,7 +70,7 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set){
 
 void expand(set_t c){
   set_print(c); nb_patterns++; 
-  cout<<membership_oracle(c)<<endl;
+  //  cout<<membership_oracle(c)<<endl;
   for(element_t  current = element_first(); current != element_null; current = element_next(current)){
 
     if(set_member(c, current))
@@ -81,7 +82,7 @@ void expand(set_t c){
     if(membership_oracle(d) == 0)
       continue; 
 
-      d = clo(d); 
+    d = clo(d); 
     
       /* retreive real parent of d and compare with the set of the current branch*/
       std::pair<set_t, element_t> first_parent = get_first_parent(d); 
