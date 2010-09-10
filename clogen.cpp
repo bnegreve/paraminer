@@ -113,7 +113,7 @@ void expand(set_t c, int depth){
 	//	set_print(c); 
 	tuple_t tuple;
 	tuple.set = new set_t(d); 
-	tuple.depth += 1; 
+	tuple.depth = depth+1; 
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
 	}
 	else{
