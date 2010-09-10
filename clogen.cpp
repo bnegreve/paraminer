@@ -24,6 +24,7 @@ extern "C" {
 #include "melinda_local.hpp"
 tuplespace_t ts;
 
+int depth_tuple_cutoff = 2;
 #endif //PARALLEL_PROCESS
 
 using std::cout; 
@@ -106,12 +107,18 @@ void expand(set_t c, int depth){
       
       if(first_parent.first == c && first_parent.second == current){
 #ifdef PARALLEL_PROCESS
+
+	if(depth < depth_tuple_cutoff){
 	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
 	//	set_print(c); 
 	tuple_t tuple;
 	tuple.set = new set_t(d); 
 	tuple.depth += 1; 
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
+	}
+	else{
+	  expand(d, depth+1);
+	}
 #else
 	expand(d, depth+1);
 #endif //PARALLEL_PROCESS	
@@ -140,16 +147,38 @@ void *process_tuple(void *){
 
 #endif //PARALLEL_PROCESS
 
+void usage(char *bin_name){
+  cout<<bin_name<<" inputfile minsup numthreads [-c freq cutoff]"<<endl;
+}
+
 #ifndef TEST
 
 int main(int argc, char **argv){
 
-  if(argc != 4)
-    abort(); 
-  read_transaction_table(&tt, argv[1]); 
-  transpose(tt, &ot);
-  threshold = atoi(argv[2]); 
+  if(argc < 4){
+    usage(argv[0]); 
+    exit(EXIT_FAILURE); 
+  }
 
+  char opt_char=0;
+  while ((opt_char = getopt(argc, argv, "c:")) != -1)
+    {
+      switch(opt_char)
+	{
+	case 'c':
+	  depth_tuple_cutoff = atoi(optarg); 
+	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<endl;
+	  break ;
+	default:
+	  usage(argv[0]); 
+	  exit(-1);
+	  break;
+	}
+    }
+
+  read_transaction_table(&tt, argv[optind]); 
+  transpose(tt, &ot);
+  threshold = atoi(argv[optind+1]); 
 
   set_t x;
   set_t empty_set; 
@@ -160,7 +189,7 @@ int main(int argc, char **argv){
 
 #ifdef PARALLEL_PROCESS
 
-  int num_threads = atoi(argv[3]); 
+  int num_threads = atoi(argv[optind+2]); 
   m_tuplespace_init(&ts, sizeof(tuple_t), 0, TUPLESPACE_OPTIONAUTOCLOSE); 
   m_thread_register(); 
 

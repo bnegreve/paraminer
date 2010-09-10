@@ -16,7 +16,10 @@ extern "C" {
 #include <thread.h>
 }
 
-typedef set_t *tuple_t;
+typedef struct{
+  set_t *set; 
+  int depth; 
+}tuple_t; 
 
 int m_distribute(opaque_tuple_t *tuple){
   return m_thread_id(); 
