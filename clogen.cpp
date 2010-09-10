@@ -85,7 +85,7 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set){
 }
 
 
-void expand(set_t c){
+void expand(set_t c, int depth){
   set_print(c); nb_patterns++; 
   //  cout<<membership_oracle(c)<<endl;
   for(element_t  current = element_first(); current != element_null; current = element_next(current)){
@@ -108,10 +108,12 @@ void expand(set_t c){
 #ifdef PARALLEL_PROCESS
 	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
 	//	set_print(c); 
-	tuple_t tuple = new set_t(d); 
+	tuple_t tuple;
+	tuple.set = new set_t(d); 
+	tuple.depth += 1; 
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
 #else
-	expand(d);
+	expand(d, depth+1);
 #endif //PARALLEL_PROCESS	
       }
   }
@@ -130,8 +132,8 @@ void *process_tuple(void *){
 
     //    cout<<"thread "<<m_thread_id()<<" is processing tuple: "<<endl;
     //    set_print(*(set_t*)tuple); 
-    expand(*static_cast<set_t*>(tuple)); 
-    delete static_cast<set_t*>(tuple); 
+    expand(*tuple.set, tuple.depth); 
+    delete tuple.set; 
   }
 }
 
@@ -162,7 +164,7 @@ int main(int argc, char **argv){
   m_tuplespace_init(&ts, sizeof(tuple_t), 0, TUPLESPACE_OPTIONAUTOCLOSE); 
   m_thread_register(); 
 
-  expand(clo(empty_set)); 
+  expand(clo(empty_set), 0); 
 
   //  Run the threads
   pthread_t *tids = new pthread_t[num_threads - 1];
@@ -183,7 +185,7 @@ int main(int argc, char **argv){
   delete[] tids;
 
 #else
-  expand(clo(empty_set)); 
+  expand(clo(empty_set), 0); 
 #endif//PARALLEL_PROCESS
 
 }
