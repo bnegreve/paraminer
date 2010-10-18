@@ -1,0 +1,82 @@
+%%
+%% clogen.tex
+%% 
+%% Made by Benjamin Negrevergne
+%% Login   <bengreve@neb.imag.fr>
+%% 
+%% Started on  Fri Oct 15 16:46:42 2010 Benjamin Negrevergne
+%% Last update Fri Oct 15 16:46:42 2010 Benjamin Negrevergne
+%%
+
+
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{algorithmic, algorithm}
+
+\newcommand{\DB}{\mathcal{DB}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\M}{\mathbb{M}}
+\newcommand{\OP}{\mathbb{O}}
+\newcommand{\clo}{\mathbb{C}}
+
+\renewcommand{\algorithmiccomment}{//\it}
+%\newcommand{\algorithmicforall}{\textbf{for all}}
+\begin{document}
+
+\begin{algorithm}[t]
+\caption{expand}
+\label{algo_rrt}
+\begin{algorithmic}[1]
+  \REQUIRE {database $\DB$, pattern $P \in \mathcal C$}
+  \PRINT $P$
+  \FORALL {$e \in E$}
+  \IF {$\M(P \cup \{e\})$}
+  \STATE $Q := \clo(P \cup \{e\})$
+  \STATE expand($\DB, P$)
+  \IF {get\_first\_parent($Q$) = $P$}
+  \STATE expand($\DB, P$)
+  \ENDIF
+  \ENDIF
+  \ENDFOR
+ \RETURN $G$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{get\_first\_parent}
+\label{algo_gfp}
+\begin{algorithmic}[1]
+  \REQUIRE pattern $P, P \neq \bot $\AND$ P \neq \clo(\bot) $
+  \STATE $Z := P$
+  \WHILE {$Z \neq \emptyset$}
+  \STATE $e = $get\_tail\_element($Z$)
+  \STATE $X := Z \setminus \{e\}$
+  \IF{ $\clo(X) \neq P $}
+  \RETURN $(\clo(X), e$)
+  \ENDIF
+  \STATE $Z := X$
+  \ENDWHILE
+  \STATE
+  \COMMENT Never Reached
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{get\_tail\_element}
+\label{algo_gte}
+\begin{algorithmic}[1]
+  \REQUIRE pattern $P \in \F$
+  \STATE $max_e := nil$
+  \FORALL  {$e \in P$}
+  \IF {$\M(P \setminus \{e\}) = 1$}
+  \IF {$max_e = nil$ \OR $e > max_e$}
+  \STATE $max_e := e$
+  \ENDIF 
+  \ENDIF  
+  \ENDFOR
+  \RETURN $max_e$
+\end{algorithmic}
+\end{algorithm}
+\end{document}
