@@ -12,8 +12,12 @@
 \documentclass[a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsfonts}
-\usepackage{algorithmic, algorithm}
 
+\usepackage{algorithm}
+%\usepackage{algorithmicx}
+%\usepackage{algcompatible}
+%\usepackage{algpseudocode}
+\usepackage{algorithmic}
 \newcommand{\DB}{\mathcal{DB}}
 \newcommand{\F}{\mathcal{F}}
 \newcommand{\C}{\mathcal{C}}
@@ -21,26 +25,26 @@
 \newcommand{\OP}{\mathbb{O}}
 \newcommand{\clo}{\mathbb{C}}
 
-\renewcommand{\algorithmiccomment}{//\it}
-%\newcommand{\algorithmicforall}{\textbf{for all}}
+% \renewcommand{\algorithmiccomment}{//\it}
+% %\newcommand{\algorithmicforall}{\textbf{for all}}
+% \newcommand{\algorithmicintput}{\it input}
 \begin{document}
 
 \begin{algorithm}[t]
-\caption{expand}
-\label{algo_rrt}
-\begin{algorithmic}[1]
+  \caption{expand}
+ \label{expand}
+ \begin{algorithmic}[1]
+  \REQUIRE {groundset $E$, membership oracle $\M$, closure operator $\clo$}
   \REQUIRE {database $\DB$, pattern $P \in \mathcal C$}
   \PRINT $P$
   \FORALL {$e \in E$}
   \IF {$\M(P \cup \{e\})$}
   \STATE $Q := \clo(P \cup \{e\})$
-  \STATE expand($\DB, P$)
   \IF {get\_first\_parent($Q$) = $P$}
   \STATE expand($\DB, P$)
   \ENDIF
   \ENDIF
   \ENDFOR
- \RETURN $G$
 \end{algorithmic}
 \end{algorithm}
 
@@ -79,4 +83,5 @@
   \RETURN $max_e$
 \end{algorithmic}
 \end{algorithm}
+
 \end{document}
