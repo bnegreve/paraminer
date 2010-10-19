@@ -9,10 +9,13 @@
 #include <iostream>
 #include <algorithm>
 #include <cstdio>
+#include "clogen_local.hpp"
 #include "utils.hpp"
 #include "element.hpp"
 #include "pattern.hpp"
-int nb_patterns = 0; 
+
+
+size_t num_threads; 
 
 #define PARALLEL_PROCESS
 #ifdef PARALLEL_PROCESS
@@ -85,9 +88,9 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set){
   assert(false); 
 }
 
-
-void expand(set_t c, int depth){
-  set_print(c); nb_patterns++; 
+size_t expand(set_t c, int depth){
+  size_t num_pattern = 1; 
+  set_print(c); 
   //  cout<<membership_oracle(c)<<endl;
   for(element_t  current = element_first(); current != element_null; current = element_next(current)){
 
@@ -117,19 +120,21 @@ void expand(set_t c, int depth){
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
 	}
 	else{
-	  expand(d, depth+1);
+	  num_pattern += expand(d, depth+1);
 	}
 #else
-	expand(d, depth+1);
+	num_pattern += expand(d, depth+1);
 #endif //PARALLEL_PROCESS	
       }
   }
+  return num_pattern; 
 }
 
 #ifdef PARALLEL_PROCESS
 
 void *process_tuple(void *){
-  m_thread_register(); 
+  size_t num_patterns = 0; 
+  m_thread_register();   
   for(;;){
     tuple_t tuple; 
     
@@ -139,9 +144,13 @@ void *process_tuple(void *){
 
     //    cout<<"thread "<<m_thread_id()<<" is processing tuple: "<<endl;
     //    set_print(*(set_t*)tuple); 
-    expand(*tuple.set, tuple.depth); 
+    //    size_t x = expand(*tuple.set, tuple.depth); 
+    //    cout<<"tuple made "<< x <<"tuples"<<endl;
+    num_patterns += expand(*tuple.set, tuple.depth); 
+    //    num_patterns += x; 
     delete tuple.set; 
   }
+  return reinterpret_cast<void*>(num_patterns); 
 }
 
 
@@ -151,17 +160,15 @@ void usage(char *bin_name){
   cout<<bin_name<<" inputfile minsup numthreads [-c freq cutoff]"<<endl;
 }
 
-#ifndef TEST
+void parse_clogen_arguments(int *argc, char **argv){
 
-int main(int argc, char **argv){
-
-  if(argc < 4){
+  if(*argc < 4){
     usage(argv[0]); 
     exit(EXIT_FAILURE); 
   }
 
   char opt_char=0;
-  while ((opt_char = getopt(argc, argv, "c:")) != -1)
+  while ((opt_char = getopt(*argc, argv, "c:")) != -1)
     {
       switch(opt_char)
 	{
@@ -170,30 +177,29 @@ int main(int argc, char **argv){
 	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<endl;
 	  break ;
 	default:
-	  usage(argv[0]); 
-	  exit(-1);
-	  break;
+	  
+	  // usage(argv[0]); 
+	  // exit(-1);
+	  break;	  
 	}
     }
 
-  read_transaction_table(&tt, argv[optind]); 
-  transpose(tt, &ot);
-  threshold = atoi(argv[optind+1]); 
+  num_threads = atoi(argv[optind+2]);   
+}
 
-  set_t x;
-  set_t empty_set; 
-
+int clogen(set_t initial_pattern){
+  int num_pattern; 
 #ifndef NDEBUG
   cout<<"CLOGEN DEBUG"<<endl;
 #endif
 
 #ifdef PARALLEL_PROCESS
 
-  int num_threads = atoi(argv[optind+2]); 
+ 
   m_tuplespace_init(&ts, sizeof(tuple_t), 0, TUPLESPACE_OPTIONAUTOCLOSE); 
   m_thread_register(); 
 
-  expand(clo(empty_set), 0); 
+
 
   //  Run the threads
   pthread_t *tids = new pthread_t[num_threads - 1];
@@ -205,18 +211,26 @@ int main(int argc, char **argv){
       exit(EXIT_FAILURE); 
     }
   }
+
+  num_pattern = expand(clo(initial_pattern), 0); 
   
   m_tuplespace_close_at(&ts, num_threads);   
-  process_tuple(0);
-  
-  for(int i = 0; i < num_threads -1; i++)
-    pthread_join(tids[i], NULL);
+  num_pattern += reinterpret_cast<size_t>(process_tuple(0)); 
+
+  for(int i = 0; i < num_threads -1; i++){
+    void *num_thread_pattern; 
+    pthread_join(tids[i], &(num_thread_pattern));
+    num_pattern += reinterpret_cast<size_t>(num_thread_pattern); 
+  }
   delete[] tids;
 
 #else
-  expand(clo(empty_set), 0); 
+  num_pattern = expand(clo(empty_set), 0); 
 #endif//PARALLEL_PROCESS
 
+  return num_pattern; 
 }
+#ifndef TEST
+
 
 #endif //TEST

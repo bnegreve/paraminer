@@ -12,15 +12,22 @@
 
 #include <vector>
 #include "element.hpp" 
-#include "itemset_specific.hpp" 
+#include "database.hpp" 
 
 typedef std::vector<element_t> set_t; 
 
 int is_included_1d(const Transaction &t, const set_t &set); 
 
-int membership_oracle(const set_t &set); 
+int count_inclusion_2d(const TransactionTable &tt, const set_t &set); 
 
-set_t clo(const set_t &set); 
+void get_occurences_2d(const TransactionTable &tt, const set_t &set, Occurence *oc);
+
+int get_set_presence_1d(const Transaction &t, const set_t &set);
+
+// int membership_oracle(const set_t &set); 
+
+
+// set_t clo(const set_t &set); 
 
 /* DEPRECATED */
 set_t canonical_form(set_t set); 
@@ -30,8 +37,5 @@ element_t canonical_transform_element(const set_t &set, element_t &element);
 
 /* return the canonical form of a pattern */
 set_t canonical_form(set_t set, element_t *element = NULL);
-
-
-void transpose(const TransactionTable &tt, TransactionTable *ot); 
 
 #endif	    /* _PATTERN_HPP_ */

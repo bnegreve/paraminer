@@ -5,7 +5,7 @@ add_definitions()
 
 include_directories(../../melinda)
 
-add_executable(clogen_itemsets clogen.cpp element.cpp pattern.cpp utils.cpp itemset_specific.cpp)
+add_executable(clogen_itemsets clogen_local_itemsets.cpp clogen.cpp element.cpp database.cpp pattern.cpp utils.cpp)
 #SET_TARGET_PROPERTIES(clogen_itemsets PROPERTIES LINK_FLAGS -pg)
 target_link_libraries(clogen_itemsets pthread melinda)
 

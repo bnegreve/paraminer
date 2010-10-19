@@ -12,6 +12,11 @@
 
 #include "pattern.hpp"
 
-void expand(set_t c); 
+extern TransactionTable tt; 
+extern TransactionTable ot; 
+
+int clogen(set_t initial_pattern);
+
+void parse_clogen_arguments(int *argc, char **argv); 
 
 #endif	    /* _CLOGEN_HPP_ */

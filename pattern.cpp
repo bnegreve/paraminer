@@ -64,41 +64,6 @@ void get_occurences_2d(const TransactionTable &tt, const set_t &set, Occurence *
   }
 }
 
-int membership_oracle(const set_t &set){
-  int freq = count_inclusion_2d(tt, set);
-  if(freq >= threshold)
-    return freq; 
-  return 0; 
-}
-
-
-void transpose(const TransactionTable &tt, TransactionTable *ot){
-  assert(!ot->size()); 
-  for(int i = 0; i < tt.size(); i++)
-    for(int j = 0; j < tt[i].size(); j++){
-      int v = tt[i][j]; 
-      if(v >= ot->size())
-	ot->resize(v+1);
-      (*ot)[v].push_back(i); 
-    }
-}
-
-
-set_t clo(const set_t &set){
-  Occurence oc;
-  set_t clo; 
-  get_occurences_2d(tt, set, &oc); 
-
-  set_t dummy_set; 
-  for(int i = 0 ; i < oc.size(); i++)
-    dummy_set.push_back(oc[i]); 
-
-  for(int i = 0; i < ot.size(); i++){ 
-    if(get_set_presence_1d((ot)[i], dummy_set) == 1)
-      clo.push_back(i); //
-  }
-  return clo; 
-}
 
 set_t canonical_form(set_t set){
   return set; 
