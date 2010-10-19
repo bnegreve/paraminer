@@ -199,7 +199,7 @@ int clogen(set_t initial_pattern){
   m_tuplespace_init(&ts, sizeof(tuple_t), 0, TUPLESPACE_OPTIONAUTOCLOSE); 
   m_thread_register(); 
 
-
+  num_pattern = expand(clo(initial_pattern), 0); 
 
   //  Run the threads
   pthread_t *tids = new pthread_t[num_threads - 1];
@@ -212,7 +212,7 @@ int clogen(set_t initial_pattern){
     }
   }
 
-  num_pattern = expand(clo(initial_pattern), 0); 
+
   
   m_tuplespace_close_at(&ts, num_threads);   
   num_pattern += reinterpret_cast<size_t>(process_tuple(0)); 
