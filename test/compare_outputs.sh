@@ -18,7 +18,7 @@ usage(){
 if [ $# -lt 1 ] ; then usage ; fi
 if [ $# -eq 1 ] ; then PAT="\'\'"; else PAT=$2; fi
 
-head -n 1 $1 | sh |grep $PAT > /tmp/output
+head -n 1 $1 | sh |grep $PAT > /tmp/output_co
 if [ $? -ne 0 ] ; then exit 1; fi
-tail -n +2 $1 | grep $PAT > /tmp/expected
-diff /tmp/expected /tmp/output
+tail -n +2 $1 | grep $PAT > /tmp/expected_co
+diff /tmp/expected_co /tmp/output_co
