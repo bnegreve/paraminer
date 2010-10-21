@@ -5,11 +5,15 @@ add_definitions()
 
 include_directories(../../melinda)
 
-add_executable(clogen_itemsets clogen_local_itemsets.cpp clogen.cpp element.cpp database.cpp pattern.cpp utils.cpp)
+set(CLOGEN_SOURCE  clogen.cpp element.cpp database.cpp pattern.cpp utils.cpp)
+
+add_executable(clogen_itemsets  clogen_local_itemsets.cpp ${CLOGEN_SOURCE})
+add_executable(clogen_cgraph ${CLOGEN_SOURCE} clogen_local_cgraph.cpp)
 #SET_TARGET_PROPERTIES(clogen_itemsets PROPERTIES LINK_FLAGS -pg)
 target_link_libraries(clogen_itemsets pthread melinda)
+target_link_libraries(clogen_cgraph pthread melinda)
 
 enable_testing()
-#add_subdirectory(test)
+add_subdirectory(test)
 
 add_custom_target(clogen_doc doxygen doc)

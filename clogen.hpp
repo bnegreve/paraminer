@@ -17,6 +17,14 @@ extern TransactionTable ot;
 
 int clogen(set_t initial_pattern);
 
-void parse_clogen_arguments(int *argc, char **argv); 
+/** 
+ * \brief Parse clogen arguments. 
+ * Optional arguments (clogen or not) are moved to the beginning of argv.  
+ *
+ * @param argc 
+ * @param argv 
+ * @return The index of the first mandatory argument in argv.
+ */
+int parse_clogen_arguments(int *argc, char **argv); 
 
 #endif	    /* _CLOGEN_HPP_ */

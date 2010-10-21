@@ -15,7 +15,7 @@
 #include "pattern.hpp"
 
 
-size_t num_threads; 
+int num_threads = 1; 
 
 #define PARALLEL_PROCESS
 #ifdef PARALLEL_PROCESS
@@ -41,7 +41,7 @@ int threshold;
 /* Return the maximum element e so set \ {e} is in F */
 /* TODO rewrite this extreamly inefficient function a smarter way */
 element_t get_tail(const set_t &set){
-  
+
   element_t max = element_null; 
   
   for(int i = 0; i < set.size(); i++){
@@ -156,26 +156,20 @@ void *process_tuple(void *){
 
 #endif //PARALLEL_PROCESS
 
-void usage(char *bin_name){
-  cout<<bin_name<<" inputfile minsup numthreads [-c freq cutoff]"<<endl;
-}
-
-void parse_clogen_arguments(int *argc, char **argv){
-
-  if(*argc < 4){
-    usage(argv[0]); 
-    exit(EXIT_FAILURE); 
-  }
-
+int parse_clogen_arguments(int *argc, char **argv){
   char opt_char=0;
-  while ((opt_char = getopt(*argc, argv, "c:")) != -1)
+  while ((opt_char = getopt(*argc, argv, "c:t:")) != -1)
     {
       switch(opt_char)
 	{
 	case 'c':
 	  depth_tuple_cutoff = atoi(optarg); 
 	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<endl;
+	  *optarg = '\0'; 
 	  break ;
+	case 't':
+	  num_threads = atoi(optarg);
+	  break; 
 	default:
 	  
 	  // usage(argv[0]); 
@@ -183,8 +177,9 @@ void parse_clogen_arguments(int *argc, char **argv){
 	  break;	  
 	}
     }
+  cout<<"running with "<<num_threads<<" thread(s)."<<endl;  
 
-  num_threads = atoi(argv[optind+2]);   
+  return optind; 
 }
 
 int clogen(set_t initial_pattern){

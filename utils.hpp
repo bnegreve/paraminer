@@ -16,6 +16,8 @@ void set_print(const set_t &set);
 
 bool set_member(const set_t &set, const element_t &e); 
 
+int set_member_index(const set_t &set, const element_t &e); 
+
 template <typename T>
 bool is_sorted(const std::vector<T> &v){
   if(v.size() < 2)

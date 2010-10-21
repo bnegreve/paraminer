@@ -30,3 +30,12 @@ bool set_member(const set_t &set, const element_t &e){
   }
   return false; 
 }
+
+int set_member_index(const set_t &set, const element_t &e){
+  int i = 0; 
+  for(set_t::const_iterator it = set.begin(); it  != set.end(); ++it,++i){
+    if(element_equal(*it, e))
+      return i; 
+  }
+  return -1; 
+}

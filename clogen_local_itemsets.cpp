@@ -42,13 +42,23 @@ set_t clo(const set_t &set){
   return clo; 
 }
 
+
+void usage(char *bin_name){
+  cout<<bin_name<<" inputfile minsup [-t numthreads=1] [-c tuplecutoff=2]"<<endl;
+  exit(EXIT_FAILURE); 
+}
+
+
 int main(int argc, char **argv){
 
-  parse_clogen_arguments(&argc, argv); 
+  int idx = parse_clogen_arguments(&argc, argv); 
+  if(argc-idx != 2){
+    usage(argv[0]); 
+  }
 
-  read_transaction_table(&tt, argv[optind]); 
+  read_transaction_table(&tt, argv[idx]); 
   transpose(tt, &ot);
-  threshold = std::atoi(argv[optind+1]); 
+  threshold = std::atoi(argv[idx+1]); 
 
   set_t empty_set; 
   int num_pattern = clogen(empty_set);
