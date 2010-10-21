@@ -106,6 +106,7 @@ bool edge_is_connected(const set_t &set, element_t e){
 	  return true; 
     }
   }
+  return false; 
 }
 
 int membership_oracle(const set_t &set){
