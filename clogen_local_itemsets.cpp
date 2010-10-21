@@ -2,6 +2,7 @@
 // Made by Benjamin Negrevergne
 // Started on  Tue Oct 19 18:44:38 2010
 #include <cstdlib>
+#include <algorithm>
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
@@ -26,9 +27,12 @@ int membership_oracle(const set_t &set){
   return 0; 
 }
 
-set_t clo(const set_t &set){
+set_t clo(const set_t &s){
   Occurence oc;
   set_t clo; 
+  set_t set(s); 
+  std::sort(set.begin(), set.end()); 
+
   get_occurences_2d(tt, set, &oc); 
 
   set_t dummy_set; 

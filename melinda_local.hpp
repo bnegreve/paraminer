@@ -17,8 +17,12 @@ extern "C" {
 }
 
 typedef struct{
-  set_t *set; 
+  TransactionTable *tt; 
+  TransactionTable *ot; 
+  set_t *s; 
+  element_t e; 
   int depth; 
+  
 }tuple_t; 
 
 int m_distribute(opaque_tuple_t *tuple){
