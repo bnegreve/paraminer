@@ -3,6 +3,7 @@
 // Started on  Tue Oct 19 18:44:38 2010
 #include <cstdlib>
 #include <algorithm>
+#include <vector>
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
@@ -13,6 +14,7 @@
 using std::cout; 
 using std::cerr; 
 using std::endl; 
+using namespace std; 
 
 const int ELEMENT_RANGE_START = 0; 
 const int ELEMENT_RANGE_END = 120; 
@@ -27,6 +29,7 @@ int membership_oracle(const set_t &set){
     return freq; 
   return 0; 
 }
+
 
 int membership_oracle(const set_t &set, const TransactionTable &tt,
 		      const Transaction &occurences){
@@ -52,10 +55,10 @@ set_t clo(const set_t &s){
   return clo; 
 }
 
+
 set_t clo(const set_t &set, int set_support, const SupportTable &support){
   return support_based_closure(set, set_support, support); 
 }
-
 
 
 void usage(char *bin_name){
