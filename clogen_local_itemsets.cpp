@@ -2,6 +2,7 @@
 // Made by Benjamin Negrevergne
 // Started on  Tue Oct 19 18:44:38 2010
 #include <cstdlib>
+#include <vector>
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
@@ -11,19 +12,22 @@
 using std::cout; 
 using std::cerr; 
 using std::endl; 
+using namespace std; 
 
 const int ELEMENT_RANGE_START = 0; 
 const int ELEMENT_RANGE_END = 119; 
 
 extern int threshold; 
 
-
-
 int membership_oracle(const set_t &set){
   int freq = count_inclusion_2d(tt, set);
   if(freq >= threshold)
     return freq; 
   return 0; 
+}
+
+int membership_oracle(const set_t &set, const Transaction &occurences){
+  if(occurences.size()>= threshold); 
 }
 
 set_t clo(const set_t &set){
@@ -42,6 +46,24 @@ set_t clo(const set_t &set){
   return clo; 
 }
 
+set_t clo(const set_t &set, const Transaction &occurences){
+
+  set_t clo; 
+  vector<int> freq; 
+  Transaction::const_iterator t_it_end = occurences.end(); 
+  for(Transaction::const_iterator t_it = occurences.begin(); t_it != t_it_end; ++t_it){
+    if(*t_it >= freq.size())
+      freq.resize(*t_it); 
+    freq[*t_it]++; 
+  }
+  
+  for(int i = 0; i < freq.size(); i++){
+    if(freq[i] == occurences.size()){
+      clo.push_back(i); 
+    }
+  }
+  return clo; 
+}
 
 void usage(char *bin_name){
   cout<<bin_name<<" inputfile minsup [-t numthreads=1] [-c tuplecutoff=2]"<<endl;
