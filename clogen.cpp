@@ -33,7 +33,7 @@ int depth_tuple_cutoff = 2;
 
 using std::cout; 
 using std::endl;
-
+using std::cerr; 
 TransactionTable tt; 
 TransactionTable ot; 
 
@@ -218,6 +218,7 @@ int parse_clogen_arguments(int *argc, char **argv){
 
 int clogen(set_t initial_pattern){
   int num_pattern; 
+  cerr<<"DATABASE REDUCTION ENABLED"<<endl;
 #ifndef NDEBUG
   cout<<"CLOGEN DEBUG"<<endl;
 #endif
