@@ -21,7 +21,8 @@ extern const element_t ELEMENT_RANGE_START;
 extern const element_t ELEMENT_RANGE_END; 
 
 int membership_oracle(const set_t &set); 
-int membership_oracle(const set_t &set, const Transaction &occurences); 
+int membership_oracle(const set_t &set, const TransactionTable &tt, 
+		      const Transaction &occurences); 
 
 set_t clo(const set_t &set); 
 set_t clo(const set_t &set, const Transaction &occurences); 

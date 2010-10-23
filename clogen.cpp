@@ -130,7 +130,8 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 
     candidate_set.push_back(current);
     std::sort(candidate_set.begin(), candidate_set.end()); 
-    if(membership_oracle(candidate_set, ot[current])){
+    if(membership_oracle(candidate_set, tt, ot[current])){
+      //if(membership_oracle(candidate_set)){
       candidates.push_back(current); 
     }
   }

@@ -27,7 +27,8 @@ int membership_oracle(const set_t &set){
   return 0; 
 }
 
-int membership_oracle(const set_t &set, const Transaction &occurences){
+int membership_oracle(const set_t &set, const TransactionTable &tt,
+		      const Transaction &occurences){
   return count_inclusion_2d(tt, occurences, set) >= threshold;
 }
 
