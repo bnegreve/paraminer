@@ -9,7 +9,7 @@
 
 #ifndef   	_CLOGEN_LOCAL_HPP_
 #define   	_CLOGEN_LOCAL_HPP_
-
+#include "database.hpp"
 #include "pattern.hpp"
 #include "element.hpp" 
 
@@ -21,9 +21,10 @@ extern const element_t ELEMENT_RANGE_START;
 extern const element_t ELEMENT_RANGE_END; 
 
 int membership_oracle(const set_t &set); 
+int membership_oracle(const set_t &set, const Transaction &occurences); 
 
 set_t clo(const set_t &set); 
-
+set_t clo(const set_t &set, const Transaction &occurences); 
 int main(int argc, char **argv); 
 
 #endif	    /* _CLOGEN_LOCAL_HPP_ */

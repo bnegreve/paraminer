@@ -40,23 +40,27 @@ TransactionTable ot;
 int threshold; 
 
 /* Return the maximum element e so set \ {e} is in F */
-/* TODO rewrite this extreamly inefficient function a smarter way */
+/* assumes set is ordered */
 element_t get_tail(const set_t &set){
 
   element_t max = element_null; 
   
-  for(int i = 0; i < set.size(); i++){
-    /* Generate a set without element i */
+  set_const_rit it_end = set.rend(); 
+  int i = set.size() - 1; 
+  for(set_const_rit s_it = set.rbegin(); s_it != it_end; ++s_it, i--) {
+    /* Generate a set without element set[i] */
     set_t s; 
     for(int j = 0; j < set.size(); j++){
       if(i != j)
 	s.push_back(set[j]);
     }
-    if(membership_oracle(s)){
-      if(max == element_null || element_compare_ge(set[i], max))
-	max=set[i];
-    }
+    if(membership_oracle(s))
+      return set[i];
+      //      if(max == element_null || element_compare_ge(set[i], max))
+      //	max=set[i];
+    
   }
+
   return max; 
 }
 
@@ -69,6 +73,7 @@ element_t get_tail(const set_t &set){
 
 std::pair<set_t, element_t> get_first_parent(const set_t &set){
   assert(set.size() >= 0);
+  assert(is_sorted(set));
   set_t z(set); 
   while(z.size() != 0){
     element_t e = get_tail(z); 
@@ -125,7 +130,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 
     candidate_set.push_back(current);
     std::sort(candidate_set.begin(), candidate_set.end()); 
-    if(membership_oracle(candidate_set)){
+    if(membership_oracle(candidate_set,ot[current])){
       candidates.push_back(current); 
     }
   }

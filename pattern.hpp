@@ -15,6 +15,6 @@
 
 
 typedef std::vector<element_t> set_t; 
-
-
+typedef set_t::const_iterator set_const_it;
+typedef set_t::const_reverse_iterator set_const_rit;
 #endif	    /* _PATTERN_HPP_ */

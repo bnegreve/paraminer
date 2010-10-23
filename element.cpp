@@ -14,7 +14,6 @@ bool element_equal(const element_t a, const element_t b){
 bool element_compare_ge(const element_t a, const element_t b){
   assert(a < ELEMENT_RANGE_END && a >= ELEMENT_RANGE_START); 
   assert(b < ELEMENT_RANGE_END && b >= ELEMENT_RANGE_START); 
-
   return a>=b;
 }
 

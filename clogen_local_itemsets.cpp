@@ -14,11 +14,11 @@ using std::cerr;
 using std::endl; 
 
 const int ELEMENT_RANGE_START = 0; 
-const int ELEMENT_RANGE_END = 119; 
+const int ELEMENT_RANGE_END = 120; 
 
 extern int threshold; 
 
-
+using namespace std;
 
 int membership_oracle(const set_t &set){
   int freq = count_inclusion_2d(tt, set);
@@ -27,11 +27,16 @@ int membership_oracle(const set_t &set){
   return 0; 
 }
 
+int membership_oracle(const set_t &set, const Transaction &occurences){
+  assert(occurences.size() ==count_inclusion_2d(tt, set));
+  if(occurences.size()>= threshold); 
+}
+
+
 set_t clo(const set_t &s){
   Occurence oc;
   set_t clo; 
-  set_t set(s); 
-  std::sort(set.begin(), set.end()); 
+  set_t set; 
 
   get_occurences_2d(tt, set, &oc); 
 
@@ -45,6 +50,26 @@ set_t clo(const set_t &s){
   }
   return clo; 
 }
+
+set_t clo(const set_t &set, const Transaction &occurences){
+
+  set_t clo; 
+  vector<int> freq; 
+  Transaction::const_iterator t_it_end = occurences.end(); 
+  for(Transaction::const_iterator t_it = occurences.begin(); t_it != t_it_end; ++t_it){
+    if(*t_it >= freq.size())
+      freq.resize(*t_it); 
+    freq[*t_it]++; 
+  }
+  
+  for(int i = 0; i < freq.size(); i++){
+    if(freq[i] == occurences.size()){
+      clo.push_back(i); 
+    }
+  }
+  return clo; 
+}
+
 
 
 void usage(char *bin_name){

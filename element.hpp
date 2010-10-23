@@ -17,7 +17,7 @@ typedef int element_t;
 extern const element_t ELEMENT_RANGE_START; 
 extern const element_t ELEMENT_RANGE_END; 
 
-const element_t element_null = ELEMENT_RANGE_END; //must not be equal to any valid element 
+const element_t element_null = ELEMENT_RANGE_START - 1; //must not be equal to any valid element 
 
 bool element_equal(const element_t a, const element_t b); 
 bool element_compare_ge(const element_t a, const element_t b); 
