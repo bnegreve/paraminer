@@ -43,13 +43,14 @@ void print_transaction(const Transaction &t){
   for(int i = 0; i < t.size(); i++){
     cout<<t[i]<<" "; 
   }
+  cout<<endl;
 }
 
 void print_transaction_table(const TransactionTable &tt){
   for(int i = 0; i < tt.size(); i++){
     cout<<i<<" : "; print_transaction(tt[i]); 
-    cout<<endl; 
   }
+  cout<<endl; 
 }
 
 
@@ -139,6 +140,16 @@ int count_inclusion_2d(const TransactionTable &tt, const set_t &set){
   }
   return count; 
 }
+
+int count_inclusion_2d(const TransactionTable &tt, const Transaction &occs, const set_t &set){
+  int count  = 0; 
+  for(int i = 0; i < occs.size(); i++)
+    if(is_included_1d(tt[occs[i]], set))
+      count++; 
+
+  return count; 
+}
+
 
 void get_occurences_2d(const TransactionTable &tt, const set_t &set, Occurence *oc){
   int i = 0;

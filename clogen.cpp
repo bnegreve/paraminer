@@ -60,7 +60,7 @@ element_t get_tail(const set_t &set){
       //	max=set[i];
     
   }
-
+  assert(false); 
   return max; 
 }
 
@@ -130,7 +130,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 
     candidate_set.push_back(current);
     std::sort(candidate_set.begin(), candidate_set.end()); 
-    if(membership_oracle(candidate_set,ot[current])){
+    if(membership_oracle(candidate_set, ot[current])){
       candidates.push_back(current); 
     }
   }
@@ -222,7 +222,7 @@ int parse_clogen_arguments(int *argc, char **argv){
 }
 
 int clogen(set_t initial_pattern){
-  int num_pattern; 
+  int num_pattern = 0; 
   cerr<<"DATABASE REDUCTION ENABLED"<<endl;
 #ifndef NDEBUG
   cout<<"CLOGEN DEBUG"<<endl;

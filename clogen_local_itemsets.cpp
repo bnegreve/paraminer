@@ -28,16 +28,16 @@ int membership_oracle(const set_t &set){
 }
 
 int membership_oracle(const set_t &set, const Transaction &occurences){
-  assert(occurences.size() ==count_inclusion_2d(tt, set));
-  if(occurences.size()>= threshold); 
+  return count_inclusion_2d(tt, occurences, set) >= threshold;
 }
 
 
 set_t clo(const set_t &s){
+
   Occurence oc;
   set_t clo; 
-  set_t set; 
-
+  set_t set(s); 
+  sort(set.begin(), set.end()); 
   get_occurences_2d(tt, set, &oc); 
 
   set_t dummy_set; 

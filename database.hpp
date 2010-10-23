@@ -45,6 +45,7 @@ void database_occuring_elements(set_t *elements,
 int is_included_1d(const Transaction &t, const set_t &set); 
 
 int count_inclusion_2d(const TransactionTable &tt, const set_t &set); 
+int count_inclusion_2d(const TransactionTable &tt, const Transaction &occs, const set_t &set); 
 
 void get_occurences_2d(const TransactionTable &tt, const set_t &set, Occurence *oc);
 
