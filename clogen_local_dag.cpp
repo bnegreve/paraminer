@@ -14,7 +14,7 @@
 
 using namespace std; 
 const int ELEMENT_RANGE_START = 1; 
-const int ELEMENT_RANGE_END = 8; 
+const int ELEMENT_RANGE_END = 8*9; 
 
 
 
@@ -34,6 +34,7 @@ void dag_to_transaction(Transaction *t, const dag_t &dag){
   for(dag_t::const_iterator it = dag.begin(); it != dag.end(); ++it){
     t->push_back((it->first) * 8 + (it->second)); 
   }
+  sort(t->begin(), t->end()); 
 
 }
 
@@ -171,49 +172,23 @@ int membership_oracle(const set_t &set, const TransactionTable &tt,
   // return count_inclusion_2d(tt, occurences, set) >= threshold;
 }
 
-set_t clo(const set_t &set){
-  /* We keep in the closure, only the part of the extension connected to the base */ 
-  /* See Boley's paper example 8 */ 
+set_t clo(const set_t &s){
 
-  // Occurence oc;
-  // set_t clo(set); 
-  // get_occurences_2d(tt, set, &oc); 
+  Occurence oc;
+  set_t clo; 
+  set_t set(s); 
+  std::sort(set.begin(), set.end()); 
+  get_occurences_2d(tt, set, &oc); 
 
-  // set_t dummy_set; 
-  // for(int i = 0 ; i < oc.size(); i++)
-  //   dummy_set.push_back(oc[i]); 
+  set_t dummy_set; 
+  for(int i = 0 ; i < oc.size(); i++)
+    dummy_set.push_back(oc[i]); 
 
-  // /* Deal with the empty set case */ 
-  // if(set.size() == 0){
-  //   for(int i = 0; i < ot.size(); i++){
-  //     if(get_set_presence_1d((ot)[i], dummy_set) == 1){
-  // 	clo.push_back(i); //
-  //     }
-  //   }
-  //   if(is_connected(clo))
-  //      return clo; 
-  //   return set; 
-  // }  
-
-  // std::vector<bool> visited(ot.size(), false);
-  // for(int i = 0; i < ot.size(); i++){
-  //   if(visited[i])
-  //     continue; 
-  //   if(set_member(clo, i)){
-  //     visited[i] = true; 
-  //     continue; 
-  //   }
-  //   if(edge_is_connected(clo, i)){
-  //     if(get_set_presence_1d((ot)[i], dummy_set) == 1){
-  // 	clo.push_back(i); 
-  // 	std::sort(clo.begin(), clo.end()); 
-  // 	visited = std::vector<bool>(ot.size(), false); 
-  // 	i = 0; 
-  //     }
-  //   }
-  // }
-  // return clo; 
-  return set; 
+  for(int i = 0; i < ot.size(); i++){ 
+    if(get_set_presence_1d((ot)[i], dummy_set) == 1)
+      clo.push_back(i); //
+  }
+  return clo; 
 }
 
 
@@ -242,7 +217,9 @@ int main(int argc, char **argv){
   tt.push_back(t); 
   threshold = std::atoi(argv[optind+2]); 
   transpose(tt, &ot);
-  
+
+  /* TODO do not include in element range elements that don't appear initialy in db */
+  ot.resize(ELEMENT_RANGE_END); 
 
   set_t empty_set; 
   int num_pattern = clogen(empty_set);
