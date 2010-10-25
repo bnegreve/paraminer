@@ -119,6 +119,15 @@ int membership_oracle(const set_t &set){
   return 0; 
 }
 
+
+int membership_oracle(const set_t &set, const TransactionTable &tt,
+		      const Transaction &occurences){
+  if(!is_connected(set))
+    return 0; 
+
+  return count_inclusion_2d(tt, occurences, set) >= threshold;
+}
+
 set_t clo(const set_t &set){
   /* We keep in the closure, only the part of the extension connected to the base */ 
   /* See Boley's paper example 8 */ 
