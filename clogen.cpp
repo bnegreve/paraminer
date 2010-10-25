@@ -41,7 +41,8 @@ int threshold;
 
 /* Return the maximum element e so set \ {e} is in F */
 /* assumes set is ordered */
-element_t get_tail(const set_t &set){
+element_t get_tail(const set_t &set, const TransactionTable &tt,
+		   const Transaction &occurences){
 
   element_t max = element_null; 
   
@@ -54,7 +55,7 @@ element_t get_tail(const set_t &set){
       if(i != j)
 	s.push_back(set[j]);
     }
-    if(membership_oracle(s))
+    if(membership_oracle(s, tt, occurences))
       return set[i];
       //      if(max == element_null || element_compare_ge(set[i], max))
       //	max=set[i];
@@ -71,12 +72,13 @@ element_t get_tail(const set_t &set){
    }
  };
 
-std::pair<set_t, element_t> get_first_parent(const set_t &set){
+std::pair<set_t, element_t> get_first_parent(const set_t &set, const TransactionTable &tt,
+					     const Transaction &occurences){
   assert(set.size() >= 0);
   assert(is_sorted(set));
   set_t z(set); 
   while(z.size() != 0){
-    element_t e = get_tail(z); 
+    element_t e = get_tail(z, tt, occurences); 
     set_t x;
     for(int i = 0 ; i < z.size(); i++)
       if(z[i] != e)
@@ -92,7 +94,7 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set){
     z = x; 
   }
   /* Bottom !*/
-  return make_pair(set_t(0), get_tail(set)); 
+  return make_pair(set_t(0), get_tail(set, tt, occurences)); 
 }
 
 size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth){
@@ -104,7 +106,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   /* occurences of e is occs of s u {e} since tt is restricted to occs(s) */
   Transaction occs = ot[e]; 
 
-  std::pair<set_t, element_t> first_parent = get_first_parent(c);       
+  std::pair<set_t, element_t> first_parent = get_first_parent(c, tt, occs);       
   if(!(first_parent.first == s && first_parent.second == e))
     /* No need to explore this branch it will be explored from another recursive call */
     return 0;
