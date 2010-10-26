@@ -25,7 +25,9 @@ int membership_oracle(const set_t &set, const TransactionTable &tt,
 		      const Transaction &occurences); 
 
 set_t clo(const set_t &set); 
-set_t clo(const set_t &set, const Transaction &occurences); 
+set_t clo(const set_t &set, int set_support, const SupportTable &support); 
+
+
 int main(int argc, char **argv); 
 
 #endif	    /* _CLOGEN_LOCAL_HPP_ */

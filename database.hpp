@@ -16,10 +16,12 @@
 #include "element.hpp"
 
 
+
 typedef std::vector<element_t> Transaction;
 typedef std::vector<Transaction> TransactionTable; 
 typedef std::vector<int> Occurence; 
 typedef std::vector<Occurence> OccurenceTable; 
+typedef std::vector<int> SupportTable; 
 
 void read_transaction_table(TransactionTable *tt, const char *filename); 
 

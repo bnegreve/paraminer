@@ -8,6 +8,7 @@
 #include "pattern.hpp"
 #include "database.hpp"
 #include "clogen.hpp" 
+#include "utils.hpp"
 
 using std::cout; 
 using std::cerr; 
@@ -52,23 +53,14 @@ set_t clo(const set_t &s){
   return clo; 
 }
 
-set_t clo(const set_t &set, const Transaction &occurences){
-
-  set_t clo; 
-  vector<int> freq; 
-  Transaction::const_iterator t_it_end = occurences.end(); 
-  for(Transaction::const_iterator t_it = occurences.begin(); t_it != t_it_end; ++t_it){
-    if(*t_it >= freq.size())
-      freq.resize(*t_it); 
-    freq[*t_it]++; 
+set_t clo(const set_t &set, int set_support, const SupportTable &support){
+  set_t c; 
+  c.reserve(set.size()); 
+  for(int i = 0; i < support.size(); i++){
+    if(support[i] == set_support)
+      c.push_back(i);
   }
-  
-  for(int i = 0; i < freq.size(); i++){
-    if(freq[i] == occurences.size()){
-      clo.push_back(i); 
-    }
-  }
-  return clo; 
+  return c; 
 }
 
 

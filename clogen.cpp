@@ -97,14 +97,30 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
   return make_pair(set_t(0), get_tail(set, tt, occurences)); 
 }
 
+void compute_element_support(std::vector<int> *support, const TransactionTable &tt, const Transaction &occs){
+  Transaction::const_iterator o_it_end = occs.end(); 
+  for(Transaction::const_iterator o_it = occs.begin(); o_it != o_it_end; ++o_it){
+    Transaction::const_iterator t_it_end = tt[*o_it].end(); 
+    for(Transaction::const_iterator t_it = tt[*o_it].begin(); t_it != t_it_end; ++t_it){
+      if(support->size() <= *t_it)
+	support->resize(*t_it+1, 0); 
+      (*support)[*t_it]++; 
+    }
+  }
+}
+
 size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth){
   
   set_t set(s); 
-  set.push_back(e); 
-  set_t c = clo(set); 
-
   /* occurences of e is occs of s u {e} since tt is restricted to occs(s) */
   Transaction occs = ot[e]; 
+
+  
+  SupportTable support; 
+  compute_element_support(&support, tt, ot[e]); 
+  set.push_back(e); 
+  set_t c = clo(set, support[e], support); 
+
 
   std::pair<set_t, element_t> first_parent = get_first_parent(c, tt, occs);       
   if(!(first_parent.first == s && first_parent.second == e))
