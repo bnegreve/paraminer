@@ -30,9 +30,8 @@ int membership_oracle(const set_t &set){
 
 int membership_oracle(const set_t &set, const TransactionTable &tt,
 		      const Transaction &occurences){
-  return count_inclusion_2d(tt, occurences, set) >= threshold;
+  return set_is_frequent_in_occurences(set, tt, occurences, threshold); 
 }
-
 
 set_t clo(const set_t &s){
 
@@ -54,13 +53,7 @@ set_t clo(const set_t &s){
 }
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support){
-  set_t c; 
-  c.reserve(set.size()); 
-  for(int i = 0; i < support.size(); i++){
-    if(support[i] == set_support)
-      c.push_back(i);
-  }
-  return c; 
+  return support_based_closure(set, set_support, support); 
 }
 
 

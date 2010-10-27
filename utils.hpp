@@ -10,7 +10,9 @@
 #ifndef   	_UTILS_H_
 #define   	_UTILS_H_
 
+#include "database.hpp" 
 #include "pattern.hpp"
+
 
 void set_print(const set_t &set);
 
@@ -29,5 +31,33 @@ bool is_sorted(const std::vector<T> &v){
   }
   return true; 
 }
+
+
+/** 
+ * \brief Returns 1 if occures \min_sup times or more in \tt, 0 otherwise. 
+ */
+int set_is_frequent(const set_t &set, const TransactionTable &tt, int min_sup); 
+
+/** 
+ * \brief Returns 1 if occures \min_sup times or more in \tt
+ * restricted to transactions refered in \occurences, 0 otherwise.
+ */
+int set_is_frequent_in_occurences(const set_t &set, const TransactionTable &tt,
+				  const Transaction &occurences, int min_sup); 
+
+
+/** 
+ * \brief Compute the support_based closure of set \s 
+ */
+set_t support_based_closure(const set_t &s); 
+
+/** 
+ * \brief Compute the support_based closure of set \s given the
+ * support of each item in the occurences of set.
+ * \warning support must be the exact support of each item in the occurences of set.
+ * 
+ */
+set_t support_based_closure(const set_t &set, int set_support, const SupportTable &support); 
+
 
 #endif 	    /* !_UTILS_H_ */

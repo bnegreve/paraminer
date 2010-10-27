@@ -172,3 +172,22 @@ set_t canonical_form(set_t set, element_t *element){
   return set; 
 }
 
+
+void compute_element_support(SupportTable *support, const TransactionTable &tt, const Transaction &occs){
+  Transaction::const_iterator o_it_end = occs.end(); 
+  for(Transaction::const_iterator o_it = occs.begin(); o_it != o_it_end; ++o_it){
+    Transaction::const_iterator t_it_end = tt[*o_it].end(); 
+    for(Transaction::const_iterator t_it = tt[*o_it].begin(); t_it != t_it_end; ++t_it){
+      if(support->size() <= *t_it)
+	support->resize(*t_it+1, 0); 
+      (*support)[*t_it]++; 
+    }
+  }
+}
+
+void all_occurences(Transaction *occs, const TransactionTable &tt){
+  occs->resize(tt.size()); 
+  for(int i = 0; i < tt.size(); i++){
+    (*occs)[i] = i; 
+  }
+}

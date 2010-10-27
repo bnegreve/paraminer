@@ -110,8 +110,10 @@ bool edge_is_connected(const set_t &set, element_t e){
 }
 
 int membership_oracle(const set_t &set){
+  assert(false); 
   if(!is_connected(set))
     return 0; 
+
   int freq = count_inclusion_2d(tt, set);
   
   if(freq >= threshold)
@@ -124,8 +126,7 @@ int membership_oracle(const set_t &set, const TransactionTable &tt,
 		      const Transaction &occurences){
   if(!is_connected(set))
     return 0; 
-
-  return count_inclusion_2d(tt, occurences, set) >= threshold;
+  return set_is_frequent_in_occurences(set, tt, occurences, threshold); 
 }
 
 set_t clo(const set_t &set){
@@ -170,6 +171,10 @@ set_t clo(const set_t &set){
     }
   }
   return clo; 
+}
+
+set_t clo(const set_t &set, int set_support, const SupportTable &support){
+  return clo(set); 
 }
 
 

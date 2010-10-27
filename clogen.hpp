@@ -10,6 +10,7 @@
 #ifndef   	_CLOGEN_HPP_
 #define   	_CLOGEN_HPP_
 
+#include "database.hpp"
 #include "pattern.hpp"
 
 extern TransactionTable tt; 

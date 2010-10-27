@@ -191,6 +191,10 @@ set_t clo(const set_t &s){
   return clo; 
 }
 
+set_t clo(const set_t &set, int set_support, const SupportTable &support){
+  return clo(set); 
+}
+
 
 void usage(char *bin_name){
   cout<<bin_name<<" graphdescription dataset minsup [-t numthreads=1] [-c tuplecutoff=2]"<<endl;
