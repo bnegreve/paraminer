@@ -255,7 +255,7 @@ int clogen(set_t initial_pattern){
   for(element_t  current = element_first(); 
       current != element_null; current = element_next(current)){  
     set_t s(1, current); 
-    if(membership_oracle(s)){
+    if(membership_oracle(s, tt, ot[current])){
       	tuple_t tuple;
 	tuple.tt = &tt; 
 	tuple.ot = &ot; 
