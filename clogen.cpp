@@ -113,6 +113,10 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
     support[set[i]] = 0; 
   }
   set_t c = clo(set, set_support, support); 
+  //TODO ugly .. nevermind
+  for(int i = 0; i < c.size(); i++){
+    support[c[i]] = 0; 
+  }
   std::sort(c.begin(), c.end()); 
 
   std::pair<set_t, element_t> first_parent = get_first_parent(c, tt, occs);       
@@ -125,7 +129,8 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
  
    set_t cooccuring_elements; 
   for(int i = 0; i < support.size(); i++){
-    cooccuring_elements.push_back(i); 
+    if(support[i] != 0)
+      cooccuring_elements.push_back(i); 
   }
   //  database_occuring_elements(&cooccuring_elements, tt, occs);  
 
@@ -136,10 +141,6 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   for(set_t::const_iterator it_co = cooccuring_elements.begin(); it_co != it_co_end; ++it_co){
     element_t current = *it_co; 
 
-
-    //TODO REMOVE when set \notin new_tt
-    if(set_member(c, current))
-      continue; 
     set_t candidate_set(c); 
 
     candidate_set.push_back(current);
