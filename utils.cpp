@@ -74,8 +74,7 @@ int set_is_frequent_in_occurences(const set_t &set, const TransactionTable &tt,
 // }
 
 set_t support_based_closure(const set_t &set, int set_support, const SupportTable &support){
-  set_t c; 
-  c.reserve(set.size()); 
+  set_t c(set); 
   for(int i = 0; i < support.size(); i++){
     if(support[i] == set_support)
       c.push_back(i);

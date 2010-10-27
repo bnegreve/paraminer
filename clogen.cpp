@@ -100,15 +100,20 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
 size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth){
   
   set_t set(s); 
+
   /* occurences of e is occs of s u {e} since tt is restricted to occs(s) */
   Transaction occs = ot[e]; 
-
+  
   
   SupportTable support; 
   compute_element_support(&support, tt, ot[e]); 
   set.push_back(e); 
-  set_t c = clo(set, support[e], support); 
-
+  int set_support=support[e];
+  for(int i = 0; i < set.size(); i++){
+    support[set[i]] = 0; 
+  }
+  set_t c = clo(set, set_support, support); 
+  std::sort(c.begin(), c.end()); 
 
   std::pair<set_t, element_t> first_parent = get_first_parent(c, tt, occs);       
   if(!(first_parent.first == s && first_parent.second == e))
@@ -118,8 +123,11 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   set_print(c); 
   size_t num_pattern = 1; 
  
-  set_t cooccuring_elements; 
-  database_occuring_elements(&cooccuring_elements, tt, occs);  
+   set_t cooccuring_elements; 
+  for(int i = 0; i < support.size(); i++){
+    cooccuring_elements.push_back(i); 
+  }
+  //  database_occuring_elements(&cooccuring_elements, tt, occs);  
 
   int nb_candidates = 0; 
   set_t candidates; 
