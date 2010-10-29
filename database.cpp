@@ -66,9 +66,38 @@ void transpose(const TransactionTable &tt, TransactionTable *ot){
 }
 
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
+			    const Transaction &occurence, const SupportTable &support){
+  //TODO remove pattenr from db
+  new_tt->reserve(occurence.size()); 
+  new_tt->push_back(Transaction()); 
+  Transaction *current_trans = &new_tt->back(); 
+  for(Transaction::const_iterator occ_it = occurence.begin(); 
+      occ_it != occurence.end(); ++occ_it){
+    Transaction::const_iterator trans_it_end = tt[*occ_it].end(); 
+    for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
+	trans_it != trans_it_end; ++trans_it){
+      if(support[*trans_it] > 0){
+	current_trans->push_back(*trans_it);
+      }
+    }
+    if(current_trans->size() > 0){
+      new_tt->push_back(Transaction()); 
+      current_trans = &new_tt->back(); 
+    }
+  }
+
+  if(current_trans->size() == 0){
+    new_tt->resize(new_tt->size()-1);
+  }
+}
+
+
+void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence){
   //TODO remove pattenr from db
   new_tt->reserve(occurence.size()); 
+  new_tt->push_back(Transaction()); 
+  Transaction *current_trans = &new_tt->back(); 
   for(Transaction::const_iterator occ_it = occurence.begin(); 
       occ_it != occurence.end(); ++occ_it){
     new_tt->push_back(tt[*occ_it]);
@@ -93,14 +122,6 @@ void database_occuring_elements(set_t *elements,
     elements->push_back(*set_it);
   }
 }
-
-#if 0 
-int main(int argc, char **argv){
-  TransactionTable tt; 
-  read_transaction_table(&tt, "test.dat"); 
-  print_transaction_table(tt); 
-}
-#endif 
 
 int get_set_presence_1d(const Transaction &t, const set_t &set){
   return is_included_1d(t, set); 
@@ -183,7 +204,9 @@ void compute_element_support(SupportTable *support, const TransactionTable &tt, 
       (*support)[*t_it]++; 
     }
   }
-}
+} 
+
+
 
 void all_occurences(Transaction *occs, const TransactionTable &tt){
   occs->resize(tt.size()); 

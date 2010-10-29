@@ -110,7 +110,6 @@ bool edge_is_connected(const set_t &set, element_t e){
 }
 
 int membership_oracle(const set_t &set){
-  assert(false); 
   if(!is_connected(set))
     return 0; 
 

@@ -55,7 +55,7 @@ element_t get_tail(const set_t &set, const TransactionTable &tt,
       if(i != j)
 	s.push_back(set[j]);
     }
-    if(membership_oracle(s, tt, occurences))
+    if(membership_oracle(s))
       return set[i];
       //      if(max == element_null || element_compare_ge(set[i], max))
       //	max=set[i];

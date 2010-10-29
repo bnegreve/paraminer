@@ -34,11 +34,18 @@ void transpose(const TransactionTable &tt, TransactionTable *ot);
 
 /** 
  * \brief Build a new database from a subset of the database \tt
- * 
+ * Includes in the new table the occurences whose tids are in \occurences
+ * Removes the elements that have in null support in \support
+ */
+void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
+			    const Transaction &occurence, const SupportTable &support); 
+
+/** 
+ * \brief Build a new database from a subset of the database \tt
+ * Includes in the new table the occurences whose tids are in \occurences
  */
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence); 
-
 
 void database_occuring_elements(set_t *elements, 
 				const TransactionTable &tt, const Transaction &occurences);
