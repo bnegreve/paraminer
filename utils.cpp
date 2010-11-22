@@ -36,10 +36,22 @@ bool set_member(const set_t &set, const element_t &e){
 int set_member_index(const set_t &set, const element_t &e){
   int i = 0; 
   for(set_t::const_iterator it = set.begin(); it  != set.end(); ++it,++i){
-    if(element_equal(*it, e))
+    //    if(element_equal(*it, e))
+    if(*it == e)
       return i; 
   }
   return -1; 
+}
+
+bool set_member_sorted(const set_t &sorted_set, const element_t &e){
+  assert(false); /* NOT IMPLEMENTED */
+  assert(is_sorted(sorted_set)); 
+  for(set_t::const_iterator it = sorted_set.begin(); it  != sorted_set.end(); ++it){
+    //if(element_equal(*it, e))
+    if(*it == e)
+      return true; 
+  }
+  return false; 
 }
 
 int set_is_frequent(const set_t &set, const TransactionTable &tt, int min_sup){

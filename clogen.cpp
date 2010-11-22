@@ -119,11 +119,25 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   }
   std::sort(c.begin(), c.end()); 
 
+  /* First parent test */ 
+  /* We check here if the closed set \c has set \s as first parent. If
+     not the call terminates because this same closed set will be
+     generated from another branch */
+
+  /* There are various way to to this, depending of the set system
+     properties */
+  //#define GET_FIRST_PARENT
+#ifdef GET_FIRST_PARENT
   std::pair<set_t, element_t> first_parent = get_first_parent(c, tt, occs);       
   if(!(first_parent.first == s && first_parent.second == e))
     /* No need to explore this branch it will be explored from another recursive call */
     return 0;
-  
+#else
+  for(int i = 0; i < c.size(); i++){
+    if(set_member(*exclusion_list, c[i]))
+      return 0;
+  }
+#endif
   set_print(c); 
   size_t num_pattern = 1; 
  
@@ -260,6 +274,7 @@ int clogen(set_t initial_pattern){
 
 
   set_t empty_set;
+  set_t exclusion_list; 
   for(element_t  current = element_first(); 
       current != element_null; current = element_next(current)){  
     set_t s(1, current); 
@@ -270,8 +285,9 @@ int clogen(set_t initial_pattern){
 	tuple.s = new set_t(empty_set); 
 	tuple.e = current;
 	tuple.depth = 0;
-	tuple.exclusion_list = new set_t; 
+	tuple.exclusion_list = new set_t(exclusion_list); 
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
+	exclusion_list.push_back(current);
 	}
     }
   
@@ -309,3 +325,22 @@ int clogen(set_t initial_pattern){
 
 
 #endif //TEST
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

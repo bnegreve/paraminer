@@ -19,6 +19,8 @@ extern const element_t ELEMENT_RANGE_END;
 
 const element_t element_null = ELEMENT_RANGE_START - 1; //must not be equal to any valid element 
 
+/** 
+ * Deprecated, elements are assumed to be equals iff they have the same representation in memory */
 bool element_equal(const element_t a, const element_t b); 
 bool element_compare_ge(const element_t a, const element_t b); 
 

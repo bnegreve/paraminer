@@ -16,7 +16,13 @@
 
 void set_print(const set_t &set);
 
+/** \brief check if \e occures in \set 
+ */
 bool set_member(const set_t &set, const element_t &e); 
+
+/** \brief check if \e occures in \sorted_set assuming sorted_set is sorted. 
+ */
+bool set_member_sorted(const set_t &sorted_set, const element_t &e); 
 
 int set_member_index(const set_t &set, const element_t &e); 
 
