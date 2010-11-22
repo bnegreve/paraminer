@@ -97,7 +97,7 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
   return make_pair(set_t(0), get_tail(set, tt, occurences)); 
 }
 
-size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth){
+size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list){
   
   set_t set(s); 
 
@@ -157,11 +157,11 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); 
 
-    set_t::const_iterator c_it_end = candidates.end(); 
-    for(set_t::const_iterator c_it = candidates.begin(); c_it != c_it_end; ++c_it){     
-#ifdef PARALLEL_PROCESS
 
-	if(depth < depth_tuple_cutoff){
+    if(depth < depth_tuple_cutoff){
+      set_t::const_iterator c_it_end = candidates.end(); 
+      for(set_t::const_iterator c_it = candidates.begin(); c_it != c_it_end; ++c_it){     
+
 	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
 	//	set_print(c); 
 	tuple_t tuple;
@@ -170,17 +170,19 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 	tuple.s = new set_t(c); 
 	tuple.e = *c_it; 
 	tuple.depth = depth+1; 
+	tuple.exclusion_list = new set_t(*exclusion_list); 
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
-	}
-	else{
-	  num_pattern += expand(*new_tt, *new_ot, c, *c_it, depth+1);
-	}
-#else
-	expand(*new_tt, *new_ot, c, *c_it, depth+1); 
-	delete new_tt; 
-	delete new_ot; 
-#endif //PARALLEL_PROCESS	
       }
+    }
+    else{
+      set_t new_exclusion_list(*exclusion_list); 
+      set_t::const_iterator c_it_end = candidates.end(); 
+      for(set_t::const_iterator c_it = candidates.begin(); c_it != c_it_end; ++c_it){     
+	num_pattern += expand(*new_tt, *new_ot, c, *c_it, depth+1, &new_exclusion_list);
+      }
+      delete new_tt;
+      delete new_ot; 
+    }
   }
   return num_pattern; 
 }
@@ -201,7 +203,7 @@ void *process_tuple(void *){
     //    set_print(*(set_t*)tuple); 
     //    size_t x = expand(*tuple.set, tuple.depth); 
     //    cout<<"tuple made "<< x <<"tuples"<<endl;
-    num_patterns += expand(*tuple.tt, *tuple.ot, *tuple.s, tuple.e, tuple.depth);
+    num_patterns += expand(*tuple.tt, *tuple.ot, *tuple.s, tuple.e, tuple.depth, tuple.exclusion_list);
     //    num_patterns += x; 
     delete tuple.s; 
   }
@@ -262,6 +264,7 @@ int clogen(set_t initial_pattern){
 	tuple.s = new set_t(empty_set); 
 	tuple.e = current;
 	tuple.depth = 0;
+	tuple.exclusion_list = new set_t; 
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
 	}
     }

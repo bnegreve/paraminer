@@ -22,7 +22,7 @@ typedef struct{
   set_t *s; 
   element_t e; 
   int depth; 
-  
+  set_t *exclusion_list;   
 }tuple_t; 
 
 int m_distribute(opaque_tuple_t *tuple){
