@@ -23,7 +23,7 @@ typedef std::vector<int> Occurence;
 typedef std::vector<Occurence> OccurenceTable; 
 typedef std::vector<int> SupportTable; 
 
-void read_transaction_table(TransactionTable *tt, const char *filename); 
+element_t read_transaction_table(TransactionTable *tt, const char *filename); 
 
 void print_transaction(const Transaction &t); 
 

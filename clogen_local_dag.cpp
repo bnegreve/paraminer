@@ -13,8 +13,8 @@
 #include "clogen.hpp" 
 
 using namespace std; 
-const int ELEMENT_RANGE_START = 1; 
-const int ELEMENT_RANGE_END = 8*9; 
+ int ELEMENT_RANGE_START = 1; 
+ int ELEMENT_RANGE_END = 8*9; 
 
 
 

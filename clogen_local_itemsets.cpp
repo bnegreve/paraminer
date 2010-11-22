@@ -16,8 +16,8 @@ using std::cerr;
 using std::endl; 
 using namespace std; 
 
-const int ELEMENT_RANGE_START = 0; 
-const int ELEMENT_RANGE_END = 120; 
+int ELEMENT_RANGE_START = 0; 
+int ELEMENT_RANGE_END; 
 
 extern int threshold; 
 
@@ -89,8 +89,9 @@ int main(int argc, char **argv){
   if(argc-idx != 2){
     usage(argv[0]); 
   }
-
-  read_transaction_table(&tt, argv[idx]); 
+  
+  element_t max = read_transaction_table(&tt, argv[idx]);
+  ELEMENT_RANGE_END = max+1; 
   transpose(tt, &ot);
   threshold = std::atoi(argv[idx+1]); 
 

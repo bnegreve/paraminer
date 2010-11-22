@@ -16,8 +16,8 @@ using std::cout;
 using std::cerr; 
 using std::endl; 
 
-const int ELEMENT_RANGE_START = 1; 
-const int ELEMENT_RANGE_END = 5; 
+ int ELEMENT_RANGE_START = 1; 
+ int ELEMENT_RANGE_END = 5; 
 
 std::multimap<int, int > graph; 
 

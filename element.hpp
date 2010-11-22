@@ -14,8 +14,8 @@
 #include <cassert>
 
 typedef int element_t; 
-extern const element_t ELEMENT_RANGE_START; 
-extern const element_t ELEMENT_RANGE_END; 
+extern element_t ELEMENT_RANGE_START;
+extern element_t ELEMENT_RANGE_END; 
 
 const element_t element_null = ELEMENT_RANGE_START - 1; //must not be equal to any valid element 
 

@@ -117,7 +117,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   for(int i = 0; i < c.size(); i++){
     support[c[i]] = 0; 
   }
-  std::sort(c.begin(), c.end()); 
+  //  std::sort(c.begin(), c.end()); //optional ?
 
   /* First parent test */ 
   /* We check here if the closed set \c has set \s as first parent. If
@@ -192,10 +192,11 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
       }
     }
     else{
-      set_t new_exclusion_list(*exclusion_list);
+
       
       set_t::const_iterator c_it_end = extensions.end(); 
       for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
+	set_t new_exclusion_list(*exclusion_list);
 	num_pattern += expand(*new_tt, *new_ot, c, *c_it, depth+1, &new_exclusion_list);
 	/* insert the current extension into the exclusion list for the next calls.*/
 	exclusion_list->push_back(*c_it); 

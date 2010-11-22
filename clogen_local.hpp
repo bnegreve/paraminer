@@ -17,8 +17,8 @@
 
 
 /* must be defined in clogen_local_*.cpp*/
-extern const element_t ELEMENT_RANGE_START; 
-extern const element_t ELEMENT_RANGE_END; 
+extern element_t ELEMENT_RANGE_START; 
+extern element_t ELEMENT_RANGE_END; 
 
 int membership_oracle(const set_t &set); 
 int membership_oracle(const set_t &set, const TransactionTable &tt, 

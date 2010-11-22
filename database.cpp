@@ -10,8 +10,8 @@
 
 using namespace std; 
 
-void read_transaction_table(TransactionTable *tt, const char *filename){
-
+element_t read_transaction_table(TransactionTable *tt, const char *filename){
+  element_t max_element = 0; 
   ifstream ifs (filename , ifstream::in);
   int nb_items = 0; 
   int nb_trans = 0; 
@@ -25,7 +25,8 @@ void read_transaction_table(TransactionTable *tt, const char *filename){
     ss<<line; 
     ss>>item;
     while(ss.good()){
-      t.push_back(item); 
+      t.push_back(item);
+      if(item > max_element) max_element=item; 
       ++nb_items; 
       ss>>item;
     }
@@ -37,6 +38,8 @@ void read_transaction_table(TransactionTable *tt, const char *filename){
 
   cout<<"Data loaded, "<<nb_items<<" items within "<<nb_trans<<" transactions."<<endl;
   ifs.close();
+
+  return max_element; 
 }
 
 void print_transaction(const Transaction &t){
