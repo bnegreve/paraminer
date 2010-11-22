@@ -127,7 +127,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   set_print(c); 
   size_t num_pattern = 1; 
  
-   set_t cooccuring_elements; 
+  set_t cooccuring_elements; 
   for(int i = 0; i < support.size(); i++){
     if(support[i] != 0)
       cooccuring_elements.push_back(i); 
@@ -135,7 +135,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   //  database_occuring_elements(&cooccuring_elements, tt, occs);  
 
   int nb_candidates = 0; 
-  set_t candidates; 
+  set_t extensions; 
 
   set_t::const_iterator it_co_end = cooccuring_elements.end(); 
   for(set_t::const_iterator it_co = cooccuring_elements.begin(); it_co != it_co_end; ++it_co){
@@ -147,20 +147,20 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
     std::sort(candidate_set.begin(), candidate_set.end()); 
     if(membership_oracle(candidate_set, tt, ot[current])){
       //if(membership_oracle(candidate_set)){
-      candidates.push_back(current); 
+      extensions.push_back(current);      
     }
   }
-
-  if(candidates.size() > 0){
+  
+  if(extensions.size() > 0){
     TransactionTable *new_tt = new TransactionTable;  // TODO free this memory !     
     database_build_reduced(new_tt, tt, occs); //TODO occurences c, pas de s !
     TransactionTable *new_ot = new TransactionTable; 
-    transpose(*new_tt, new_ot); 
+    transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
 
 
     if(depth < depth_tuple_cutoff){
-      set_t::const_iterator c_it_end = candidates.end(); 
-      for(set_t::const_iterator c_it = candidates.begin(); c_it != c_it_end; ++c_it){     
+      set_t::const_iterator c_it_end = extensions.end(); 
+      for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
 
 	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
 	//	set_print(c); 
@@ -172,16 +172,22 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 	tuple.depth = depth+1; 
 	tuple.exclusion_list = new set_t(*exclusion_list); 
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
+
+	/* insert the current extension into the exclusion list for the next calls.*/
+	exclusion_list->push_back(*c_it); 
       }
     }
     else{
-      set_t new_exclusion_list(*exclusion_list); 
-      set_t::const_iterator c_it_end = candidates.end(); 
-      for(set_t::const_iterator c_it = candidates.begin(); c_it != c_it_end; ++c_it){     
+      set_t new_exclusion_list(*exclusion_list);
+      
+      set_t::const_iterator c_it_end = extensions.end(); 
+      for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
 	num_pattern += expand(*new_tt, *new_ot, c, *c_it, depth+1, &new_exclusion_list);
+	/* insert the current extension into the exclusion list for the next calls.*/
+	exclusion_list->push_back(*c_it); 
       }
       delete new_tt;
-      delete new_ot; 
+      delete new_ot;
     }
   }
   return num_pattern; 
