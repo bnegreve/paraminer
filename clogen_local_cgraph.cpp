@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include <dirent.h>
 #include "clogen_local.hpp"
 #include "utils.hpp"
 #include "pattern.hpp"
@@ -16,8 +17,8 @@ using std::cout;
 using std::cerr; 
 using std::endl; 
 
- int ELEMENT_RANGE_START = 1; 
- int ELEMENT_RANGE_END = 5; 
+ int ELEMENT_RANGE_START = 0; 
+ int ELEMENT_RANGE_END ; 
 
 typedef std::multimap<int, int > graph_t; 
 std::vector<graph_t> all_graphs;
@@ -46,7 +47,6 @@ void graph_to_transaction(Transaction *t, const graph_t &graph){
     edge_node_t::iterator ent = edge_node.find(*it); 
     if(ent != edge_node.end()){
       node_id = ent->second;
-      cout<<it->first<<" "<<it->second<<" Already in the list"<<endl;
     }
     else{
       node_id = node_edge.size(); 
@@ -260,7 +260,8 @@ set_t clo(const set_t &set){
     }
   }
   return clo;
-  #endif
+#endif //ATTENTION VIRER LE RETURN EN DESSOUS
+  return set; 
 }
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support){
@@ -282,29 +283,47 @@ int main(int argc, char **argv){
     exit(EXIT_FAILURE); 
   }
 
-  all_graphs.resize(1); 
-  read_input_graph(&all_graphs[0], argv[idx]);
-
-  graph_print(all_graphs[0]); 
-
-  Transaction t; 
-  graph_to_transaction(&t, all_graphs[0]); 
-  tt.push_back(t);
-  print_transaction_table(tt);
-
-  for(int i = 0; i < tt[0].size(); i++){
-    cout<<"( "<<node_edge[i].first<<", "<<node_edge[i].second<<" )"<<endl;
+  DIR *dir; 
+  if(! (dir = opendir(argv[idx]))){
+    perror(""); 
   }
-  // threshold = std::atoi(argv[optind+2]); 
-  // transpose(tt, &ot);
 
+  struct dirent *dirent; 
+  while((dirent = readdir(dir))){
+    if(dirent->d_name[0] != '.'){
+      char buf[128];
+      snprintf(buf, 128, "%s/%s", argv[idx], dirent->d_name);
+      all_graphs.resize(all_graphs.size()+1); 
+      read_input_graph(&all_graphs[all_graphs.size()-1], buf);
+
+      Transaction t; 
+      graph_to_transaction(&t, all_graphs[0]); 
+      tt.push_back(t);
+    }
+  }
+
+  ELEMENT_RANGE_END = node_edge.size();
+  
+  //  graph_print(all_graphs[0]); 
+
+
+  //  print_transaction_table(tt);
+
+  // for(int i = 0; i < tt[0].size(); i++){
+  //   cout<<"( "<<node_edge[i].first<<", "<<node_edge[i].second<<" )"<<endl;
+  // }
+
+  threshold = std::atoi(argv[optind+2]); 
+  transpose(tt, &ot);
+
+  cout<<"ELEMENT_RANGE_END"<<ELEMENT_RANGE_END<<endl;
   // read_transaction_table(&tt, argv[idx+1]); 
   // threshold = std::atoi(argv[optind+2]); 
   // transpose(tt, &ot);
   
-
-  // set_t empty_set; 
-  // int num_pattern = clogen(empty_set);
-  // cout<<num_pattern<<" patterns mined"<<endl;
+  
+  set_t empty_set; 
+  int num_pattern = clogen(empty_set);
+   cout<<num_pattern<<" patterns mined"<<endl;
 
 }
