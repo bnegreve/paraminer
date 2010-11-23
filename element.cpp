@@ -40,7 +40,7 @@ element_t element_next(const  element_t current){
     return element_null; 
 }
 
+// void element_print(const element_t element){
+//   cout<<element; 
+// }
 
-void element_print(const element_t element){
-  cout<<element; 
-}

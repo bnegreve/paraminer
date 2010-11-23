@@ -30,8 +30,13 @@ node_edge_t node_edge;
 
 int last_edge_id = 0;
 
-extern int threshold; 
-int g; 
+extern int threshold;
+int edge_threshold; 
+
+
+void element_print(const element_t element){
+  cout<<"( "<<node_edge[element].first<<", "<<node_edge[element].second<<" )";
+}
 
 void graph_print(const graph_t &graph)  {
   for(graph_t::const_iterator it = graph.begin(); it != graph.end(); ++it){
@@ -66,17 +71,19 @@ void read_input_graph(graph_t *graph, const std::string &graph_filename){
   //ifs<<std::skipws;   
   ifs.ignore(256, '\n'); 
   while(ifs.good()){
-    double edge_threshold; 
+    double this_edge_threshold; 
     std::pair<int, int> edge;
-    ifs>>edge.first>>edge.second>>edge_threshold; 
+    ifs>>edge.first>>edge.second>>this_edge_threshold; 
     if(ifs.good()){
-      
-      if(edge.first > edge.second){
-	int tmp = edge.first; 
-	edge.first = edge.second; 
-	edge.second = tmp; 
+      if( this_edge_threshold >= edge_threshold){
+	if(edge.first > edge.second){
+	  int tmp = edge.first; 
+	  edge.first = edge.second; 
+	  edge.second = tmp; 
+	}
+	graph->insert(edge);	
+	nb_edges++;
       }
-      graph->insert(edge);
       // std::map<int, bool>::iterator p_it;
       
       // if( possible_root.find(edge.first) == possible_root.end()){
@@ -89,7 +96,7 @@ void read_input_graph(graph_t *graph, const std::string &graph_filename){
       // }else{
       // 	p_it->second = false; 
       // }
-      nb_edges++;
+
 
     }
   }
@@ -194,6 +201,7 @@ bool edge_is_connected(const set_t &set, const graph_t &graph, element_t e){
 }
 
 int membership_oracle(const set_t &set){
+  assert(false); 
 #if 0
   if(!is_connected(set))
     return 0; 
@@ -209,12 +217,10 @@ int membership_oracle(const set_t &set){
 
 int membership_oracle(const set_t &set, const TransactionTable &tt,
 		      const Transaction &occurences){
-  return 1; 
-#if 0
-  if(!is_connected(set, all_graphs[))
-    return 0; 
+  //  if(!is_connected(set, all_graphs[))
+     //    return 0; 
   return set_is_frequent_in_occurences(set, tt, occurences, threshold); 
-#endif
+
 }
 
 set_t clo(const set_t &set){
@@ -282,6 +288,8 @@ int main(int argc, char **argv){
     usage(argv[0]); 
     exit(EXIT_FAILURE); 
   }
+  threshold = std::atoi(argv[idx+1]);
+  edge_threshold = std::atoi(argv[idx+2]); 
 
   DIR *dir; 
   if(! (dir = opendir(argv[idx]))){
@@ -294,10 +302,10 @@ int main(int argc, char **argv){
       char buf[128];
       snprintf(buf, 128, "%s/%s", argv[idx], dirent->d_name);
       all_graphs.resize(all_graphs.size()+1); 
-      read_input_graph(&all_graphs[all_graphs.size()-1], buf);
+      read_input_graph(&all_graphs.back(), buf);
 
       Transaction t; 
-      graph_to_transaction(&t, all_graphs[0]); 
+      graph_to_transaction(&t, all_graphs.back()); 
       tt.push_back(t);
     }
   }
@@ -313,14 +321,12 @@ int main(int argc, char **argv){
   //   cout<<"( "<<node_edge[i].first<<", "<<node_edge[i].second<<" )"<<endl;
   // }
 
-  threshold = std::atoi(argv[optind+2]); 
   transpose(tt, &ot);
 
   cout<<"ELEMENT_RANGE_END"<<ELEMENT_RANGE_END<<endl;
   // read_transaction_table(&tt, argv[idx+1]); 
   // threshold = std::atoi(argv[optind+2]); 
   // transpose(tt, &ot);
-  
   
   set_t empty_set; 
   int num_pattern = clogen(empty_set);

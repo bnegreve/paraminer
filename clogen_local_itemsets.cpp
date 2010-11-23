@@ -23,6 +23,10 @@ extern int threshold;
 
 using namespace std;
 
+void element_print(const element_t element){
+  cout<<element; 
+}
+
 int membership_oracle(const set_t &set){
   int freq = count_inclusion_2d(tt, set);
   if(freq >= threshold)

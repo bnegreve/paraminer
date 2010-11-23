@@ -247,6 +247,7 @@ int parse_clogen_arguments(int *argc, char **argv){
 	  break ;
 	case 't':
 	  num_threads = atoi(optarg);
+	  *optarg = '\0'; 
 	  break; 
 	default:
 	  
