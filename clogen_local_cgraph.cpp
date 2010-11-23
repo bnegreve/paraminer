@@ -19,11 +19,94 @@ using std::endl;
  int ELEMENT_RANGE_START = 1; 
  int ELEMENT_RANGE_END = 5; 
 
-std::multimap<int, int > graph; 
+typedef std::multimap<int, int > graph_t; 
+std::vector<graph_t> all_graphs;
+
+typedef std::map<std::pair<int, int>, int> edge_node_t; 
+edge_node_t  edge_node;
+typedef std::vector<std::pair<int, int> > node_edge_t; 
+node_edge_t node_edge;
+
+int last_edge_id = 0;
 
 extern int threshold; 
+int g; 
+
+void graph_print(const graph_t &graph)  {
+  for(graph_t::const_iterator it = graph.begin(); it != graph.end(); ++it){
+    cout<<"( "<<it->first<<", "<<it->second<<" )"<<endl;
+  }
+}
+
+
+
+void graph_to_transaction(Transaction *t, const graph_t &graph){
+  for(graph_t::const_iterator it = graph.begin(); it != graph.end(); ++it){
+    int node_id; 
+    edge_node_t::iterator ent = edge_node.find(*it); 
+    if(ent != edge_node.end()){
+      node_id = ent->second;
+      cout<<it->first<<" "<<it->second<<" Already in the list"<<endl;
+    }
+    else{
+      node_id = node_edge.size(); 
+      edge_node.insert(ent, make_pair(*it, node_id));
+      node_edge.push_back(*it); 
+    }
+    t->push_back(node_id); 
+  }
+  sort(t->begin(), t->end()); 
+}
+
+void read_input_graph(graph_t *graph, const std::string &graph_filename){
+  //  std::map<int, bool> possible_root; 
+
+  std::ifstream ifs (graph_filename.c_str(), std::ifstream::in);
+  int nb_edges=0; 
+  //ifs<<std::skipws;   
+  ifs.ignore(256, '\n'); 
+  while(ifs.good()){
+    double edge_threshold; 
+    std::pair<int, int> edge;
+    ifs>>edge.first>>edge.second>>edge_threshold; 
+    if(ifs.good()){
+      
+      if(edge.first > edge.second){
+	int tmp = edge.first; 
+	edge.first = edge.second; 
+	edge.second = tmp; 
+      }
+      graph->insert(edge);
+      // std::map<int, bool>::iterator p_it;
+      
+      // if( possible_root.find(edge.first) == possible_root.end()){
+      // 	/* if there is no record about the node 1, store it as a possible root */
+      // 	possible_root.insert(make_pair(edge.first, true)); 
+      // }
+
+      // if( (p_it = possible_root.find(edge.second)) == possible_root.end()){
+      // 	possible_root.insert(make_pair(edge.second, false)); 
+      // }else{
+      // 	p_it->second = false; 
+      // }
+      nb_edges++;
+
+    }
+  }
+
+  
+  // /* complete */ 
+
+  // map<int, bool>::const_iterator it; 
+  // map<int, bool>::const_iterator it_end = possible_root.end(); 
+  // for(it = possible_root.begin(); it != it_end; ++it){
+  //   if(it->second)
+  //     compute_transitive_closure(dag, it->first, std::vector<int>()); 
+  // }
+}
 
 void read_graph(const std::string &graph_filename){  
+#if 0
   std::ifstream ifs (graph_filename.c_str(), std::ifstream::in);
   int nb_edges=0; 
   //ifs<<std::skipws; 
@@ -62,9 +145,10 @@ void read_graph(const std::string &graph_filename){
 
   cout<<"graph loaded, "<<nb_edges<<" edges."<<std::endl;
   ifs.close();
+  #endif
 }
 
-bool is_connected_rec(const set_t &set, int current,  std::vector<bool>touched_edges, int nb_touched_edges) {
+bool is_connected_rec(const set_t &set, const graph_t &graph, int current,  std::vector<bool>touched_edges, int nb_touched_edges) {
   /* find all eges pair starting with current edge */
   touched_edges[current] = true; 
   nb_touched_edges++; 
@@ -79,22 +163,22 @@ bool is_connected_rec(const set_t &set, int current,  std::vector<bool>touched_e
     int idx; 
     if( (idx = set_member_index(set, (*it).second)) != -1 ){
       if(touched_edges[idx] == false)
-	if(is_connected_rec(set, idx, touched_edges, nb_touched_edges))
+	if(is_connected_rec(set, graph, idx, touched_edges, nb_touched_edges))
 	  return true; 
     }
   }
   return false;
 }
 
-bool is_connected(const set_t &set){
+bool is_connected(const set_t &set, const graph_t &graph){
   if(set.size() < 2)
     return 1; 
   std::vector<bool> touched_edges(set.size(), false); 
-  return is_connected_rec(set, 0, touched_edges, 0); 
+  return is_connected_rec(set, graph, 0, touched_edges, 0); 
 
 }
 
-bool edge_is_connected(const set_t &set, element_t e){
+bool edge_is_connected(const set_t &set, const graph_t &graph, element_t e){
 
   for(int i = 0; i < set.size(); i++){
     /* Find all successors of current edge */
@@ -110,6 +194,7 @@ bool edge_is_connected(const set_t &set, element_t e){
 }
 
 int membership_oracle(const set_t &set){
+#if 0
   if(!is_connected(set))
     return 0; 
 
@@ -117,18 +202,23 @@ int membership_oracle(const set_t &set){
   
   if(freq >= threshold)
     return freq; 
-  return 0; 
+  return 0;
+  #endif 
 }
 
 
 int membership_oracle(const set_t &set, const TransactionTable &tt,
 		      const Transaction &occurences){
-  if(!is_connected(set))
+  return 1; 
+#if 0
+  if(!is_connected(set, all_graphs[))
     return 0; 
   return set_is_frequent_in_occurences(set, tt, occurences, threshold); 
+#endif
 }
 
 set_t clo(const set_t &set){
+#if 0 
   /* We keep in the closure, only the part of the extension connected to the base */ 
   /* See Boley's paper example 8 */ 
 
@@ -169,7 +259,8 @@ set_t clo(const set_t &set){
       }
     }
   }
-  return clo; 
+  return clo;
+  #endif
 }
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support){
@@ -191,14 +282,29 @@ int main(int argc, char **argv){
     exit(EXIT_FAILURE); 
   }
 
-  read_graph(argv[idx]); 
-  read_transaction_table(&tt, argv[idx+1]); 
-  threshold = std::atoi(argv[optind+2]); 
-  transpose(tt, &ot);
+  all_graphs.resize(1); 
+  read_input_graph(&all_graphs[0], argv[idx]);
+
+  graph_print(all_graphs[0]); 
+
+  Transaction t; 
+  graph_to_transaction(&t, all_graphs[0]); 
+  tt.push_back(t);
+  print_transaction_table(tt);
+
+  for(int i = 0; i < tt[0].size(); i++){
+    cout<<"( "<<node_edge[i].first<<", "<<node_edge[i].second<<" )"<<endl;
+  }
+  // threshold = std::atoi(argv[optind+2]); 
+  // transpose(tt, &ot);
+
+  // read_transaction_table(&tt, argv[idx+1]); 
+  // threshold = std::atoi(argv[optind+2]); 
+  // transpose(tt, &ot);
   
 
-  set_t empty_set; 
-  int num_pattern = clogen(empty_set);
-  cout<<num_pattern<<" patterns mined"<<endl;
+  // set_t empty_set; 
+  // int num_pattern = clogen(empty_set);
+  // cout<<num_pattern<<" patterns mined"<<endl;
 
 }
