@@ -23,10 +23,16 @@ using std::endl;
 typedef std::multimap<int, int > graph_t; 
 std::vector<graph_t> all_graphs;
 
-typedef std::map<std::pair<int, int>, int> edge_node_t; 
+
+typedef std::pair<int, int> edge_t; 
+typedef int edge_id_t;
+
+typedef std::map<edge_t, edge_id_t> edge_node_t; 
 edge_node_t  edge_node;
-typedef std::vector<std::pair<int, int> > node_edge_t; 
+typedef std::vector<edge_t> node_edge_t;
+typedef std::vector<edge_t> edge_set_t; 
 node_edge_t node_edge;
+
 
 int last_edge_id = 0;
 
@@ -155,34 +161,38 @@ void read_graph(const std::string &graph_filename){
   #endif
 }
 
-bool is_connected_rec(const set_t &set, const graph_t &graph, int current,  std::vector<bool>touched_edges, int nb_touched_edges) {
-  /* find all eges pair starting with current edge */
-  touched_edges[current] = true; 
-  nb_touched_edges++; 
+bool is_connected_rec(const edge_set_t &edge_set, edge_t current_edge,
+		      std::vector<bool>touched_edges, int nb_touched_edges) {
+  int i = 0; 
+  for(edge_set_t::const_iterator edge_it = edge_set.begin(); edge_it != edge_set.end(); ++edge_it, i++){
+    if(touched_edges[i] == false){
+      if(edge_it->first == current_edge.first 
+	 || edge_it->first == current_edge.second
+	 || edge_it->second == current_edge.first 
+	 || edge_it->second == current_edge.second){
 
-  if(nb_touched_edges == set.size())
-    return true; 
-
-  std::pair<std::map<int, int>::const_iterator, std::map<int, int>::const_iterator> range = 
-    graph.equal_range(set[current]);
-
-  for(std::map<int, int>::const_iterator it = range.first; it != range.second; ++it){
-    int idx; 
-    if( (idx = set_member_index(set, (*it).second)) != -1 ){
-      if(touched_edges[idx] == false)
-	if(is_connected_rec(set, graph, idx, touched_edges, nb_touched_edges))
+	if(++nb_touched_edges == edge_set.size())
 	  return true; 
+	touched_edges[i] = true;
+	if(is_connected_rec(edge_set, *edge_it, touched_edges, nb_touched_edges))
+	  return true; 
+      }
     }
   }
   return false;
 }
 
-bool is_connected(const set_t &set, const graph_t &graph){
+bool is_connected(const set_t &set){
   if(set.size() < 2)
     return 1; 
-  std::vector<bool> touched_edges(set.size(), false); 
-  return is_connected_rec(set, graph, 0, touched_edges, 0); 
-
+  std::vector<bool> touched_edges(set.size(), false);
+  edge_set_t edge_set; 
+  edge_set.reserve(set.size()); 
+  for(set_t::const_iterator s_it = set.begin(); s_it != set.end(); ++s_it){
+    edge_set.push_back(node_edge[*s_it]); 
+  }
+  touched_edges[0] = true; 
+  return is_connected_rec(edge_set, edge_set[0], touched_edges, 1); 
 }
 
 bool edge_is_connected(const set_t &set, const graph_t &graph, element_t e){
@@ -217,8 +227,8 @@ int membership_oracle(const set_t &set){
 
 int membership_oracle(const set_t &set, const TransactionTable &tt,
 		      const Transaction &occurences){
-  //  if(!is_connected(set, all_graphs[))
-     //    return 0; 
+  if(is_connected(set) == false)
+     return 0; 
   return set_is_frequent_in_occurences(set, tt, occurences, threshold); 
 
 }
