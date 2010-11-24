@@ -16,6 +16,11 @@
 
 void set_print(const set_t &set);
 
+/** \brief Print a set without calling \element_print(); 
+ */
+void set_print_raw(const set_t &set);
+
+
 /** \brief check if \e occures in \set 
  */
 bool set_member(const set_t &set, const element_t &e); 

@@ -112,6 +112,8 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   for(int i = 0; i < set.size(); i++){
     support[set[i]] = 0; 
   }
+
+  std::sort(set.begin(), set.end()); 
   set_t c = clo(set, set_support, support); 
   //TODO ugly .. nevermind
   for(int i = 0; i < c.size(); i++){

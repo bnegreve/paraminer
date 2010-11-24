@@ -25,6 +25,18 @@ void set_print(const set_t &set){
   cout<<endl; 
 }
 
+void set_print_raw(const set_t &set){
+  if(set.size() == 0){
+    cout<<"{emptyset}"<<endl; 
+    return ; 
+  }
+  for(int i = 0 ; i < set.size(); i++){
+    cout<<set[i]; 
+    cout<<" : "; 
+  }
+  cout<<endl; 
+}
+
 bool set_member(const set_t &set, const element_t &e){
   for(set_t::const_iterator it = set.begin(); it  != set.end(); ++it){
     if(element_equal(*it, e))
