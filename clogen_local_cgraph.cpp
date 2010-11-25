@@ -194,6 +194,8 @@ inline bool edge_is_connected_to_graph(const edge_set_t &edge_set, const edge_id
 
 bool is_connected_rec(const edge_set_t &edge_set, edge_t current_edge,
 		      std::vector<bool>touched_edges, int nb_touched_edges) {
+  //BUGGY FUNCTION DO NOT USE
+  assert(false); 
   int i = 0; 
   for(edge_set_t::const_iterator edge_it = edge_set.begin(); edge_it != edge_set.end(); ++edge_it, i++){
     if(touched_edges[i] == false){
