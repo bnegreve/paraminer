@@ -24,6 +24,37 @@ int membership_oracle(const set_t &set);
 int membership_oracle(const set_t &set, const TransactionTable &tt, 
 		      const Transaction &occurences); 
 
+/** 
+ * \brief Membership! Must return 1 iff the given \base_set union
+ * \extension is a interesting set.
+
+ * \warning The set does not need to
+ * be closed. The closure operator will be applyed afterward. For
+ * instance, if one wants to mine all closed frequent itemsets, the
+ * function must return 1 iff the give \base_set union \extension is
+ * frequent in the database.
+ *
+ * \warning Elements in \base_set have been removed from the
+ * TransactionTable \tt. Since \tt is restricted to the occurences of
+ * \base_set, all elements in \base_set should occures in all transactions of
+ * \tt. Therefore it is useless to keep them.
+ * 
+ * @param base_set The base set. This set is guarenteed be a closed
+ * interesting pattern in the initial database.
+
+ * @param extension The extension of \base_set. The membership must return 1
+ * iff \base_set union \extension is an interesting pattern.
+
+ * @param tt A transaction table restricted to the occurences of \base_set 
+ * (therefore it contains all occurences of \base_set U \extension). 
+
+ * @param occurences The occurences of \extension in \tt. 
+ * 
+ * @return 1 iff \base_set union \extension is an interesting set pattern.
+ */
+int membership_oracle(const set_t &base_set, const element_t extension, 
+		      const TransactionTable &tt, const Transaction &occurences, const SupportTable &support);
+
 set_t clo(const set_t &set); 
 set_t clo(const set_t &set, int set_support, const SupportTable &support); 
 

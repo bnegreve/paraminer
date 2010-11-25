@@ -182,6 +182,8 @@ edge_set_t set_to_edge_set(const set_t &set){
 }
 
 inline bool edge_is_connected_to_graph(const edge_set_t &edge_set, const edge_id_t e){
+  if(edge_set.size() == 0)
+    return true; 
   for(edge_set_t::const_iterator e_it = edge_set.begin(); e_it != edge_set.end(); ++e_it){
     if(edge_is_connected(*e_it, node_edge[e])){
       return true; 
@@ -254,10 +256,16 @@ int membership_oracle(const set_t &set){
 
 int membership_oracle(const set_t &set, const TransactionTable &tt,
 		      const Transaction &occurences){
-  if(is_connected(set) == false)
-     return 0; 
-  return set_is_frequent_in_occurences(set, tt, occurences, threshold); 
 
+}
+int membership_oracle(const set_t &base_set, const element_t extension, 
+		      const TransactionTable &tt, const Transaction &occurences, 
+		      const SupportTable &support){
+  if(support[extension] >= threshold){  
+    edge_set_t edge_set = set_to_edge_set(base_set);
+    return edge_is_connected_to_graph(edge_set, extension);     
+  }
+  return false; 
 }
 
 set_t clo(const set_t &set){

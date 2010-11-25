@@ -107,17 +107,19 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   
   SupportTable support; 
   compute_element_support(&support, tt, ot[e]); 
-  set.push_back(e); 
+  set.push_back(e);
   int set_support=support[e];
   for(int i = 0; i < set.size(); i++){
-    support[set[i]] = 0; 
+    if(set[i]<support.size()) //TODO REINTRODUCE MAXITEM
+      support[set[i]] = 0; 
   }
 
   std::sort(set.begin(), set.end()); 
   set_t c = clo(set, set_support, support); 
   //TODO ugly .. nevermind
   for(int i = 0; i < c.size(); i++){
-    support[c[i]] = 0; 
+    if(c[i]<support.size()) //TODO REINTRODUCE MAXITEM
+      support[c[i]] = 0; //By doing this we remove from db the elements that already blong to the set.
   }
   //  std::sort(c.begin(), c.end()); //optional ?
 
@@ -157,11 +159,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   for(set_t::const_iterator it_co = cooccuring_elements.begin(); it_co != it_co_end; ++it_co){
     element_t current = *it_co; 
 
-    set_t candidate_set(c); 
-
-    candidate_set.push_back(current);
-    std::sort(candidate_set.begin(), candidate_set.end()); 
-    if(membership_oracle(candidate_set, tt, ot[current])){
+    if(membership_oracle(c,current, tt, ot[current], support)){
       //if(membership_oracle(candidate_set)){
       extensions.push_back(current);      
     }
@@ -169,7 +167,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   
   if(extensions.size() > 0){
     TransactionTable *new_tt = new TransactionTable;  // TODO free this memory !     
-    database_build_reduced(new_tt, tt, occs); //TODO occurences c, pas de s !
+    database_build_reduced(new_tt, tt, occs, support); //TODO occurences c, pas de s !
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
 
@@ -278,11 +276,16 @@ int clogen(set_t initial_pattern){
 
 
   set_t empty_set;
-  set_t exclusion_list; 
+  set_t exclusion_list;
+
+  Transaction all_tids(tt.size()); 
+  for(int i = 0; i < tt.size(); i++)
+    all_tids[i]=i; 
+  SupportTable support;
+  compute_element_support(&support, tt, all_tids); 
   for(element_t  current = element_first(); 
       current != element_null; current = element_next(current)){  
-    set_t s(1, current); 
-    if(membership_oracle(s, tt, ot[current])){
+    if(membership_oracle(empty_set,current, tt, ot[current], support)){
       	tuple_t tuple;
 	tuple.tt = &tt; 
 	tuple.ot = &ot; 
@@ -329,22 +332,3 @@ int clogen(set_t initial_pattern){
 
 
 #endif //TEST
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
