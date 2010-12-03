@@ -15,6 +15,17 @@
 
 //int main(int argc, char **argv);
 
+typedef struct{
+  const TransactionTable &tt;	  
+  /**< A database containing at least all the transaction including
+     \base_set union \extension*/
+  const Transaction &base_set_occurences;
+  /**< Tids in \tt of the transactions including \base_set */
+  const Transaction &extension_occurences;
+  /**< Tids in \tt of the transactions including \extension */
+  const SupportTable &support;
+  /**< support of all element computed in the transaction including base_set */
+}membership_data_t; 
 
 /* must be defined in clogen_local_*.cpp*/
 extern element_t ELEMENT_RANGE_START; 
@@ -54,6 +65,9 @@ int membership_oracle(const set_t &set, const TransactionTable &tt,
  */
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const TransactionTable &tt, const Transaction &occurences, const SupportTable &support);
+
+
+int membership_oracle(const set_t &base_set, const element_t extension, const membership_data_t &data);
 
 set_t clo(const set_t &set); 
 set_t clo(const set_t &set, int set_support, const SupportTable &support); 

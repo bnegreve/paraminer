@@ -43,7 +43,8 @@ int threshold;
 /* assumes set is ordered */
 element_t get_tail(const set_t &set, const TransactionTable &tt,
 		   const Transaction &occurences){
-
+  assert(false);
+  #if 0
   element_t max = element_null; 
   
   set_const_rit it_end = set.rend(); 
@@ -63,6 +64,7 @@ element_t get_tail(const set_t &set, const TransactionTable &tt,
   }
   assert(false); 
   return max; 
+#endif 
 }
 
  struct element_cmp {
@@ -282,9 +284,13 @@ int clogen(set_t initial_pattern){
   for(int i = 0; i < tt.size(); i++)
     all_tids[i]=i; 
   SupportTable support;
-  compute_element_support(&support, tt, all_tids); 
+  compute_element_support(&support, tt, all_tids);
+
+  
+  
   for(element_t  current = element_first(); 
-      current != element_null; current = element_next(current)){  
+      current != element_null; current = element_next(current)){
+    membership_data_t m_data = {tt,all_tids,ot[current],support};
     if(membership_oracle(empty_set,current, tt, ot[current], support)){
       	tuple_t tuple;
 	tuple.tt = &tt; 
