@@ -22,6 +22,7 @@ struct Transaction : set_t{
   int original_tid; 
 }; 
 struct TransactionTable : std::vector<Transaction>{
+  element_t max_element;
 };
 //typedef std::vector<Transaction> TransactionTable; 
 typedef set_t Occurence; 

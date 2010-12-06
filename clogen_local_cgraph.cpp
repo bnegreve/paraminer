@@ -340,7 +340,7 @@ int main(int argc, char **argv){
   }
 
   ELEMENT_RANGE_END = node_edge.size();
-  
+  tt.max_element = ELEMENT_RANGE_END; 
   //  graph_print(all_graphs[0]); 
 
 

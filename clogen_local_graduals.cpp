@@ -284,6 +284,7 @@ int main(int argc, char **argv){
   cout<<nb_initial_trans<<endl;
   print_transaction_table(tt); 
   print_grad_transaction_table(tt);   
+  tt.max_element = ELEMENT_RANGE_END; 
   transpose(tt, &ot);
   threshold = std::atoi(argv[idx+1]) ; 
 

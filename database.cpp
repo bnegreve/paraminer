@@ -14,7 +14,7 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
   element_t max_element = 0; 
   ifstream ifs (filename , ifstream::in);
   int nb_items = 0; 
-  int nb_trans = 0; 
+  int nb_trans = 0;
   while (ifs.good()){
     string line; 
     stringstream ss; 
@@ -39,6 +39,7 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
   cout<<"Data loaded, "<<nb_items<<" items within "<<nb_trans<<" transactions."<<endl;
   ifs.close();
 
+  tt->max_element = max_element; 
   return max_element; 
 }
 
@@ -58,19 +59,18 @@ void print_transaction_table(const TransactionTable &tt){
 
 
 void transpose(const TransactionTable &tt, TransactionTable *ot){
-  assert(!ot->size()); 
+  assert(!ot->size());
+  ot->resize(tt.max_element+1);
   for(int i = 0; i < tt.size(); i++)
     for(int j = 0; j < tt[i].size(); j++){
       int v = tt[i][j]; 
-      if(v >= ot->size())
-	ot->resize(v+1);
       (*ot)[v].push_back(i); 
     }
 }
 
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const SupportTable &support){
-  //TODO remove pattenr from db
+  new_tt->max_element=0; 
   new_tt->reserve(occurence.size()); 
   new_tt->push_back(Transaction()); 
   Transaction *current_trans = &new_tt->back(); 
@@ -82,6 +82,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 	trans_it != trans_it_end; ++trans_it){
       if(support[*trans_it] > 0){
 	current_trans->push_back(*trans_it);
+	new_tt->max_element = std::max(new_tt->max_element, *trans_it); 
       }
     }
     if(current_trans->size() > 0){
