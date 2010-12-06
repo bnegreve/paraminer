@@ -166,15 +166,16 @@ void merge_identical_transactions(TransactionTable *tt){
       refTid=currentTid;
     }
   }
+  cout<<"MERGE "<<x<<endl; 
   //  removeEmptyTransactions(tt);
-  cout<<"MERGE "<<x<<endl;
 
 }
 /*** END mergeIdenticalTransactions ***/  
 
 
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
-			    const Transaction &occurence, const SupportTable &support){
+			    const Transaction &occurence, const SupportTable &support, 
+			    const set_t &exclusion_list){
   new_tt->max_element=0; 
   new_tt->reserve(occurence.size()); 
   new_tt->push_back(Transaction()); 
@@ -186,7 +187,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
     Transaction::const_iterator trans_it_end = tt[*occ_it].end(); 
     for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
 	trans_it != trans_it_end; ++trans_it){
-      if(support[*trans_it] > 0){
+      if(support[*trans_it] > 0 /*&& !set_member(exclusion_list, *trans_it)*/){
 	current_trans->push_back(*trans_it);
 	new_tt->max_element = std::max(new_tt->max_element, *trans_it); 
       }
@@ -201,7 +202,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
     new_tt->resize(new_tt->size()-1);
   }
 
-  merge_identical_transactions(new_tt); 
+  //  merge_identical_transactions(new_tt); 
 }
 
 
