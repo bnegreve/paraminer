@@ -110,7 +110,8 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   Transaction occs = ot[e]; 
   
   
-  SupportTable support; 
+  SupportTable support;
+  
   compute_element_support(&support, tt, ot[e]); 
   set.push_back(e);
   int set_support=support[e];

@@ -49,6 +49,18 @@ void set_print_raw(const set_t &set){
   cout<<endl; 
 }
 
+
+bool set_equal(const set_t &s1, const set_t &s2){
+  if(s1.size() != s2.size())
+    return false; 
+  set_t::const_iterator s1_end = s1.end(); 
+  for(set_t::const_iterator it1 = s1.begin(), it2 = s2.begin(); it1 != s1_end; ++it1, ++it2){
+    if(*it1 != *it2)
+      return false; 
+  }
+  return true; 
+}
+
 bool set_member(const set_t &set, const element_t &e){
   for(set_t::const_iterator it = set.begin(); it  != set.end(); ++it){
     if(element_equal(*it, e))

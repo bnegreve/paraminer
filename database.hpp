@@ -16,7 +16,7 @@
 #include "element.hpp"
 
 
-
+typedef element_t tid_t; 
 
 struct Transaction : set_t{
   int original_tid;
@@ -28,7 +28,7 @@ struct TransactionTable : std::vector<Transaction>{
 //typedef std::vector<Transaction> TransactionTable; 
 typedef set_t Occurence; 
 typedef std::vector<Occurence> OccurenceTable; 
-typedef std::vector<int> SupportTable; 
+typedef std::vector<element_t> SupportTable; 
 
 element_t read_transaction_table(TransactionTable *tt, const char *filename); 
 
@@ -37,6 +37,27 @@ void print_transaction(const Transaction &t);
 void print_transaction_table(const TransactionTable &tt); 
 
 void transpose(const TransactionTable &tt, TransactionTable *ot); 
+
+
+/** 
+ * \brief Sort the tids occording to the lexical order of the
+ * corresponding transactions in tt
+ * 
+ * @param tt TransactionTable containing the transaction referenced by the tids in \tids
+ * @param tids Array of tids to sort.
+ * @param begin First element to sort in \tids
+ * @param end Last element to sort in \tid
+ */
+void quick_sort_tids( const TransactionTable &tt, Occurence *tids, 
+		      int begin, int end);
+
+
+/** 
+ * \brief Merge identical entries in \tt into a single one with a higher weight. 
+ * 
+ * @param tt the database to shrink
+ */
+void merge_identical_transactions(TransactionTable *tt);
 
 
 /** 

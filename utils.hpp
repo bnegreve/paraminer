@@ -34,6 +34,10 @@ bool set_member_sorted(const set_t &sorted_set, const element_t &e);
 
 int set_member_index(const set_t &set, const element_t &e); 
 
+/** \brief returns true if the two sets are equals */ 
+bool set_equal(const set_t &s1, const set_t &s2); 
+
+
 template <typename T>
 bool is_sorted(const std::vector<T> &v){
   if(v.size() < 2)

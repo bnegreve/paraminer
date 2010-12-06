@@ -32,6 +32,7 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
     }
     if(t.size() != 0){
       t.original_tid = nb_trans++;
+      t.weight = 1;
       tt->push_back(t); 
     }
   }
@@ -44,6 +45,7 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
 }
 
 void print_transaction(const Transaction &t){
+  cout<<"("<<t.weight<<") "; 
   for(int i = 0; i < t.size(); i++){
     cout<<t[i]<<" "; 
   }
@@ -54,7 +56,7 @@ void print_transaction_table(const TransactionTable &tt){
   for(int i = 0; i < tt.size(); i++){
     cout<<i<<" : "; print_transaction(tt[i]); 
   }
-  cout<<endl; 
+
 }
 
 
@@ -68,6 +70,109 @@ void transpose(const TransactionTable &tt, TransactionTable *ot){
     }
 }
 
+void data_base_shrink(TransactionTable *tt){
+  
+}
+
+
+int set_lexical_compare(const set_t &t1, const set_t &t2){
+  set_t::const_iterator tp = t1.begin(), tpEnd = t1.end();   
+  set_t::const_iterator op = t2.begin(), opEnd = t2.end(); 
+  int i = 0; 
+  for(; tp < tpEnd && op < opEnd; ++tp, ++op, i++){
+    if(*tp == *op){
+      //      if(unlikely (*tp == prefixBound))
+      //	return i+10; /* if the transactions are equals up to the prefix */
+      continue; 
+    }
+    if(*tp > *op)
+      return 1; 
+    else
+      return -1; 
+  }
+    
+  if(tp == tpEnd && op == opEnd)
+    return 0; 
+  else
+    if(tp != tpEnd) 
+      return 1; 
+    else
+      return -1; 
+}
+
+/* code from plcm */ 
+void quick_sort_tids( const TransactionTable &tt, Occurence *tids, 
+		      int begin, int end){  
+  //  cout<<"ITER "<<begin<<" "<<end<<endl;
+  //  getchar();
+  if( (end - begin) <= 1)
+    return; 
+
+  int siIdx=-1; 
+  //  Array<item_t> siTids; 
+
+  /* Select the middle as a pivot */
+  //  int pivotIdx = (end+begin)/2; 
+  //  const Transaction &pivot = transactions[(*tids)[pivotIdx]];
+  int pivotIdx = end-1; 
+  const Transaction &pivot = tt[(*tids)[pivotIdx]];
+  //  cout<<pivotIdx<<" "<<pivot<<endl;
+  int storeIdx = begin; 
+  for (int i = begin; i < end-1; ++i) {
+    const tid_t currentTid = (*tids)[i];
+    //    cout<<"COMPARE "<<endl<<pivot<<endl<<"AND"<<endl<<transactions[currentTid]<<endl<<"RETURNED"<<pivot.lexicalGt(transactions[currentTid])<<endl;
+    int cmp; 
+    if((cmp = set_lexical_compare(pivot, tt[currentTid])) == 1){
+      /* swap the tids */
+      tid_t tmp = (*tids)[storeIdx];
+      (*tids)[storeIdx++] = currentTid; 
+      (*tids)[i] = tmp; 
+    }
+  }
+  tid_t tmp = (*tids)[storeIdx];
+  (*tids)[storeIdx] = (*tids)[pivotIdx];
+  (*tids)[pivotIdx] = tmp; 
+
+  quick_sort_tids(tt, tids, begin, storeIdx);   
+  quick_sort_tids(tt, tids, storeIdx+1, end);   
+}
+
+
+/* code from plcm */ 
+void merge_identical_transactions(TransactionTable *tt){
+  //  cout<<"SIZE "<<tt->trans->size()<<" item "<<tt->item<<endl;
+  int x = 0; 
+  TransactionTable::iterator pTransactions = tt->begin(); 
+  
+  // cout<<"MERGIG "<<tt->max_element<<endl;
+  //  print_transaction_table(*tt); 
+  // getchar();
+  
+  Occurence sorted(tt->size()); 
+  for(int i = 0; i < tt->size(); i++)
+    sorted[i] = i ;
+  
+  quick_sort_tids(*tt, &sorted, 0, sorted.size()); 
+
+  Occurence::const_iterator refTid = sorted.begin(); //sort transactions, lexical order
+  Occurence::const_iterator end = sorted.end(); 
+  for(Occurence::const_iterator currentTid = refTid+1; currentTid < end; ++currentTid){
+    if(set_equal((*tt)[*currentTid], (*tt)[*refTid])){
+      (*tt)[*refTid].weight += (*tt)[*currentTid].weight; 
+      (*tt)[*currentTid].clear(); 
+      x++; 
+    }
+    else{
+      refTid=currentTid;
+    }
+  }
+  //  removeEmptyTransactions(tt);
+  cout<<"MERGE "<<x<<endl;
+
+}
+/*** END mergeIdenticalTransactions ***/  
+
+
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const SupportTable &support){
   new_tt->max_element=0; 
@@ -76,7 +181,8 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   Transaction *current_trans = &new_tt->back(); 
   for(Transaction::const_iterator occ_it = occurence.begin(); 
       occ_it != occurence.end(); ++occ_it){
-    current_trans->original_tid = tt[*occ_it].original_tid; 
+    current_trans->original_tid = tt[*occ_it].original_tid;
+    current_trans->weight =  tt[*occ_it].weight;
     Transaction::const_iterator trans_it_end = tt[*occ_it].end(); 
     for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
 	trans_it != trans_it_end; ++trans_it){
@@ -94,6 +200,8 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   if(current_trans->size() == 0){
     new_tt->resize(new_tt->size()-1);
   }
+
+  merge_identical_transactions(new_tt); 
 }
 
 
@@ -206,11 +314,12 @@ void compute_element_support(SupportTable *support, const TransactionTable &tt,
   support->resize(tt.max_element+1); 
   Transaction::const_iterator o_it_end = occs.end(); 
   for(Transaction::const_iterator o_it = occs.begin(); o_it != o_it_end; ++o_it){
-    Transaction::const_iterator t_it_end = tt[*o_it].end(); 
+    int t_weight = tt[*o_it].weight; 
+    Transaction::const_iterator t_it_end = tt[*o_it].end();
     for(Transaction::const_iterator t_it = tt[*o_it].begin(); t_it != t_it_end; ++t_it){
-      //      if(support->size() <= *t_it)
-      //	support->resize(*t_it+1, 0); 
-      (*support)[*t_it]++; 
+      if(support->size() <= *t_it)
+	support->resize(*t_it+1, 0); 
+      (*support)[*t_it]+=t_weight;     
     }
   }
 } 
