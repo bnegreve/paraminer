@@ -31,8 +31,8 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
       ss>>item;
     }
     if(t.size() != 0){
+      t.original_tid = nb_trans++;
       tt->push_back(t); 
-      ++nb_trans; 
     }
   }
 

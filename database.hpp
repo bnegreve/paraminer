@@ -19,7 +19,8 @@
 
 
 struct Transaction : set_t{
-  int original_tid; 
+  int original_tid;
+  int weight; 
 }; 
 struct TransactionTable : std::vector<Transaction>{
   element_t max_element;
