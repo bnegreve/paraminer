@@ -82,8 +82,8 @@ element_t canonical_transform_element(const set_t &set, element_t &element);
 set_t canonical_form(set_t set, element_t *element = NULL);
 
 
-void compute_element_support(SupportTable *support, 
-			     const TransactionTable &tt, const Occurence &occs); 
+void compute_element_support(SupportTable *support, const TransactionTable &tt,
+			     const Occurence &occs); 
 
 void all_occurences(Transaction *occs, const TransactionTable &tt); 
 
