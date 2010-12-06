@@ -17,9 +17,14 @@
 
 
 
-typedef std::vector<element_t> Transaction;
-typedef std::vector<Transaction> TransactionTable; 
-typedef std::vector<int> Occurence; 
+
+struct Transaction : set_t{
+  int original_tid; 
+}; 
+struct TransactionTable : std::vector<Transaction>{
+};
+//typedef std::vector<Transaction> TransactionTable; 
+typedef set_t Occurence; 
 typedef std::vector<Occurence> OccurenceTable; 
 typedef std::vector<int> SupportTable; 
 
@@ -47,6 +52,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence); 
 
+/* Deprecated */ 
 void database_occuring_elements(set_t *elements, 
 				const TransactionTable &tt, const Transaction &occurences);
 
@@ -76,7 +82,7 @@ set_t canonical_form(set_t set, element_t *element = NULL);
 
 
 void compute_element_support(SupportTable *support, 
-			     const TransactionTable &tt, const Transaction &occs); 
+			     const TransactionTable &tt, const Occurence &occs); 
 
 void all_occurences(Transaction *occs, const TransactionTable &tt); 
 

@@ -19,9 +19,9 @@ typedef struct{
   const TransactionTable &tt;	  
   /**< A database containing at least all the transaction including
      \base_set union \extension*/
-  const Transaction &base_set_occurences;
+  const Occurence &base_set_occurences;
   /**< Tids in \tt of the transactions including \base_set */
-  const Transaction &extension_occurences;
+  const Occurence &extension_occurences;
   /**< Tids in \tt of the transactions including \extension */
   const SupportTable &support;
   /**< support of all element computed in the transaction including base_set */

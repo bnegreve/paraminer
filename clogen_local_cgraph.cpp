@@ -241,39 +241,25 @@ bool is_connected(const set_t &set){
 //   return false; 
 // }
 
-int membership_oracle(const set_t &set){
-  assert(false); 
-#if 0
-  if(!is_connected(set))
-    return 0; 
 
-  int freq = count_inclusion_2d(tt, set);
-  
-  if(freq >= threshold)
-    return freq; 
-  return 0;
-  #endif 
-}
-
-
-int membership_oracle(const set_t &set, const TransactionTable &tt,
-		      const Transaction &occurences){
-
-}
 int membership_oracle(const set_t &base_set, const element_t extension, 
-		      const TransactionTable &tt, const Transaction &occurences, 
-		      const SupportTable &support){
-  if(support[extension] >= threshold){  
+		      const membership_data_t &data){
+  if(data.support[extension] >= threshold){  
     edge_set_t edge_set = set_to_edge_set(base_set);
-    return edge_is_connected_to_graph(edge_set, extension);     
+    return edge_is_connected_to_graph(edge_set, extension);
   }
   return false; 
+
 }
+
 
 set_t clo(const set_t &set){
   /* We keep in the closure, only the part of the extension connected to the base */ 
   /* See Boley's paper example 8 */ 
 
+
+  //TODO WRONG After adding an edge we must retest if other edges from
+  //the closure are still not connected to the base !!!
   Occurence oc;
   set_t clo(set); 
   get_occurences_2d(tt, set, &oc);

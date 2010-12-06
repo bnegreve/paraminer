@@ -96,7 +96,8 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
   for(int i=0; i < input.size(); i++){
     for(int j = 0; j < input.size(); j++){
       if(i!=j){
-	Transaction t; 
+	Transaction t;
+	t.original_tid=nb_trans++; 
 	t.reserve(nb_attributes); 
 	for(int k = 0; k < input[i].size(); k++){
 	  if(input[i][k] < input[j][k]){
@@ -179,8 +180,47 @@ int get_longest_path(const Occurence &occs){
   return longest_path;
 }
 
+
+void set_intersect(set_t *out, const set_t &t1, const set_t &t2){
+  assert(is_sorted(t1) && is_sorted(t2));
+  out->resize(std::min(t1.size(), t2.size()));
+  Transaction::iterator it;
+  it=set_intersection (t1.begin(), t1.end(), t2.begin(), t2.end(), out->begin());
+  
+  out->resize(it-out->begin());
+
+}
+
+
+int membership_oracle(const set_t &base_set, const element_t extension, 
+		      const membership_data_t &data){
+
+  if(data.support[extension] < threshold)
+    return 0; 
+
+  Occurence occurences;
+  set_intersect(&occurences, data.base_set_occurences, data.extension_occurences);
+  Occurence original_occurences(occurences.size()); 
+
+  int i=0; 
+  for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
+    original_occurences[i++] = data.tt[*it].original_tid; 
+  }
+  
+  
+  int sup = get_longest_path(original_occurences);
+  // cout<<"STARTTT"<<endl; 
+  //   set_print(base_set); 
+  // element_print(extension); 
+  // cout<<" SUP "<<sup<<endl;
+  // set_print_raw(occurences);
+  // cout<<"ENDDDDD"<<endl; 
+  return sup>=threshold?sup:0;
+}
+
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const TransactionTable &tt, const Transaction &occurences, const SupportTable &support){
+
     int sup = get_longest_path(occurences);
     cout<<"MEM"<<endl; 
     set_print(base_set); 
@@ -252,6 +292,3 @@ int main(int argc, char **argv){
   cout<<num_pattern<<" patterns mined"<<endl;
 
 }
-
-
-

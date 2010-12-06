@@ -27,28 +27,11 @@ void element_print(const element_t element){
   cout<<element; 
 }
 
-int membership_oracle(const set_t &set){
-  int freq = count_inclusion_2d(tt, set);
-  if(freq >= threshold)
-    return freq; 
-  return 0; 
-}
-
-int membership_oracle(const set_t &set, const TransactionTable &tt,
-		      const Transaction &occurences){
-  return set_is_frequent_in_occurences(set, tt, occurences, threshold); 
-}
-
 int membership_oracle(const set_t &base_set, const element_t extension, 
-		      const TransactionTable &tt, const Transaction &occurences, const SupportTable &support){
-  /* If the extension is frequent in the table restricted to
-     occurences of base_set, base_set union extension is also
-     frequent */
-  //TODO DO NOT RECOMPUTE SUPPORT (it in knokned in clogen)
-
-  return support[extension] >= threshold; 
+		      const membership_data_t &data){
+  return data.support[extension] >= threshold; 
 }
-
+		      
 set_t clo(const set_t &s){
   Occurence oc;
   set_t clo; 

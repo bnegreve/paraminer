@@ -161,7 +161,8 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   for(set_t::const_iterator it_co = cooccuring_elements.begin(); it_co != it_co_end; ++it_co){
     element_t current = *it_co; 
 
-    if(membership_oracle(c,current, tt, ot[current], support)){
+    membership_data_t m_data = {tt, occs, ot[current], support};
+    if(membership_oracle(c,current, m_data)){
       //if(membership_oracle(candidate_set)){
       extensions.push_back(current);      
     }
@@ -280,7 +281,7 @@ int clogen(set_t initial_pattern){
   set_t empty_set;
   set_t exclusion_list;
 
-  Transaction all_tids(tt.size()); 
+  Occurence all_tids(tt.size()); 
   for(int i = 0; i < tt.size(); i++)
     all_tids[i]=i; 
   SupportTable support;
@@ -290,8 +291,8 @@ int clogen(set_t initial_pattern){
   
   for(element_t  current = element_first(); 
       current != element_null; current = element_next(current)){
-    membership_data_t m_data = {tt,all_tids,ot[current],support};
-    if(membership_oracle(empty_set,current, tt, ot[current], support)){
+    membership_data_t m_data = {tt,all_tids,ot[current],support};   
+    if(membership_oracle(empty_set,current, m_data)){
       	tuple_t tuple;
 	tuple.tt = &tt; 
 	tuple.ot = &ot; 

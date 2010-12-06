@@ -76,6 +76,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   Transaction *current_trans = &new_tt->back(); 
   for(Transaction::const_iterator occ_it = occurence.begin(); 
       occ_it != occurence.end(); ++occ_it){
+    current_trans->original_tid = tt[*occ_it].original_tid; 
     Transaction::const_iterator trans_it_end = tt[*occ_it].end(); 
     for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
 	trans_it != trans_it_end; ++trans_it){
@@ -97,6 +98,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence){
+  assert(false);  
   //TODO remove pattenr from db
   new_tt->reserve(occurence.size()); 
   new_tt->push_back(Transaction()); 
@@ -197,7 +199,7 @@ set_t canonical_form(set_t set, element_t *element){
 }
 
 
-void compute_element_support(SupportTable *support, const TransactionTable &tt, const Transaction &occs){
+void compute_element_support(SupportTable *support, const TransactionTable &tt, const Occurence &occs){
   Transaction::const_iterator o_it_end = occs.end(); 
   for(Transaction::const_iterator o_it = occs.begin(); o_it != o_it_end; ++o_it){
     Transaction::const_iterator t_it_end = tt[*o_it].end(); 
