@@ -188,7 +188,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 
     if(depth < depth_tuple_cutoff){
       set_t::const_iterator c_it_end = extensions.end(); 
-      for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
+      for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){
 	if(set_member(*exclusion_list, *c_it))
 	  continue; 
 	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
