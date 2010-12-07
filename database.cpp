@@ -318,9 +318,9 @@ void compute_element_support(SupportTable *support, const TransactionTable &tt,
     int t_weight = tt[*o_it].weight; 
     Transaction::const_iterator t_it_end = tt[*o_it].end();
     for(Transaction::const_iterator t_it = tt[*o_it].begin(); t_it != t_it_end; ++t_it){
-      if(support->size() <= *t_it)
-	support->resize(*t_it+1, 0); 
-      (*support)[*t_it]+=t_weight;     
+      //      if(support->size() <= *t_it)
+      //	support->resize(*t_it+1, 0); 
+      (*support)[*t_it]++; 
     }
   }
 } 
