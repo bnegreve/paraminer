@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <set>
+#include <algorithm>
 #include "database.hpp"
 #include "utils.hpp"
 
@@ -100,9 +101,21 @@ int set_lexical_compare(const set_t &t1, const set_t &t2){
       return -1; 
 }
 
+struct tid_cmp{
+  const TransactionTable *tt; 
+  bool operator()(const int t1, const int t2){
+    return (set_lexical_compare((*tt)[t1], (*tt)[t2]) ==1 ); 
+  }
+}; 
+
 /* code from plcm */ 
 void quick_sort_tids( const TransactionTable &tt, Occurence *tids, 
-		      int begin, int end){  
+		      int begin, int end){
+  tid_cmp cmp; 
+  cmp.tt=&tt; 
+  std::sort(tids->begin(), tids->end(), cmp); 
+  return ; 
+  //TODO remplace with a call to std::sort
   //  cout<<"ITER "<<begin<<" "<<end<<endl;
   //  getchar();
   if( (end - begin) <= 1)
@@ -166,7 +179,6 @@ void merge_identical_transactions(TransactionTable *tt){
       refTid=currentTid;
     }
   }
-  cout<<"MERGE "<<x<<endl; 
   //  removeEmptyTransactions(tt);
 
 }
@@ -202,7 +214,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
     new_tt->resize(new_tt->size()-1);
   }
 
-  //  merge_identical_transactions(new_tt); 
+  //merge_identical_transactions(new_tt); 
 }
 
 
