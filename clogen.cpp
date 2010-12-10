@@ -164,7 +164,8 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
     membership_data_t m_data = {tt, occs, ot[current], support};
     if(membership_oracle(c,current, m_data)){
       //if(membership_oracle(candidate_set)){
-      extensions.push_back(current);      
+      if(!set_member(*exclusion_list, current))
+	extensions.push_back(current);      
     }
   }
   
@@ -177,8 +178,9 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 
     if(depth < depth_tuple_cutoff){
       set_t::const_iterator c_it_end = extensions.end(); 
-      for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
-
+      for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){
+	if(set_member(*exclusion_list, *c_it))
+	  continue; 
 	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
 	//	set_print(c); 
 	tuple_t tuple;
