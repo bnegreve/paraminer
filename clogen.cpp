@@ -76,6 +76,8 @@ element_t get_tail(const set_t &set, const TransactionTable &tt,
 
 std::pair<set_t, element_t> get_first_parent(const set_t &set, const TransactionTable &tt,
 					     const Transaction &occurences){
+  assert(false); 
+  #if 0
   assert(set.size() >= 0);
   assert(is_sorted(set));
   set_t z(set); 
@@ -96,7 +98,8 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
     z = x; 
   }
   /* Bottom !*/
-  return make_pair(set_t(0), get_tail(set, tt, occurences)); 
+  return make_pair(set_t(0), get_tail(set, tt, occurences));
+  #endif
 }
 
 size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list){
@@ -116,8 +119,9 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
       support[set[i]] = 0; 
   }
 
-  std::sort(set.begin(), set.end()); 
-  set_t c = clo(set, set_support, support); 
+  std::sort(set.begin(), set.end());
+  membership_data_t c_data = {tt, occs, ot[e], support};
+  set_t c = clo(set, set_support, support, c_data); 
   //TODO ugly .. nevermind
   for(int i = 0; i < c.size(); i++){
     if(c[i]<support.size()) //TODO REINTRODUCE MAXITEM

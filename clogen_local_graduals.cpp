@@ -14,12 +14,13 @@
 #include "database.hpp"
 #include "clogen.hpp" 
 #include "utils.hpp"
+#include "BinaryMatrix.h"
 
 using std::cout; 
 using std::cerr; 
 using std::endl; 
 using namespace std; 
-
+using namespace nsPattern; 
 int ELEMENT_RANGE_START = 0; 
 int ELEMENT_RANGE_END; 
 
@@ -37,7 +38,11 @@ int nb_attributes = 0;
 int nb_initial_trans= 0; 
 id_trans_t id_trans; 
 trans_id_t trans_id; 
-vector<int> vtrans_t; 
+vector<int> vtrans_t;
+int nb_vtrans = 0; 
+
+std::vector<BinaryMatrix> all_bms; 
+
 
 trans_t tid_code_to_original(int code); 
 
@@ -190,7 +195,41 @@ void set_intersect(set_t *out, const set_t &t1, const set_t &t2){
   out->resize(it-out->begin());
 
 }
+/* function from GLCM */
+void recursion_Chk_Freq(int trans, BinaryMatrix BM, vector<int> & freMap)
+{
+	int BMSize = BM.getSize();
+	if (BM.checkZero(trans)) freMap[trans] = 1;
+		for(int j = 0; j < BMSize; j++)
+		{
+			if (BM.getValue(j,trans))
+			{
+				//if (BM.checkZero(j)) freMap[trans] = 1;
+				if (freMap[j] == -1) recursion_Chk_Freq(j,BM,freMap);
+				freMap[trans] = (freMap[trans]>freMap[j] + 1)?freMap[trans]:(freMap[j] + 1);
+			}
+		}
+}
 
+void loop_Chk_Freq(BinaryMatrix BM, vector<int> & freMap)
+{
+	int freMapSize = freMap.size();
+	for(int i = 0; i < freMapSize; i++)
+	{
+		recursion_Chk_Freq(i,BM,freMap);
+	}
+}
+
+int frequentCount(vector<int> & freMap)
+{
+	int maxFreq = 0;
+	int freMapSize = freMap.size();
+	for(int i = 0; i < freMapSize; i++)
+	{
+		if (freMap[i] > maxFreq) maxFreq = freMap[i]; 
+	}
+	return maxFreq;
+}
 
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
@@ -198,17 +237,39 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   if(data.support[extension] < threshold)
     return 0; 
 
+  // if(base_set.size()){
+  //   if(base_set[0] < extension)
+  //     if(base_set[0] %2==0){
+  // 	return 0;
+  //     }
+  // }
+  // else{
+  //   if(extension%2==0)
+  //     return 0; 
+  // }
+  
   Occurence occurences;
   set_intersect(&occurences, data.base_set_occurences, data.extension_occurences);
-  Occurence original_occurences(occurences.size()); 
+  //  Occurence original_occurences(occurences.size()); 
 
+  id_trans_t transaction_pairs(occurences.size());
+  
+  
   int i=0; 
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
-    original_occurences[i++] = data.tt[*it].original_tid; 
+    //    original_occurences[i++] = data.tt[*it].original_tid; 
+    transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid); 
   }
+
+  BinaryMatrix bm(nb_vtrans);
+  bm.constructBinaryMatrixClogen(transaction_pairs); 
+  
+  vector<int> freMap(nb_vtrans); 
+  loop_Chk_Freq(bm, freMap); 
+  int sup = frequentCount(freMap); 
   
   
-  int sup = get_longest_path(original_occurences);
+  //  int sup = get_longest_path(original_occurences);
   // cout<<"STARTTT"<<endl; 
   //   set_print(base_set); 
   // element_print(extension); 
@@ -230,9 +291,84 @@ int membership_oracle(const set_t &base_set, const element_t extension,
     return sup>=threshold?sup:0;
 }
 
+
+void reduceBM(BinaryMatrix & BM, int threshold, bool & change)
+{
+	int maxTrans = 0;
+	int maxCount = 0;
+	//if (change) return;
+	maxTrans = BM.getMaxTrans(maxCount);
+	if (maxCount < (threshold-1)) 
+	{
+		BM.setBMtoZero();	
+		return;
+	}
+	BM.reduce_nonSupport_TS(threshold,change);
+	while (change) 
+	{		
+		BM.reduce_nonSupport_TS(threshold,change);
+		//cout << "....." << change << endl;
+	}
+	//reduceBM(BM, threshold,change);
+}
+
+
+set_t calF(BinaryMatrix * BM, const vector<BinaryMatrix> & vBM, int & resFre)
+{
+
+	set_t is;
+	is.clear();
+	//TransactionSequence ts;
+	int BMSize = BM->getSize();
+	BinaryMatrix calFBM(BMSize);
+	calFBM = (*BM);
+	vector<int> freMap;
+	freMap.clear();
+	for (int i = 0; i < BMSize; i++)
+	{
+		freMap.push_back(-1);
+	}
+	loop_Chk_Freq(calFBM,freMap);
+	resFre = frequentCount(freMap);
+	if (resFre < threshold) return is;
+
+	bool change = false;
+	reduceBM(calFBM, resFre, change);
+	//bool bcf = CheckFrequent(BM, _threshold, freType, ts);
+	//if (!bcf) return is;
+
+
+	int G1ItemSize = ELEMENT_RANGE_END; 
+	for (int i = 0; i < G1ItemSize; i++)
+	{
+		//if (vBM[i]->isInclude(BM)) is.addItem(i);
+		BinaryMatrix tBM = vBM[i];
+		tBM &= (*BM);
+		if (tBM == (*BM)) is.push_back(i);
+	}
+	return is;
+}
+
+
+///////////////////////////////////////////////////////////////////
+///////////////// CAL G  //////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+/* Computes the transactions quequences supporting itemset \is */
+void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
+{
+	int isSize = is.size();
+	if (isSize == 0)
+        return;
+
+	res = *vBM[is[0]];
+
+	for (int i = 1; i < isSize; i++)
+        res &= *vBM[is[i]];
+}
+
 set_t clo(const set_t &set, const Transaction &occurences){
 
-  return set;
+
 #if 0 
   set_t clo; 
   vector<int> freq; 
@@ -257,8 +393,25 @@ set_t clo(const set_t &s){
 }
 
 
-set_t clo(const set_t &set, int set_support, const SupportTable &support){
-  return support_based_closure(set, set_support, support); 
+set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
+
+  const Occurence &occs = data.base_set_occurences; 
+  id_trans_t transaction_pairs(occs.size());
+  
+  
+  int i=0; 
+  for(Occurence::const_iterator it = occs.begin(); it != occs.end(); ++it){    
+    //    original_occs[i++] = data.tt[*it].original_tid; 
+    transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid); 
+  }
+
+  BinaryMatrix bm(nb_vtrans);
+  bm.constructBinaryMatrixClogen(transaction_pairs); 
+  int a; 
+  set_t closed_set = calF(&bm, all_bms, a); 
+  
+  return closed_set;
+  //  return support_based_closure(set, set_support, support); 
 }
 
 
@@ -275,10 +428,12 @@ int main(int argc, char **argv){
     usage(argv[0]); 
   }
 
-
+  
   TransactionTable tmp; 
   read_transaction_table_vtrans(&tmp, argv[idx]);
+  nb_vtrans = tmp.size(); 
   ELEMENT_RANGE_END = nb_attributes*2;
+  
   cout<<"nb_attributes "<<nb_attributes<<endl;
   tt_to_grad_items(&tt, tmp); 
   cout<<nb_initial_trans<<endl;
@@ -286,6 +441,24 @@ int main(int argc, char **argv){
   print_grad_transaction_table(tt);   
   tt.max_element = ELEMENT_RANGE_END; 
   transpose(tt, &ot);
+
+
+  all_bms.reserve(ELEMENT_RANGE_END); 
+  for(int i = 0; i < ELEMENT_RANGE_END; i++){
+    BinaryMatrix bm(nb_vtrans);
+    id_trans_t trans; 
+    for(int j = 0; j < ot[i].size(); j++){
+      trans.push_back(tid_code_to_original(ot[i][j]));
+    }
+    bm.constructBinaryMatrixClogen(trans);
+    cout<<"BM FOR ";element_print(i);
+    cout<<endl; 
+    bm.PrintInfo();
+    all_bms.push_back(bm); 
+  }
+
+  
+
   threshold = std::atoi(argv[idx+1]) ; 
 
   set_t empty_set; 
