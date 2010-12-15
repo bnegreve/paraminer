@@ -65,8 +65,9 @@ void read_transaction_table_vtrans(TransactionTable *tt, const char *filename){
   ifstream ifs (filename , ifstream::in);
   int nb_items = 0; 
   int t1 = 0, t2 = 1;
-  
+  ifs.ignore(256, '\n');  /* skipe first line */
   while (ifs.good()){
+    
     string line; 
     stringstream ss; 
     Transaction t;
@@ -78,10 +79,14 @@ void read_transaction_table_vtrans(TransactionTable *tt, const char *filename){
     t.reserve(nb_attributes);
     while(ss.good()){
       t.push_back(item); 
-      ++nb_items;      
+      ++nb_items;
       ss>>item;
     }
-
+    if(!ss.fail()){
+      t.push_back(item); 
+      ++nb_items;
+      //   cout<<"READ "<<item<<endl; 
+    }  
     if(nb_attributes==0)
       nb_attributes = nb_items;
 
@@ -133,7 +138,7 @@ trans_t tid_code_to_original(int code){
 }
 
 void element_print(const element_t element){
-  cout<<" "<<element/2<<(element%2?"+":"-"); 
+  cout<<" "<<(element/2)+1<<(element%2?"+":"-"); 
 }
 
 int get_path_length(int current, vector< pair < pair <int, int>, int> > &t){
