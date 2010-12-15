@@ -219,6 +219,7 @@ bool BINARYMATRIX::checkRootTree(int k)
 	else return false;
 }
 
+/* returns true if transaction in bm contains nothing but 0 */
 bool BINARYMATRIX::checkZero(int transaction) throw ()
 {
 	//cout << sizeof(uint32_t)<<endl;

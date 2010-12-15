@@ -198,26 +198,27 @@ void set_intersect(set_t *out, const set_t &t1, const set_t &t2){
 /* function from GLCM */
 void recursion_Chk_Freq(int trans, BinaryMatrix BM, vector<int> & freMap)
 {
-	int BMSize = BM.getSize();
-	if (BM.checkZero(trans)) freMap[trans] = 1;
-		for(int j = 0; j < BMSize; j++)
-		{
-			if (BM.getValue(j,trans))
-			{
-				//if (BM.checkZero(j)) freMap[trans] = 1;
-				if (freMap[j] == -1) recursion_Chk_Freq(j,BM,freMap);
-				freMap[trans] = (freMap[trans]>freMap[j] + 1)?freMap[trans]:(freMap[j] + 1);
-			}
-		}
+  int BMSize = BM.getSize();
+  if (BM.checkZero(trans)) freMap[trans] = 1;
+  for(int j = 0; j < BMSize; j++)
+    {
+      if (BM.getValue(j,trans))
+	{
+	  if(BM.getValue(trans, j) == 0) /* make sure that we are not on an equal item */
+	    //if (BM.checkZero(j)) freMap[trans] = 1;
+	    if (freMap[j] == -1) recursion_Chk_Freq(j,BM,freMap);
+	  freMap[trans] = (freMap[trans]>freMap[j] + 1)?freMap[trans]:(freMap[j] + 1);
+	}
+    }
 }
-
+/* free map is a vector, containing the longest path from each trans ? */
 void loop_Chk_Freq(BinaryMatrix BM, vector<int> & freMap)
 {
-	int freMapSize = freMap.size();
-	for(int i = 0; i < freMapSize; i++)
-	{
-		recursion_Chk_Freq(i,BM,freMap);
-	}
+  int freMapSize = freMap.size();
+  for(int i = 0; i < freMapSize; i++)
+    {
+      recursion_Chk_Freq(i,BM,freMap);
+    }
 }
 
 int frequentCount(vector<int> & freMap)
@@ -237,6 +238,19 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   if(data.support[extension] < threshold)
     return 0; 
 
+
+  set_t s(base_set); 
+  s.push_back(extension);
+  sort(s.begin(), s.end());   
+  for(int i = 0; i < s.size()-1; i++){
+    if(s[i]/2 == (s[i+1])/2){
+      /* removes sets including X+ X- simultaneously */
+      //cout<<"REMOVED : "<<endl; 
+      //      set_print(s); 
+      return 0; 
+    }
+  }
+  
   // if(base_set.size()){
   //   if(base_set[0] < extension)
   //     if(base_set[0] %2==0){
@@ -277,18 +291,6 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   // set_print_raw(occurences);
   // cout<<"ENDDDDD"<<endl; 
   return sup>=threshold?sup:0;
-}
-
-int membership_oracle(const set_t &base_set, const element_t extension, 
-		      const TransactionTable &tt, const Transaction &occurences, const SupportTable &support){
-
-    int sup = get_longest_path(occurences);
-    cout<<"MEM"<<endl; 
-    set_print(base_set); 
-    element_print(extension); cout<<" "<<sup<<endl; 
-
-    cout<<"END"<<endl;
-    return sup>=threshold?sup:0;
 }
 
 
@@ -366,32 +368,6 @@ void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
         res &= *vBM[is[i]];
 }
 
-set_t clo(const set_t &set, const Transaction &occurences){
-
-
-#if 0 
-  set_t clo; 
-  vector<int> freq; 
-  Transaction::const_iterator t_it_end = occurences.end(); 
-  for(Transaction::const_iterator t_it = occurences.begin(); t_it != t_it_end; ++t_it){
-    if(*t_it >= freq.size())
-      freq.resize(*t_it); 
-    freq[*t_it]++; 
-  }
-  
-  for(int i = 0; i < freq.size(); i++){
-    if(freq[i] == occurences.size()){
-      clo.push_back(i); 
-    }
-  }
-  return clo; 
-#endif
-}
-
-set_t clo(const set_t &s){
-  return s; 
-}
-
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
 
@@ -437,8 +413,8 @@ int main(int argc, char **argv){
   cout<<"nb_attributes "<<nb_attributes<<endl;
   tt_to_grad_items(&tt, tmp); 
   cout<<nb_initial_trans<<endl;
-  print_transaction_table(tt); 
-  print_grad_transaction_table(tt);   
+  //  print_transaction_table(tt); 
+  //  print_grad_transaction_table(tt);   
   tt.max_element = ELEMENT_RANGE_END; 
   transpose(tt, &ot);
 
@@ -450,10 +426,11 @@ int main(int argc, char **argv){
     for(int j = 0; j < ot[i].size(); j++){
       trans.push_back(tid_code_to_original(ot[i][j]));
     }
+ cout<<"BM FOR ";element_print(i);
     bm.constructBinaryMatrixClogen(trans);
-    cout<<"BM FOR ";element_print(i);
+    
     cout<<endl; 
-    bm.PrintInfo();
+    //     bm.PrintInfo();
     all_bms.push_back(bm); 
   }
 
