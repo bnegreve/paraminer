@@ -270,10 +270,10 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   s.push_back(extension);
   sort(s.begin(), s.end());
 
-  if(s[0]%2==0)
+  if(s[0]%2==0) /* remove from F sets whose first element is a X- */
     return false; 
   for(int i = 0; i < s.size()-1; i++){
-    if(s[i]/2 == (s[i+1])/2){
+    if(s[i]/2 == (s[i+1])/2){ 
       /* removes sets including X+ X- simultaneously */
       //cout<<"REMOVED : "<<endl; 
       //      set_print(s); 

@@ -304,11 +304,17 @@ void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, s
   }
 
 
+
+  /* Here we build a matrix without cycles by merging transactions
+     that are equal according to pattern (theses transactions are the
+     one responsable of the cycles.  We keep trac of the merged
+     transactions inside siblings. It must be concidered we computing
+     the frequency since when two transactions are equal it is always
+     possible to loop once and include in the supporting path all the
+     equal transactions instead of just one*/
   sibling->resize(nb_trans);
-  
   for(int i = 0; i < nb_trans; i++)
     (*sibling)[i].push_back(i); 
-
   for(int i = 0; i < nb_trans; i++){
     for(int j = 0; j < nb_trans; j++){
       if(i != j)
