@@ -68,7 +68,7 @@ namespace nsPattern
 
 			//
 			void constructBinaryMatrix(int item, vector<TransactionSequence> & G1Item);
-			void constructBinaryMatrixClogen(const id_trans_t &transaction);
+			void constructBinaryMatrixClogen(const id_trans_t &transaction, std::vector<std::vector <int> > *sibling, int nb_trans);
 			//to write to file
 			list<pair<int,int> > findPair() throw();
 			list < pair<int,int> > buildLeastOrderMap() throw ();

@@ -273,6 +273,7 @@ bool BINARYMATRIX::isInclude(BinaryMatrix * bm) throw ()
 
 void BINARYMATRIX::constructBinaryMatrix(int item, vector<TransactionSequence> & G1Item)
 {
+  /* We put 1 in the BM[j][i] if ti < tj */
 	TransactionSequence ts = G1Item[item];
 	int tsSize = ts.size();
 	for (int i = 0; i < tsSize; i++)
@@ -292,15 +293,41 @@ void BINARYMATRIX::constructBinaryMatrix(int item, vector<TransactionSequence> &
 }
 
 
-void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction)
+void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, std::vector<std::vector <int> > *sibling, int nb_trans)
 {
   int col, row;
   for(int i = 0; i < transaction.size(); i++){
+    /* if transaction in in thransction means t1 < t2 according to the item */
     col = transaction[i].first; 
     row = transaction[i].second;
-    this->setValue(row, col, 1);
+    this->setValue(row, col, 1); /* therefore we set BM[t2][t1] to 1*/
   }
 
+
+  sibling->resize(nb_trans);
+  
+  for(int i = 0; i < nb_trans; i++)
+    (*sibling)[i].push_back(i); 
+
+  for(int i = 0; i < nb_trans; i++){
+    for(int j = 0; j < nb_trans; j++){
+      if(i != j)
+	if(this->getValue(i, j) == 1){
+	  if(this->getValue(j, i) == 1){
+	    for(int jj = 0; jj < nb_trans; jj++)
+	      if(this->getValue(j, jj)){
+		/* remove j from bm and use report all conections into i */
+		if( i != jj)
+		  this->setValue(i, jj, 1); 
+		this->setValue(j, jj, 0); 
+	      }	    
+	    (*sibling)[i].push_back(j);
+	    (*sibling)[j].clear();
+	  }
+	}
+    }
+  }
+  
 //   }
 
 // 	int tsSize = transaction.size();

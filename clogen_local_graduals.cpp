@@ -201,52 +201,77 @@ void set_intersect(set_t *out, const set_t &t1, const set_t &t2){
 
 }
 /* function from GLCM */
-void recursion_Chk_Freq(int trans, BinaryMatrix BM, vector<int> & freMap)
+void  recursion_Chk_Freq(int trans, BinaryMatrix BM, vector<int> & freMap, 
+			 const set_t &t_weights)
 {
+  	// int BMSize = BM.getSize();
+	// if (BM.checkZero(trans)) freMap[trans] = 1;
+	// 	for(int j = 0; j < BMSize; j++)
+	// 	{
+	// 		if (BM.getValue(j,trans))
+	// 		{
+	// 			//if (BM.checkZero(j)) freMap[trans] = 1;
+	// 			if (freMap[j] == -1) recursion_Chk_Freq(j,BM,freMap);
+	// 			freMap[trans] = (freMap[trans]>freMap[j] + 1)?freMap[trans]:(freMap[j] + 1);
+	// 		}
+	// 	}
   int BMSize = BM.getSize();
   if (BM.checkZero(trans)) freMap[trans] = 1;
-  for(int j = 0; j < BMSize; j++)
-    {
-      if (BM.getValue(j,trans))
-	{
-	  if(BM.getValue(trans, j) == 0) /* make sure that we are not on an equal item */
+  else{
+    for(int j = 0; j < BMSize; j++)
+      {
+  	if (BM.getValue(j,trans))
+  	  {
+	   
 	    //if (BM.checkZero(j)) freMap[trans] = 1;
-	    if (freMap[j] == -1) recursion_Chk_Freq(j,BM,freMap);
-	  freMap[trans] = (freMap[trans]>freMap[j] + 1)?freMap[trans]:(freMap[j] + 1);
-	}
+	    if (freMap[j] == -1) 
+	      recursion_Chk_Freq(j,BM,freMap, t_weights);
+	  }	
+      }
+    for(int j = 0; j < BMSize; j++){
+      int nb_siblings = t_weights[j]; 
+      if (BM.getValue(j,trans))
+	  freMap[trans] = 
+	    (freMap[trans]>freMap[j] + nb_siblings)?freMap[trans]:(freMap[j] + nb_siblings);
     }
+  }
 }
+
+//TODO change BM into a constant
 /* free map is a vector, containing the longest path from each trans ? */
-void loop_Chk_Freq(BinaryMatrix BM, vector<int> & freMap)
+void loop_Chk_Freq(BinaryMatrix BM, vector<int> & freMap, const set_t &t_weights)
 {
   int freMapSize = freMap.size();
   for(int i = 0; i < freMapSize; i++)
     {
-      recursion_Chk_Freq(i,BM,freMap);
+      recursion_Chk_Freq(i,BM,freMap, t_weights);
     }
 }
 
 int frequentCount(vector<int> & freMap)
 {
-	int maxFreq = 0;
-	int freMapSize = freMap.size();
-	for(int i = 0; i < freMapSize; i++)
-	{
-		if (freMap[i] > maxFreq) maxFreq = freMap[i]; 
-	}
-	return maxFreq;
+  int maxFreq = 0;
+  int freMapSize = freMap.size();
+  for(int i = 0; i < freMapSize; i++)
+    {
+      if (freMap[i] > maxFreq) maxFreq = freMap[i]; 
+    }
+  return maxFreq;
 }
 
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
 
-  if(data.support[extension] < threshold)
+  if(data.support[extension]+1 < threshold)
     return 0; 
 
 
   set_t s(base_set); 
   s.push_back(extension);
-  sort(s.begin(), s.end());   
+  sort(s.begin(), s.end());
+
+  if(s[0]%2==0)
+    return false; 
   for(int i = 0; i < s.size()-1; i++){
     if(s[i]/2 == (s[i+1])/2){
       /* removes sets including X+ X- simultaneously */
@@ -255,17 +280,8 @@ int membership_oracle(const set_t &base_set, const element_t extension,
       return 0; 
     }
   }
-  
-  // if(base_set.size()){
-  //   if(base_set[0] < extension)
-  //     if(base_set[0] %2==0){
-  // 	return 0;
-  //     }
-  // }
-  // else{
-  //   if(extension%2==0)
-  //     return 0; 
-  // }
+    // if(s.size() == 1)
+    //   return 1; 
   
   Occurence occurences;
   set_intersect(&occurences, data.base_set_occurences, data.extension_occurences);
@@ -281,10 +297,17 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   }
 
   BinaryMatrix bm(nb_vtrans);
-  bm.constructBinaryMatrixClogen(transaction_pairs); 
+
+  vector<vector<int> > siblings; 
+  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans); 
   
-  vector<int> freMap(nb_vtrans); 
-  loop_Chk_Freq(bm, freMap); 
+  vector<int> freMap(nb_vtrans, -1); 
+  set_t t_weights(nb_vtrans); 
+  for(int i = 0; i < siblings.size(); i++){
+    t_weights[i] = siblings[i].size(); 
+  }
+
+  loop_Chk_Freq(bm, freMap, t_weights); 
   int sup = frequentCount(freMap); 
   
   
@@ -301,59 +324,61 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
 void reduceBM(BinaryMatrix & BM, int threshold, bool & change)
 {
-	int maxTrans = 0;
-	int maxCount = 0;
-	//if (change) return;
-	maxTrans = BM.getMaxTrans(maxCount);
-	if (maxCount < (threshold-1)) 
-	{
-		BM.setBMtoZero();	
-		return;
-	}
-	BM.reduce_nonSupport_TS(threshold,change);
-	while (change) 
-	{		
-		BM.reduce_nonSupport_TS(threshold,change);
-		//cout << "....." << change << endl;
-	}
-	//reduceBM(BM, threshold,change);
+  int maxTrans = 0;
+  int maxCount = 0;
+  //if (change) return;
+  maxTrans = BM.getMaxTrans(maxCount);
+  if (maxCount < (threshold-1)) 
+    {
+      BM.setBMtoZero();	
+      return;
+    }
+  BM.reduce_nonSupport_TS(threshold,change);
+  while (change) 
+    {		
+      BM.reduce_nonSupport_TS(threshold,change);
+      //cout << "....." << change << endl;
+    }
+  //reduceBM(BM, threshold,change);
 }
 
 
-set_t calF(BinaryMatrix * BM, const vector<BinaryMatrix> & vBM, int & resFre)
+set_t calF(BinaryMatrix * BM, const vector<BinaryMatrix> & vBM, int & resFre, vector<vector <int> > &siblings)
 {
 
-	set_t is;
-	is.clear();
-	//TransactionSequence ts;
-	int BMSize = BM->getSize();
-	BinaryMatrix calFBM(BMSize);
-	calFBM = (*BM);
-	vector<int> freMap;
-	freMap.clear();
-	for (int i = 0; i < BMSize; i++)
-	{
-		freMap.push_back(-1);
-	}
-	loop_Chk_Freq(calFBM,freMap);
-	resFre = frequentCount(freMap);
-	if (resFre < threshold) return is;
+  set_t is;
+  is.clear();
+  //TransactionSequence ts;
+  int BMSize = BM->getSize();
+  BinaryMatrix calFBM(BMSize);
+  calFBM = (*BM);
+  vector<int> freMap(BMSize, -1);
 
-	bool change = false;
-	reduceBM(calFBM, resFre, change);
-	//bool bcf = CheckFrequent(BM, _threshold, freType, ts);
-	//if (!bcf) return is;
+  set_t t_weights(nb_vtrans); 
+  for(int i = 0; i < siblings.size(); i++){
+    t_weights[i] = siblings[i].size(); 
+  }
+  loop_Chk_Freq(calFBM,freMap, t_weights);
+  resFre = frequentCount(freMap);
+  if (resFre < threshold) return is;
+
+  bool change = false;
+  reduceBM(calFBM, resFre, change);
+  //bool bcf = CheckFrequent(BM, _threshold, freType, ts);
+  //if (!bcf) return is;
 
 
-	int G1ItemSize = ELEMENT_RANGE_END; 
-	for (int i = 0; i < G1ItemSize; i++)
-	{
-		//if (vBM[i]->isInclude(BM)) is.addItem(i);
-		BinaryMatrix tBM = vBM[i];
-		tBM &= (*BM);
-		if (tBM == (*BM)) is.push_back(i);
-	}
-	return is;
+  int G1ItemSize = ELEMENT_RANGE_END; 
+  for (int i = 0; i < G1ItemSize; i++)
+    {
+      //if (vBM[i]->isInclude(BM)) is.addItem(i);
+      BinaryMatrix tBM = vBM[i];
+      tBM &= (*BM);
+      if (tBM == (*BM)) {
+	is.push_back(i); 
+      }
+    }
+  return is;
 }
 
 
@@ -363,22 +388,20 @@ set_t calF(BinaryMatrix * BM, const vector<BinaryMatrix> & vBM, int & resFre)
 /* Computes the transactions quequences supporting itemset \is */
 void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
 {
-	int isSize = is.size();
-	if (isSize == 0)
-        return;
+  int isSize = is.size();
+  if (isSize == 0)
+    return;
 
-	res = *vBM[is[0]];
+  res = *vBM[is[0]];
 
-	for (int i = 1; i < isSize; i++)
-        res &= *vBM[is[i]];
+  for (int i = 1; i < isSize; i++)
+    res &= *vBM[is[i]];
 }
 
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
-
   const Occurence &occs = data.base_set_occurences; 
   id_trans_t transaction_pairs(occs.size());
-  
   
   int i=0; 
   for(Occurence::const_iterator it = occs.begin(); it != occs.end(); ++it){    
@@ -387,11 +410,77 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
   }
 
   BinaryMatrix bm(nb_vtrans);
-  bm.constructBinaryMatrixClogen(transaction_pairs); 
-  int a; 
-  set_t closed_set = calF(&bm, all_bms, a); 
+  vector<vector<int> > siblings; 
+  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans); 
   
-  return closed_set;
+  vector<int> freMap(nb_vtrans, -1); 
+  int a; 
+  set_t closed_set = calF(&bm, all_bms, a, siblings); 
+  
+  sort(closed_set.begin(), closed_set.end());
+
+  set_t closed_set_final; 
+  closed_set_final.reserve(closed_set.size());
+
+  /* Removes items at the beginning that are negative 
+     removes sibling items X+ X-, we remove only the ones not belonging to the closure*/ 
+  if(closed_set.size() >= 2 && closed_set.size() != set.size()){
+    int flag = 1;
+    bool discard_next = false; 
+    for(set_t::iterator i = closed_set.begin() ; i != closed_set.end(); ++i){
+      if(flag){
+	if(*i % 2 == 0){
+	  continue; 
+	}
+	flag = 0; 
+      }
+      if(discard_next){
+	if(set_member(set, *i)){
+	  /* if it belongs to the initial set, keep the element anyway */
+	  closed_set_final.push_back(*i); 
+	}
+	else{
+	  /* If this element is discarded, there is no need to compare
+	     it with the next one (only two items in a row)*/
+	  continue; 
+	}
+      }
+      
+      if(  i+1 == closed_set.end() || 
+	   (*i / 2 != *(i+1) / 2)){
+
+	/* include the current item */
+	closed_set_final.push_back(*i); 
+      }
+      else{
+	/*  sibling items */
+	if(set_member(set, *i)){
+	  /* if it belongs to the initial set, keep the element anyway */
+	  closed_set_final.push_back(*i); 
+	}	
+	discard_next=false; 
+      }
+    }
+  }
+  else{
+    closed_set_final=closed_set; 
+  }
+
+  //   for(set_t::iterator i = closed_set.begin() ; i != closed_set.end()-1; ++i){
+  //     if(*i / 2 == *(i+1) / 2){
+  // 	if(!set_member(set, *(i+1))){
+  // 	  //  	  closed_set.erase(i+1);
+  // 	  i = closed_set.begin(); 
+  // 	}
+  // 	if(!set_member(set, *(i))){
+  // 	  //  	  closed_set.erase(i);
+  // 	  i = closed_set.begin(); 
+  // 	}
+  //     }
+  //   }
+  // }
+  
+  return closed_set_final;
   //  return support_based_closure(set, set_support, support); 
 }
 
@@ -419,7 +508,7 @@ int main(int argc, char **argv){
   tt_to_grad_items(&tt, tmp); 
   cout<<nb_initial_trans<<endl;
   //  print_transaction_table(tt); 
-  //  print_grad_transaction_table(tt);   
+  print_grad_transaction_table(tt);   
   tt.max_element = ELEMENT_RANGE_END; 
   transpose(tt, &ot);
 
@@ -432,7 +521,18 @@ int main(int argc, char **argv){
       trans.push_back(tid_code_to_original(ot[i][j]));
     }
  cout<<"BM FOR ";element_print(i);
-    bm.constructBinaryMatrixClogen(trans);
+
+
+   vector<vector<int> > siblings; 
+  bm.constructBinaryMatrixClogen(trans,&siblings, nb_vtrans); 
+  
+  // vector<int> freMap(nb_vtrans, -1); 
+  // set_t t_weights(nb_vtrans); 
+  // for(int i = 0; i < siblings.size(); i++){
+  //   t_weights[i] = siblings[i].size(); 
+  // }
+
+  //   bm.constructBinaryMatrixClogen(trans);
     
     cout<<endl; 
     //     bm.PrintInfo();
