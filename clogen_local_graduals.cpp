@@ -296,6 +296,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
     transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid); 
   }
 
+  sort(transaction_pairs.begin(), transaction_pairs.end()); 
   BinaryMatrix bm(nb_vtrans);
 
   vector<vector<int> > siblings; 
@@ -410,9 +411,11 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
   }
 
   BinaryMatrix bm(nb_vtrans);
-  vector<vector<int> > siblings; 
-  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans); 
+  vector<vector<int> > siblings;
   
+  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans); 
+    sort(transaction_pairs.begin(), transaction_pairs.end()); 
+
   vector<int> freMap(nb_vtrans, -1); 
   int a; 
   set_t closed_set = calF(&bm, all_bms, a, siblings); 
