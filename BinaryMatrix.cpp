@@ -220,7 +220,7 @@ bool BINARYMATRIX::checkRootTree(int k)
 }
 
 /* returns true if transaction in bm contains nothing but 0 */
-bool BINARYMATRIX::checkZero(int transaction) throw ()
+bool BINARYMATRIX::checkZero(int transaction) const throw () 
 {
 	//cout << sizeof(uint32_t)<<endl;
 	int mSizeDec = ((m_size>>5)+1);

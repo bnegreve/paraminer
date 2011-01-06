@@ -42,7 +42,7 @@ namespace nsPattern
 			int		getSize			(void) const throw ();
 			void	setSize			(int size) throw ();
 
-			bool getValue (const int column, const int row) throw ();
+			bool getValue (const int column, const int row) const throw ();
 			void setValue (const int column, const int row, const bool & Val) throw ();
 			void Initialize (const int size)  throw ();
 			void PrintInfo (void) throw ();
@@ -55,7 +55,7 @@ namespace nsPattern
 			int getMaxTrans(int & maxCount) throw ();
 			bool checkRootTree(int k);
 			int getMaxChild(int transaction) throw ();
-			bool checkZero(int transaction) throw ();
+			bool checkZero(int transaction) const throw ();
 
 
 			//set to 0
@@ -111,7 +111,7 @@ namespace nsPattern
         m_BimaryMatrix = binaryMatrix;
     }
     
-    inline bool BinaryMatrix::getValue (const int column, const int row) throw ()
+    inline bool BinaryMatrix::getValue (const int column, const int row) const throw ()
     {
         return (m_BimaryMatrix[row*((m_size>>5)+1)+(column>>5)] & (1 << column%32));
 //        return m_BimaryMatrix[row*m_size+column];
