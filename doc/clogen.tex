@@ -25,10 +25,18 @@
 \newcommand{\OP}{\mathbb{O}}
 \newcommand{\clo}{\mathbb{C}}
 
-% \renewcommand{\algorithmiccomment}{//\it}
-% %\newcommand{\algorithmicforall}{\textbf{for all}}
-% \newcommand{\algorithmicintput}{\it input}
-\begin{document}
+\renewcommand{\algorithmiccomment}{//\it}
+%\newcommand{\algorithmicforall}{\textbf{for all}}
+\newcommand{\algorithmicintput}{\it input}
+ \begin{document}
+\begin{algorithm}[t]
+  \caption{ParaMiner}
+ \label{paraminer}
+ \begin{algorithmic}[1]
+  \REQUIRE {groundset $E$, membership oracle $\M$, closure operator $\clo$}
+  \STATE{$expand(\DB, \clo(\bot))$}
+\end{algorithmic}
+\end{algorithm}
 
 \begin{algorithm}[t]
   \caption{expand}
@@ -36,52 +44,74 @@
  \begin{algorithmic}[1]
   \REQUIRE {groundset $E$, membership oracle $\M$, closure operator $\clo$}
   \REQUIRE {database $\DB$, pattern $P \in \mathcal C$}
-  \PRINT $P$
   \FORALL {$e \in E$}
   \IF {$\M(P \cup \{e\})$}
   \STATE $Q := \clo(P \cup \{e\})$
-  \IF {get\_first\_parent($Q$) = $P$}
-  \STATE expand($\DB, P$)
+  \IF {$first\_parent(Q) = P$}
+  \PRINT $Q$
+  \STATE $expand(\DB, Q)$
   \ENDIF
   \ENDIF
   \ENDFOR
 \end{algorithmic}
 \end{algorithm}
 
+
 \begin{algorithm}[t]
-\caption{get\_first\_parent}
-\label{algo_gfp}
-\begin{algorithmic}[1]
-  \REQUIRE pattern $P, P \neq \bot $\AND$ P \neq \clo(\bot) $
-  \STATE $Z := P$
-  \WHILE {$Z \neq \emptyset$}
-  \STATE $e = $get\_tail\_element($Z$)
-  \STATE $X := Z \setminus \{e\}$
-  \IF{ $\clo(X) \neq P $}
-  \RETURN $(\clo(X), e$)
+  \caption{expand2}
+ \label{expand2}
+ \begin{algorithmic}[1]
+  \REQUIRE {groundset $E$, membership oracle $\M$, closure operator $\clo$}
+  \REQUIRE {database $\DB_P$, pattern $P \in \mathcal C$, exclusion list $EL$}
+  \FORALL {$e \in E$ with $occs(\mathcal DB, e) \neq \emptyset$}
+  \IF {$\M(\DB_P, P \cup \{e\}) = 1$}
+  \STATE{$EL := EL \cup \{e\}$}
+  \STATE $Q := \clo(\mathcal DB_P, P \cup \{e\})$
+  \IF {$EL \cap Q = \emptyset$}
+  \STATE {{\it //P is Q's the first parent}}
+  \PRINT $Q$
+  \STATE $DB_Q := reduce(\mathcal DB_P, Q)$
+  \STATE $expand(\DB_Q, Q, EL)$
   \ENDIF
-  \STATE $Z := X$
-  \ENDWHILE
-  \STATE
-  \COMMENT Never Reached
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[t]
-\caption{get\_tail\_element}
-\label{algo_gte}
-\begin{algorithmic}[1]
-  \REQUIRE pattern $P \in \F$
-  \STATE $max_e := nil$
-  \FORALL  {$e \in P$}
-  \IF {$\M(P \setminus \{e\}) = 1$}
-  \IF {$max_e = nil$ \OR $e > max_e$}
-  \STATE $max_e := e$
-  \ENDIF 
-  \ENDIF  
+  \ENDIF
   \ENDFOR
-  \RETURN $max_e$
 \end{algorithmic}
 \end{algorithm}
 
-\end{document}
+% \begin{algorithm}[t]
+% \caption{get\_first\_parent}
+% \label{algo_gfp}
+% \begin{algorithmic}[1]
+%   \REQUIRE pattern $P, P \neq \bot $\AND$ P \neq \clo(\bot) $
+%   \STATE $Z := P$
+%   \WHILE {$Z \neq \emptyset$}
+%   \STATE $e = $get\_tail\_element($Z$)
+%   \STATE $X := Z \setminus \{e\}$
+%   \IF{ $\clo(X) \neq P $}
+%   \RETURN $(\clo(X), e$)
+%   \ENDIF
+%   \STATE $Z := X$
+%   \ENDWHILE
+%   \STATE
+%   \COMMENT Never Reached
+% \end{algorithmic}
+% \end{algorithm}
+
+% \begin{algorithm}[t]
+% \caption{get\_tail\_element}
+% \label{algo_gte}
+% \begin{algorithmic}[1]
+%   \REQUIRE pattern $P \in \F$
+%   \STATE $max_e := nil$
+%   \FORALL  {$e \in P$}
+%   \IF {$\M(P \setminus \{e\}) = 1$}
+%   \IF {$max_e = nil$ \OR $e > max_e$}
+%   \STATE $max_e := e$
+%   \ENDIF 
+%   \ENDIF  
+%   \ENDFOR
+%   \RETURN $max_e$
+% \end{algorithmic}
+% \end{algorithm}
+
+ \end{document}
