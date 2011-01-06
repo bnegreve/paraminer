@@ -237,10 +237,8 @@ void  recursion_Chk_Freq(int trans, BinaryMatrix BM, vector<int> & freMap,
   }
 }
 
-
-/* function from GLCM */
-void  recursion_find_path(int trans, const BinaryMatrix &BM, vector<int> & freMap, 
-			  const vector<vector<int> > &siblings, vector<int> current_path, 
+void  recursion_find_path(int trans, const BinaryMatrix &BM, 
+			  const vector<vector<int> > &siblings,  
 			  vector<vector <int> > *path)
 {
 
@@ -257,7 +255,7 @@ void  recursion_find_path(int trans, const BinaryMatrix &BM, vector<int> & freMa
 	   
 	    //if (BM.checkZero(j)) freMap[trans] = 1;
 	    if ((*path)[j].size() == 0) 
-	      recursion_find_path(j,BM,freMap, siblings, current_path, path);
+	      recursion_find_path(j,BM,siblings, path);
 
 	      if((*path)[j].size() + nb_siblings > (*path)[trans].size()){
 		/* new path is greater */
@@ -277,6 +275,18 @@ void  recursion_find_path(int trans, const BinaryMatrix &BM, vector<int> & freMa
  
 }
 
+/* Computes longuest path in a binary matrix */
+void loop_find_longest_paths(const BinaryMatrix &BM,
+			     const vector<vector<int> > &siblings, 
+			     vector<vector <int> > *path)
+{
+  int psize = path->size();
+  for(int i = 0; i < psize; i++)
+    {
+      recursion_find_path(i,BM, siblings, path);
+    }
+}
+
 //TODO change BM into a constant
 /* free map is a vector, containing the longest path from each trans ? */
 void loop_Chk_Freq(BinaryMatrix BM, vector<int> & freMap, const set_t &t_weights)
@@ -288,17 +298,6 @@ void loop_Chk_Freq(BinaryMatrix BM, vector<int> & freMap, const set_t &t_weights
     }
 }
 
-void loop_find_longest_paths(const BinaryMatrix &BM, vector<int> & freMap,
-		    const vector<vector<int> > &siblings, 
-		    vector<vector <int> > *path)
-{
-  int freMapSize = freMap.size();
-  for(int i = 0; i < freMapSize; i++)
-    {
-      vector<int> cp; 
-      recursion_find_path(i,BM,freMap, siblings, cp, path);
-    }
-}
 
 
 int frequentCount(vector<int> & freMap)
@@ -361,8 +360,8 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
 
   vector<vector< int > > paths(nb_vtrans, vector<int>());
-  vector<int> freMap(nb_vtrans, -1); 
-  loop_find_longest_paths(bm, freMap, siblings, &paths);
+
+  loop_find_longest_paths(bm, siblings, &paths);
 
   for(int i = 0; i < paths.size(); i++){
     for(int j = 0; j < paths[i].size(); j++){
@@ -371,7 +370,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
     cout<<endl; 
   }
   getchar(); 
-  
+  vector<int> freMap(nb_vtrans, -1);   
   //  vector<int> freMap(nb_vtrans, -1); 
   set_t t_weights(nb_vtrans); 
   for(int i = 0; i < siblings.size(); i++){
