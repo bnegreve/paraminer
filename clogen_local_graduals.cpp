@@ -354,7 +354,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
     //    original_occurences[i++] = data.tt[*it].original_tid; 
     transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid);
-    cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
+    //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
 
   sort(transaction_pairs.begin(), transaction_pairs.end()); 
@@ -368,33 +368,37 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
   bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans); 
 
-  cout<<"BINARY MATRIX FOR : "<<endl;
-  set_print(s); 
-  bm.PrintInfo(); 
+  //  cout<<"BINARY MATRIX FOR : "<<endl;
+  //  set_print(s); 
+  //  bm.PrintInfo(); 
 
 
   vector<vector< int > > paths(nb_vtrans, vector<int>());
 
   loop_find_longest_paths(bm, siblings, &paths);
-  cout<<"PATHS"<<endl; 
-  for(int i = 0; i < paths.size(); i++){
-    for(int j = 0; j < paths[i].size(); j++){
-      cout<<paths[i][j]<<" "; 
-    }
-    cout<<endl; 
-  }
-  getchar(); 
-  vector<int> freMap(nb_vtrans, -1);   
-  //  vector<int> freMap(nb_vtrans, -1); 
-  set_t t_weights(nb_vtrans); 
-  for(int i = 0; i < siblings.size(); i++){
-    t_weights[i] = siblings[i].size(); 
-  }
+  // cout<<"PATHS"<<endl; 
+  // for(int i = 0; i < paths.size(); i++){
+  //   for(int j = 0; j < paths[i].size(); j++){
+  //     cout<<paths[i][j]<<" "; 
+  //   }
+  //   cout<<endl; 
+  // }
+  // getchar(); 
+  // vector<int> freMap(nb_vtrans, -1);   
+  // //  vector<int> freMap(nb_vtrans, -1); 
+  // set_t t_weights(nb_vtrans); 
+  // for(int i = 0; i < siblings.size(); i++){
+  //   t_weights[i] = siblings[i].size(); 
+  // }
 
-  loop_Chk_Freq(bm, freMap, t_weights); 
-  int sup = frequentCount(freMap); 
-  cout<<"SUP"<<sup<<endl;
-  
+  // loop_Chk_Freq(bm, freMap, t_weights); 
+  // int sup = frequentCount(freMap); 
+  // cout<<"SUP"<<sup<<endl;
+
+  int sup = 0; 
+  for(int i = 0; i < paths.size(); i++){
+    sup = std::max(sup, static_cast<int>(paths[i].size())); 
+  }
   //  int sup = get_longest_path(original_occurences);
   // cout<<"STARTTT"<<endl; 
   //   set_print(base_set); 
@@ -484,6 +488,7 @@ void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
 
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
+  return set; 
   const Occurence &occs = data.base_set_occurences; 
   id_trans_t transaction_pairs(occs.size());
   
