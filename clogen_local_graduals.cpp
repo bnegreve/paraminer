@@ -56,7 +56,7 @@ void print_grad_transaction(const Transaction &t){
  void print_grad_transaction_table(const TransactionTable &tt){
   for(int i = 0; i < tt.size(); i++){
     trans_t t = tid_code_to_original(i); 
-    cout<<t.first<<"x"<<t.second<<" : "; print_grad_transaction(tt[i]); 
+    cout<<i<<" "<<t.first<<"x"<<t.second<<" : "; print_grad_transaction(tt[i]); 
     cout<<endl;
   }
 }
@@ -260,14 +260,19 @@ void  recursion_find_path(int trans, const BinaryMatrix &BM,
 	      if((*path)[j].size() + nb_siblings > (*path)[trans].size()){
 		/* new path is greater */
 		//	      copy((*path)[j].begin(), (*path)[j].end(), (*path)[trans].end());
-		(*path)[trans].insert((*path)[trans].end(), 
-				      (*path)[j].begin(), (*path)[j].end()); 
+		vector<int> &current_path = (*path)[trans]; 
+		current_path.clear();
+		current_path.insert(current_path.begin(), siblings[trans].begin(), siblings[trans].end()); 
+		current_path.insert(current_path.end(), 
+				    (*path)[j].begin(), (*path)[j].end()); 
 	      
 	    }
 	  }	
       }
 
   }
+  
+  else
   (*path)[trans].insert((*path)[trans].begin(), siblings[trans].begin(), siblings[trans].end()); 
   // for(int i = 0; i < nb_siblings; i++){
   //   (*path)[trans].push_back(siblings[trans][i]); 
@@ -342,16 +347,25 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   id_trans_t transaction_pairs(occurences.size());
   
   
-  int i=0; 
+  int i=0;
+  
+  vector<vector<int> > siblings; 
+    
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
     //    original_occurences[i++] = data.tt[*it].original_tid; 
-    transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid); 
+    transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid);
+    cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
 
   sort(transaction_pairs.begin(), transaction_pairs.end()); 
+
+  
+  //print transaction pairs supporting pattern
+
+
   BinaryMatrix bm(nb_vtrans);
 
-  vector<vector<int> > siblings; 
+
   bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans); 
 
   cout<<"BINARY MATRIX FOR : "<<endl;
@@ -362,7 +376,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   vector<vector< int > > paths(nb_vtrans, vector<int>());
 
   loop_find_longest_paths(bm, siblings, &paths);
-
+  cout<<"PATHS"<<endl; 
   for(int i = 0; i < paths.size(); i++){
     for(int j = 0; j < paths[i].size(); j++){
       cout<<paths[i][j]<<" "; 

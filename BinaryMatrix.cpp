@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-
+#include <cassert>
 #include <map>
 
 using namespace std;
@@ -304,6 +304,19 @@ void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, s
   }
 
 
+  // /* Shrink the matrix
+  //    ie. merge sibling transactions keep track of the merging into sibling 2D array*/
+  // sibling->resize(nb_trans);
+  // for(int i = 0; i < nb_trans; i++)
+  //   for(int j = 0; j < nb_trans; j++){
+  //     if(i != j){
+  // 	if(getValue(i,j) && getValue(j, i)){
+  // 	  /* sibling transactions */
+	  
+  // 	}
+  //     }
+  // }
+  
 
   /* Here we build a matrix without cycles by merging transactions
      that are equal according to pattern (theses transactions are the
@@ -320,13 +333,23 @@ void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, s
       if(i != j)
 	if(this->getValue(i, j) == 1){
 	  if(this->getValue(j, i) == 1){
+	    /* sibling transactions */
+	    /* remove j from bm and use report all conections into i */
 	    for(int jj = 0; jj < nb_trans; jj++)
+	      //TODO remove from here 
 	      if(this->getValue(j, jj)){
-		/* remove j from bm and use report all conections into i */
-		if( i != jj)
+		if( i != jj){
+		  assert(this->getValue(i, jj)); /* TODO remove */
+		  /* repporting connections is useless unless this assert fails */
 		  this->setValue(i, jj, 1); 
-		this->setValue(j, jj, 0); 
-	      }	    
+		}
+		//TO HERE unless the assert fails 
+		this->setValue(j, jj, 0);
+	      }
+	  
+	    for(int ii = 0; ii < nb_trans; ii++){
+	      this->setValue(ii, j, 0);
+	    }
 	    (*sibling)[i].push_back(j);
 	    (*sibling)[j].clear();
 	  }
