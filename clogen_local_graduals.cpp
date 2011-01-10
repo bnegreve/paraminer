@@ -67,7 +67,7 @@ void read_transaction_table_vtrans(TransactionTable *tt, const char *filename){
   ifstream ifs (filename , ifstream::in);
   int nb_items = 0; 
   int t1 = 0, t2 = 1;
-  ifs.ignore(256, '\n');  /* skipe first line */
+  ifs.ignore(256, '\n');  /* skip first line */
   while (ifs.good()){
     
     string line; 
@@ -284,11 +284,13 @@ void  recursion_Chk_Freq(int trans, BinaryMatrix BM, vector<int> & freMap,
 }
 
 void  recursion_find_path(int trans, const BinaryMatrix &BM, 
-			  const vector<vector<int> > &siblings,  
+			  const vector<vector<int> > &siblings,
+			  vector<int> *path_length,
 			  vector<vector <int> > *path)
 {
 
-  if((*path)[trans].size() != 0)
+  /* TODO use a set instead of a vector, there is no node to keep the correct order */
+  if((*path_length)[trans] != 0)
     return; 
   int nb_siblings = siblings[trans].size(); 
   int BMSize = BM.getSize();
@@ -300,10 +302,13 @@ void  recursion_find_path(int trans, const BinaryMatrix &BM,
   	  {
 	   
 	    //if (BM.checkZero(j)) freMap[trans] = 1;
-	    if ((*path)[j].size() == 0) 
-	      recursion_find_path(j,BM,siblings, path);
+	    if ((*path_length)[j] == 0) 
+	      recursion_find_path(j,BM,siblings, path_length, path);
 
-	      if((*path)[j].size() + nb_siblings > (*path)[trans].size()){
+	    int current_path_length = (*path_length)[j] + nb_siblings; 
+
+	    if( current_path_length > (*path_length)[trans]){
+	      (*path_length)[trans] = current_path_length; 
 		/* new path is greater */
 		//	      copy((*path)[j].begin(), (*path)[j].end(), (*path)[trans].end());
 		vector<int> &current_path = (*path)[trans]; 
@@ -313,13 +318,25 @@ void  recursion_find_path(int trans, const BinaryMatrix &BM,
 				    (*path)[j].begin(), (*path)[j].end()); 
 	      
 	    }
+	    else if (current_path_length == (*path_length)[trans]){
+	      /* The to path are the same length. Keep track of all the
+		 node belonging to any potential longuest path*/
+	      vector<int> &current_path = (*path)[trans];
+	      current_path.insert(current_path.begin(), siblings[trans].begin(), siblings[trans].end()); 
+	      current_path.insert(current_path.end(), //TODO pas besoin d'ajouter les fere ils y sont deja
+				  (*path)[j].begin(), (*path)[j].end()); 
+	      
+	    }
 	  }	
       }
 
   }
   
-  else
-  (*path)[trans].insert((*path)[trans].begin(), siblings[trans].begin(), siblings[trans].end()); 
+  else{
+    (*path_length)[trans] = nb_siblings; 
+    (*path)[trans].insert((*path)[trans].begin(), siblings[trans].begin(), siblings[trans].end());
+  
+  }
   // for(int i = 0; i < nb_siblings; i++){
   //   (*path)[trans].push_back(siblings[trans][i]); 
   // }
@@ -328,13 +345,14 @@ void  recursion_find_path(int trans, const BinaryMatrix &BM,
 
 /* Computes longuest path in a binary matrix */
 void loop_find_longest_paths(const BinaryMatrix &BM,
-			     const vector<vector<int> > &siblings, 
+			     const vector<vector<int> > &siblings,
+			     vector<int> *path_length,
 			     vector<vector <int> > *path)
 {
   int psize = path->size();
   for(int i = 0; i < psize; i++)
     {
-      recursion_find_path(i,BM, siblings, path);
+      recursion_find_path(i,BM, siblings, path_length, path);
     }
 }
 
@@ -363,10 +381,10 @@ int frequentCount(vector<int> & freMap)
 }
 
 
-int support_from_paths(const vector<vector<int> > &paths){
+int support_from_path_lengths(const vector<int> &path_lengths){
   int sup = 0; 
-  for(int i = 0; i < paths.size(); i++){
-    sup = std::max(sup, static_cast<int>(paths[i].size())); 
+  for(int i = 0; i < path_lengths.size(); i++){
+    sup = std::max(sup, static_cast<int>(path_lengths[i])); 
   }
   return sup; 
 }
@@ -427,8 +445,8 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
   //getchar(); 
   vector<vector< int > > paths(nb_vtrans, vector<int>());
-  
-  loop_find_longest_paths(bm, siblings, &paths);
+  vector<int> path_length(nb_vtrans, 0); 
+  loop_find_longest_paths(bm, siblings, &path_length, &paths);
   // cout<<"PATHS"<<endl; 
   // for(int i = 0; i < paths.size(); i++){
   //   for(int j = 0; j < paths[i].size(); j++){
@@ -448,14 +466,15 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   // int sup = frequentCount(freMap); 
   // cout<<"SUP"<<sup<<endl;
 
-  int sup = support_from_paths(paths); 
+  int sup = support_from_path_lengths(path_length); 
   //  int sup = get_longest_path(original_occurences);
   // cout<<"STARTTT"<<endl; 
-  //   set_print(base_set); 
+  // set_print(base_set); 
   // element_print(extension); 
   // cout<<" SUP "<<sup<<endl;
   // set_print_raw(occurences);
-  // cout<<"ENDDDDD"<<endl; 
+  // cout<<"ENDDDDD"<<endl;
+
   return sup>=threshold?sup:0;
 }
 
@@ -536,14 +555,15 @@ void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
     res &= *vBM[is[i]];
 }
 
-void extract_longuest_path_nodes(vector<int> *nodes, const vector<vector <int> > &paths){
+void extract_longuest_path_nodes(vector<int> *nodes, const vector<int> &path_lengths, 
+				 const vector<vector <int> > &paths){
   /* find longuest path */
-  int max = support_from_paths(paths);
+  int max = support_from_path_lengths(path_lengths);
 
   std::set<int> node_set; 
   
   for(int i = 0; i < paths.size(); i++){
-    if(paths[i].size() == max){
+    if(path_lengths[i] == max){
       node_set.insert(paths[i].begin(), paths[i].end()); 
     }
   }
@@ -595,11 +615,11 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
 
 
   vector<vector< int > > paths(nb_vtrans, vector<int>());
-  
-  loop_find_longest_paths(bm_no_cycles, siblings, &paths);
+  vector<int> path_lengths(nb_vtrans, 0); 
+  loop_find_longest_paths(bm_no_cycles, siblings, &path_lengths, &paths);
 
   vector<int> longuest_path_nodes; 
-  extract_longuest_path_nodes(&longuest_path_nodes, paths); 
+  extract_longuest_path_nodes(&longuest_path_nodes, path_lengths, paths); 
   restrict_binary_matrix(&bm, longuest_path_nodes);
 
 
@@ -744,7 +764,8 @@ int main(int argc, char **argv){
   cout<<"nb_attributes "<<nb_attributes<<endl;
   tt_to_grad_items(&tt, tmp); 
   cout<<nb_initial_trans<<endl;
-  //  print_transaction_table(tt); 
+  //  print_transaction_table(tt);
+  
   print_grad_transaction_table(tt);   
   tt.max_element = ELEMENT_RANGE_END; 
   transpose(tt, &ot);
