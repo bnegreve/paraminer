@@ -140,7 +140,7 @@ trans_t tid_code_to_original(int code){
 }
 
 void element_print(const element_t element){
-  cout<<" "<<(element/2)+1<<(element%2?"+":"-"); 
+  cout<<" "<<(element/2)+1<<(element%2?"-":"+"); 
 }
 
 int get_path_length(int current, vector< pair < pair <int, int>, int> > &t){
@@ -400,9 +400,12 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   s.push_back(extension);
   sort(s.begin(), s.end());
 
-  if(s[0]%2==0) /* remove from F sets whose first element is a X- */
-    return false; 
-  for(int i = 0; i < s.size()-1; i++){
+  if(s[0]%2==1) /* remove from F sets whose first element is a X- */
+      return 0; 
+
+
+  #if 0 
+for(int i = 0; i < s.size()-1; i++){
     if(s[i]/2 == (s[i+1])/2){ 
       /* removes sets including X+ X- simultaneously */
       //cout<<"REMOVED : "<<endl; 
@@ -410,6 +413,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
       return 0; 
     }
   }
+#endif 
     // if(s.size() == 1)
     //   return 1; 
   
@@ -587,7 +591,7 @@ void restrict_binary_matrix(BinaryMatrix *bm, const vector<int> &nodes){
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
   set_t c;
-  // return set; 
+  //   return set; 
   c.reserve(set.size()); 
   const Occurence &occs = data.base_set_occurences; 
   id_trans_t transaction_pairs(occs.size());
@@ -620,43 +624,34 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
 
   vector<int> longuest_path_nodes; 
   extract_longuest_path_nodes(&longuest_path_nodes, path_lengths, paths); 
-  restrict_binary_matrix(&bm, longuest_path_nodes);
+  //restrict_binary_matrix(&bm, longuest_path_nodes);
 
 
   bool first_positive_flag = false;
   bool discard_next = false; 
   for(int i = 0; i < all_bms.size(); i++){    
     if(set_member(set, i)){
-      c.push_back(i); 
-      if(i%2==1)
+      c.push_back(i);
+      if(i%2==0)
 	first_positive_flag = true; 
-      else
-	discard_next = true; 
     }
     else{
-      if(!first_positive_flag && i%2==0)
-	continue;
+    /* skip negative items before first positive item */ 
+      if(i%2==1) 
+	if(!first_positive_flag)
+	  continue;    
       
-      if(discard_next || 
-	 (i%2==0) && set_member(set, i+1)){
-	/* if current item is the opposite of an item that belongs to the base set, skip it
-	   ie. 
-	   if previous item is negative and in the base set 
-	   or if current item is negative and the next one is in the base set */
-	discard_next = false; 
-	continue;
-      }
       BinaryMatrix bme(all_bms[i]); 
-      restrict_binary_matrix(&bme, longuest_path_nodes); 
+      //    restrict_binary_matrix(&bme, longuest_path_nodes); 
       bme &= bm; 
       if(bme == bm){
 	c.push_back(i); 
-	if(i%2==1)
+	if(i%2==0)
 	  first_positive_flag = true; 
       }
     }
   }
-
+  return c; 
   set_t final; 
   bool skip = false; 
   for(int i = 0; i < c.size(); i++){
@@ -679,6 +674,8 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
   set_t closed_set_final; 
   closed_set_final.reserve(closed_set.size());
 
+
+#if 0 //CODE TO REMOVE OPOSITE ELEMENTS
   /* Removes items at the beginning that are negative 
      removes sibling items X+ X-, we remove only the ones not belonging to the closure*/ 
   if(closed_set.size() >= 2 && closed_set.size() != set.size()){
@@ -722,6 +719,7 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
   else{
     closed_set_final=closed_set; 
   }
+#endif //REMOVE OPOSITE ELEMENTS
 
   //   for(set_t::iterator i = closed_set.begin() ; i != closed_set.end()-1; ++i){
   //     if(*i / 2 == *(i+1) / 2){
