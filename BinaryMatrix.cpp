@@ -318,64 +318,6 @@ void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, s
   // }
   
 
-  /* Here we build a matrix without cycles by merging transactions
-     that are equal according to pattern (theses transactions are the
-     one responsable of the cycles.  We keep trac of the merged
-     transactions inside siblings. It must be concidered we computing
-     the frequency since when two transactions are equal it is always
-     possible to loop once and include in the supporting path all the
-     equal transactions instead of just one*/
-  sibling->resize(nb_trans);
-  for(int i = 0; i < nb_trans; i++)
-    (*sibling)[i].push_back(i); 
-  for(int i = 0; i < nb_trans; i++){
-    for(int j = 0; j < nb_trans; j++){
-      if(i != j)
-	if(this->getValue(i, j) == 1){
-	  if(this->getValue(j, i) == 1){
-	    /* sibling transactions */
-	    /* remove j from bm and use report all conections into i */
-	    for(int jj = 0; jj < nb_trans; jj++)
-	      //TODO remove from here 
-	      if(this->getValue(j, jj)){
-		if( i != jj){
-		  assert(this->getValue(i, jj)); /* TODO remove */
-		  /* repporting connections is useless unless this assert fails */
-		  this->setValue(i, jj, 1); 
-		}
-		//TO HERE unless the assert fails 
-		this->setValue(j, jj, 0);
-	      }
-	  
-	    for(int ii = 0; ii < nb_trans; ii++){
-	      this->setValue(ii, j, 0);
-	    }
-	    (*sibling)[i].push_back(j);
-	    (*sibling)[j].clear();
-	  }
-	}
-    }
-  }
-  
-//   }
-
-// 	int tsSize = transaction.size();
-
-	
-// 	for (int i = 0; i < tsSize; i++)
-// 	{
-// 		for (int j = 0; j < tsSize; j++)
-// 		{
-// 			int row = ts.getTransactionAt(i);
-// 			int col = ts.getTransactionAt(j);
-//             /*if (j > i)
-//             m_BimaryMatrix[row*((m_size>>5)+1)+(col>>5)] |= (1 << col%32);
-//         else
-//             m_BimaryMatrix[row*((m_size>>5)+1)+(col>>5)] &= ~(1 << col%32);*/
-// 			this->setValue(col, row, (j > i));
-// //            m_BimaryMatrix[row*m_size+col] = (j > i);
-// 		}
-// 	}
 }
 
 //to write to file

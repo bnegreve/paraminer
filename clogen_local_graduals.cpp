@@ -8,6 +8,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <set>
+
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
@@ -200,6 +202,50 @@ void set_intersect(set_t *out, const set_t &t1, const set_t &t2){
   out->resize(it-out->begin());
 
 }
+
+
+void binary_matrix_remove_short_cycles(BinaryMatrix *bm, vector<vector<int> > *sibling, int nb_trans){
+  /* Here we build a matrix without cycles by merging transactions
+     that are equal according to pattern (theses transactions are the
+     one responsable of the cycles.  We keep trac of the merged
+     transactions inside siblings. It must be concidered we computing
+     the frequency since when two transactions are equal it is always
+     possible to loop once and include in the supporting path all the
+     equal transactions instead of just one*/
+  sibling->resize(nb_trans);
+  for(int i = 0; i < nb_trans; i++)
+    (*sibling)[i].push_back(i); 
+  for(int i = 0; i < nb_trans; i++){
+    for(int j = 0; j < nb_trans; j++){
+      if(i != j)
+	if(bm->getValue(i, j) == 1){
+	  if(bm->getValue(j, i) == 1){
+	    /* sibling transactions */
+	    /* remove j from bm and use report all conections into i */
+	    for(int jj = 0; jj < nb_trans; jj++)
+	      //TODO remove from here 
+	      if(bm->getValue(j, jj)){
+		if( i != jj){
+		  assert(bm->getValue(i, jj)); /* TODO remove */
+		  /* repporting connections is useless unless this assert fails */
+		  bm->setValue(i, jj, 1); 
+		}
+		//TO HERE unless the assert fails 
+		bm->setValue(j, jj, 0);
+	      }
+	  
+	    for(int ii = 0; ii < nb_trans; ii++){
+	      bm->setValue(ii, j, 0);
+	    }
+	    (*sibling)[i].push_back(j);
+	    (*sibling)[j].clear();
+	  }
+	}
+    }
+  }
+}
+
+
 /* function from GLCM */
 void  recursion_Chk_Freq(int trans, BinaryMatrix BM, vector<int> & freMap, 
 			 const set_t &t_weights)
@@ -316,6 +362,15 @@ int frequentCount(vector<int> & freMap)
   return maxFreq;
 }
 
+
+int support_from_paths(const vector<vector<int> > &paths){
+  int sup = 0; 
+  for(int i = 0; i < paths.size(); i++){
+    sup = std::max(sup, static_cast<int>(paths[i].size())); 
+  }
+  return sup; 
+}
+
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
 
@@ -348,8 +403,6 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   
   
   int i=0;
-  
-  vector<vector<int> > siblings; 
     
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
     //    original_occurences[i++] = data.tt[*it].original_tid; 
@@ -365,16 +418,16 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
   BinaryMatrix bm(nb_vtrans);
 
-
-  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans); 
-
-  //  cout<<"BINARY MATRIX FOR : "<<endl;
+  vector<vector<int> > siblings; 
+  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans);
+  binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans); 
+  //cout<<"BINARY MATRIX FOR : "<<endl;
   //  set_print(s); 
   //  bm.PrintInfo(); 
 
-
+  //getchar(); 
   vector<vector< int > > paths(nb_vtrans, vector<int>());
-
+  
   loop_find_longest_paths(bm, siblings, &paths);
   // cout<<"PATHS"<<endl; 
   // for(int i = 0; i < paths.size(); i++){
@@ -395,10 +448,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   // int sup = frequentCount(freMap); 
   // cout<<"SUP"<<sup<<endl;
 
-  int sup = 0; 
-  for(int i = 0; i < paths.size(); i++){
-    sup = std::max(sup, static_cast<int>(paths[i].size())); 
-  }
+  int sup = support_from_paths(paths); 
   //  int sup = get_longest_path(original_occurences);
   // cout<<"STARTTT"<<endl; 
   //   set_print(base_set); 
@@ -486,9 +536,39 @@ void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
     res &= *vBM[is[i]];
 }
 
+void extract_longuest_path_nodes(vector<int> *nodes, const vector<vector <int> > &paths){
+  /* find longuest path */
+  int max = support_from_paths(paths);
+
+  std::set<int> node_set; 
+  
+  for(int i = 0; i < paths.size(); i++){
+    if(paths[i].size() == max){
+      node_set.insert(paths[i].begin(), paths[i].end()); 
+    }
+  }
+
+  nodes->reserve(node_set.size());
+  nodes->insert(nodes->end(), node_set.begin(), node_set.end()); 
+  
+  //  copy(nodes->begin(), node_set.begin(), node_set.end()); 
+}
+
+void restrict_binary_matrix(BinaryMatrix *bm, const vector<int> &nodes){
+  vector<int> keep(bm->getSize(), 0); 
+  for(int i = 0; i < nodes.size(); i++){
+    keep[nodes[i]] = 1; 
+  }
+
+  for(int i = 0; i < keep.size(); i++)
+    if(!keep[i])
+      bm->resetIndex(i); 
+}
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
-  return set; 
+  set_t c;
+  // return set; 
+  c.reserve(set.size()); 
   const Occurence &occs = data.base_set_occurences; 
   id_trans_t transaction_pairs(occs.size());
   
@@ -497,13 +577,79 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
     //    original_occs[i++] = data.tt[*it].original_tid; 
     transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid); 
   }
+  sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
   BinaryMatrix bm(nb_vtrans);
   vector<vector<int> > siblings;
   
-  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans); 
-    sort(transaction_pairs.begin(), transaction_pairs.end()); 
+  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans);
 
+  /* TODO Retreive paths from membership computation */
+  BinaryMatrix bm_no_cycles(bm);
+  binary_matrix_remove_short_cycles(&bm_no_cycles, &siblings, nb_vtrans); 
+
+
+  //  cout<<"BINARY MATRIX FOR : "<<endl;
+  //  set_print(s); 
+  //  bm.PrintInfo(); 
+
+
+  vector<vector< int > > paths(nb_vtrans, vector<int>());
+  
+  loop_find_longest_paths(bm_no_cycles, siblings, &paths);
+
+  vector<int> longuest_path_nodes; 
+  extract_longuest_path_nodes(&longuest_path_nodes, paths); 
+  restrict_binary_matrix(&bm, longuest_path_nodes);
+
+
+  bool first_positive_flag = false;
+  bool discard_next = false; 
+  for(int i = 0; i < all_bms.size(); i++){    
+    if(set_member(set, i)){
+      c.push_back(i); 
+      if(i%2==1)
+	first_positive_flag = true; 
+      else
+	discard_next = true; 
+    }
+    else{
+      if(!first_positive_flag && i%2==0)
+	continue;
+      
+      if(discard_next || 
+	 (i%2==0) && set_member(set, i+1)){
+	/* if current item is the opposite of an item that belongs to the base set, skip it
+	   ie. 
+	   if previous item is negative and in the base set 
+	   or if current item is negative and the next one is in the base set */
+	discard_next = false; 
+	continue;
+      }
+      BinaryMatrix bme(all_bms[i]); 
+      restrict_binary_matrix(&bme, longuest_path_nodes); 
+      bme &= bm; 
+      if(bme == bm){
+	c.push_back(i); 
+	if(i%2==1)
+	  first_positive_flag = true; 
+      }
+    }
+  }
+
+  set_t final; 
+  bool skip = false; 
+  for(int i = 0; i < c.size(); i++){
+    if( (i+1 != c.size()) && (c[i]/2 == c[i+1]/2))
+      skip = true; 
+    else
+      if(!skip)
+	final.push_back(c[i]);
+      else
+	skip = false; 
+  }
+  
+  return final; 
   vector<int> freMap(nb_vtrans, -1); 
   int a; 
   set_t closed_set = calF(&bm, all_bms, a, siblings); 

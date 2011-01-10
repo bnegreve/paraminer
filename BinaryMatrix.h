@@ -87,6 +87,7 @@ namespace nsPattern
 			void reduce_nonSupport_TS(int threshold, bool & change);
 			bool checkTSZero(int k);
 			void setBMtoZero();
+			void resetIndex(int n); 
 			bool checkBMZero();
 
     }; // BINARYMATRIX
@@ -239,6 +240,16 @@ namespace nsPattern
 	{
 		bzero(m_BimaryMatrix, ((m_size>>5)+1)*m_size*sizeof(uint32_t));
 	}
+
+
+	inline void BinaryMatrix::resetIndex(int n){
+	  //TODO rewrite 
+	  for(int i = 0; i < m_size; i++){
+	    setValue(i,n,0);
+	    setValue(n,i,0); 
+	  }
+	}
+	
     std::ostream& operator<< (std::ostream & os, nsPattern::BinaryMatrix * db) throw ();
 } //nsPattern
 
