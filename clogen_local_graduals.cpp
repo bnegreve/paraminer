@@ -224,15 +224,15 @@ void binary_matrix_remove_short_cycles(BinaryMatrix *bm, vector<vector<int> > *s
 	    /* remove j from bm and use report all conections into i */
 	    for(int jj = 0; jj < nb_trans; jj++)
 	      //TODO remove from here 
-	      if(bm->getValue(j, jj)){
-		if( i != jj){
-		  assert(bm->getValue(i, jj)); /* TODO remove */
-		  /* repporting connections is useless unless this assert fails */
-		  bm->setValue(i, jj, 1); 
-		}
-		//TO HERE unless the assert fails 
-		bm->setValue(j, jj, 0);
-	      }
+	      // if(bm->getValue(j, jj)){
+	      // 	if( i != jj){
+	      // 	  assert(bm->getValue(i, jj)); /* TODO remove */
+	      // 	  /* repporting connections is useless unless this assert fails */
+	      // 	  bm->setValue(i, jj, 1); 
+	      // 	}
+	      //TO HERE unless the assert fails 
+	      bm->setValue(j, jj, 0);
+		  //	      }
 	  
 	    for(int ii = 0; ii < nb_trans; ii++){
 	      bm->setValue(ii, j, 0);
