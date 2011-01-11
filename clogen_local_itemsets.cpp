@@ -29,7 +29,7 @@ void element_print(const element_t element){
 
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
-  return data.support[extension] >= threshold; 
+  return data.support[extension] >= threshold ? data.support[extension] : 0; 
 }
 		      
 set_t clo(const set_t &s){
