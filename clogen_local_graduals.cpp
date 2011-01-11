@@ -356,15 +356,57 @@ void loop_find_longest_paths(const BinaryMatrix &BM,
     }
 }
 
-//TODO change BM into a constant
-/* free map is a vector, containing the longest path from each trans ? */
-void loop_Chk_Freq(BinaryMatrix BM, vector<int> & freMap, const set_t &t_weights)
-{
-  int freMapSize = freMap.size();
-  for(int i = 0; i < freMapSize; i++)
+int support_from_path_lengths(const vector<int> &path_lengths){
+  int sup = 0; 
+  for(int i = 0; i < path_lengths.size(); i++){
+    sup = std::max(sup, static_cast<int>(path_lengths[i])); 
+  }
+  return sup; 
+}
+
+void rec_compute_path_length(int trans, const BinaryMatrix &BM, 
+			     const vector<vector<int> > &siblings,
+			     vector<int> *path_length){
+
+  if((*path_length)[trans] != 0)
+    return; 
+  int nb_siblings = siblings[trans].size(); 
+  int BMSize = BM.getSize();
+  if (!BM.checkZero(trans)) {
+
+    for(int j = 0; j < BMSize; j++)
+      {
+  	if (BM.getValue(j,trans))
+  	  {
+	   
+	    //if (BM.checkZero(j)) freMap[trans] = 1;
+	    if ((*path_length)[j] == 0) 
+	      rec_compute_path_length(j,BM,siblings, path_length);
+
+	    int current_path_length = (*path_length)[j] + nb_siblings; 
+
+	    if( current_path_length > (*path_length)[trans]){
+	      (*path_length)[trans] = current_path_length; 	      
+	    }
+	  }	
+      }
+  }
+  else{
+    (*path_length)[trans] = nb_siblings; 
+  }
+}
+
+
+/* Same as loop_find_longuest_paths() but only computes support value (do not store the paths)*/
+int compute_gradual_support(const BinaryMatrix &BM, const vector<vector<int> > &siblings,
+			     vector<int> *path_length){
+  int psize = path_length->size();
+  for(int i = 0; i < psize; i++)
     {
-      recursion_Chk_Freq(i,BM,freMap, t_weights);
+      rec_compute_path_length(i,BM, siblings, path_length);
     }
+
+  return support_from_path_lengths(*path_length); 
 }
 
 
@@ -380,15 +422,6 @@ int frequentCount(vector<int> & freMap)
   return maxFreq;
 }
 
-
-int support_from_path_lengths(const vector<int> &path_lengths){
-  int sup = 0; 
-  for(int i = 0; i < path_lengths.size(); i++){
-    sup = std::max(sup, static_cast<int>(path_lengths[i])); 
-  }
-  return sup; 
-}
-
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
 
@@ -402,7 +435,6 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
   if(s[0]%2==1) /* remove from F sets whose first element is a X- */
       return 0; 
-
 
   #if 0 
 for(int i = 0; i < s.size()-1; i++){
@@ -432,7 +464,7 @@ for(int i = 0; i < s.size()-1; i++){
     //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
 
-  sort(transaction_pairs.begin(), transaction_pairs.end()); 
+  //sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
   
   //print transaction pairs supporting pattern
@@ -447,10 +479,21 @@ for(int i = 0; i < s.size()-1; i++){
   //  set_print(s); 
   //  bm.PrintInfo(); 
 
-  //getchar(); 
+
+
+  vector<int> path_length(nb_vtrans, 0);
+  
+  /* Find longuest path (useless)*/
+#if 0 
   vector<vector< int > > paths(nb_vtrans, vector<int>());
-  vector<int> path_length(nb_vtrans, 0); 
   loop_find_longest_paths(bm, siblings, &path_length, &paths);
+  int sup = support_from_path_lengths(path_length);   
+  // vector<int> path_length2(nb_vtrans, 0);   
+  // assert( sup == sup2); 
+#endif 
+
+ int sup = compute_gradual_support(bm, siblings, &path_length); 
+  
   // cout<<"PATHS"<<endl; 
   // for(int i = 0; i < paths.size(); i++){
   //   for(int j = 0; j < paths[i].size(); j++){
@@ -470,7 +513,7 @@ for(int i = 0; i < s.size()-1; i++){
   // int sup = frequentCount(freMap); 
   // cout<<"SUP"<<sup<<endl;
 
-  int sup = support_from_path_lengths(path_length); 
+
   //  int sup = get_longest_path(original_occurences);
   // cout<<"STARTTT"<<endl; 
   // set_print(base_set); 
@@ -519,7 +562,7 @@ set_t calF(BinaryMatrix * BM, const vector<BinaryMatrix> & vBM, int & resFre, ve
   for(int i = 0; i < siblings.size(); i++){
     t_weights[i] = siblings[i].size(); 
   }
-  loop_Chk_Freq(calFBM,freMap, t_weights);
+  //loop_Chk_Freq(calFBM,freMap, t_weights);
   resFre = frequentCount(freMap);
   if (resFre < threshold) return is;
 
@@ -591,7 +634,7 @@ void restrict_binary_matrix(BinaryMatrix *bm, const vector<int> &nodes){
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
   set_t c;
-  //   return set; 
+  //return set; 
   c.reserve(set.size()); 
   const Occurence &occs = data.base_set_occurences; 
   id_trans_t transaction_pairs(occs.size());
@@ -601,29 +644,33 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
     //    original_occs[i++] = data.tt[*it].original_tid; 
     transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid); 
   }
-  sort(transaction_pairs.begin(), transaction_pairs.end()); 
+  //  sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
   BinaryMatrix bm(nb_vtrans);
   vector<vector<int> > siblings;
   
   bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans);
+  
+  bool change = true; 
+
+  /* TODO REDUCTION FROM DOT, REMOVE.*/
+  //  reduceBM(bm, threshold, change); 
 
   /* TODO Retreive paths from membership computation */
   BinaryMatrix bm_no_cycles(bm);
-  binary_matrix_remove_short_cycles(&bm_no_cycles, &siblings, nb_vtrans); 
-
+  //  binary_matrix_remove_short_cycles(&bm_no_cycles, &siblings, nb_vtrans); 
 
   //  cout<<"BINARY MATRIX FOR : "<<endl;
   //  set_print(s); 
   //  bm.PrintInfo(); 
 
 
-  vector<vector< int > > paths(nb_vtrans, vector<int>());
-  vector<int> path_lengths(nb_vtrans, 0); 
-  loop_find_longest_paths(bm_no_cycles, siblings, &path_lengths, &paths);
+  //  vector<vector< int > > paths(nb_vtrans, vector<int>());
+  //  vector<int> path_lengths(nb_vtrans, 0); 
+  //  loop_find_longest_paths(bm_no_cycles, siblings, &path_lengths, &paths);
 
-  vector<int> longuest_path_nodes; 
-  extract_longuest_path_nodes(&longuest_path_nodes, path_lengths, paths); 
+  //  vector<int> longuest_path_nodes; 
+  //  extract_longuest_path_nodes(&longuest_path_nodes, path_lengths, paths); 
   //restrict_binary_matrix(&bm, longuest_path_nodes);
 
 
@@ -651,6 +698,15 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
       }
     }
   }
+
+  // if(set != c){
+
+  //   cout<<"FERMETURE DE "<<endl; 
+  //   set_print(set); 
+  //   cout<<" EST : "<<endl; 
+  //   set_print(c); 
+  //   cout<<"FIN"<<endl; 
+  // }
   return c; 
   set_t final; 
   bool skip = false; 
@@ -764,7 +820,7 @@ int main(int argc, char **argv){
   cout<<nb_initial_trans<<endl;
   //  print_transaction_table(tt);
   
-  print_grad_transaction_table(tt);   
+  //  print_grad_transaction_table(tt);   
   tt.max_element = ELEMENT_RANGE_END; 
   transpose(tt, &ot);
 
