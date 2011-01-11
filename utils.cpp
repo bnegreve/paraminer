@@ -25,6 +25,18 @@ void set_print(const set_t &set){
   cout<<endl; 
 }
 
+void pattern_print(const set_t &set, int u_data){
+  if(set.size() == 0){
+    cout<<"{emptyset}"<<endl; 
+    return ; 
+  }
+  for(int i = 0 ; i < set.size(); i++){
+    element_print(set[i]); 
+    cout<<" "; 
+  }  
+  cout<<"("<<u_data<<")"<<endl;
+}
+
 void set_print_raw(const set_t &set){
   if(set.size() == 0){
     cout<<"{emptyset}"<<endl; 
