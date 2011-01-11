@@ -69,7 +69,7 @@ set_t clo(const set_t &set, const Transaction &occurences){
   return clo; 
 }
 
-set_t clo(const set_t &set, int set_support, const SupportTable &support){
+set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
   return support_based_closure(set, set_support, support); 
 }
 

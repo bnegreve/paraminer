@@ -299,7 +299,7 @@ set_t clo(const set_t &set){
   return clo;
 }
 
-set_t clo(const set_t &set, int set_support, const SupportTable &support){
+set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
   return clo(set); 
 }
 
