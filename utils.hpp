@@ -16,6 +16,9 @@
 
 void set_print(const set_t &set);
 
+
+void pattern_print(const set_t &set, int u_data); 
+  
 /** \brief Print a set without calling \element_print(); 
  */
 void set_print_raw(const set_t &set);
