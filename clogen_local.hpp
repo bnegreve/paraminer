@@ -70,7 +70,8 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 int membership_oracle(const set_t &base_set, const element_t extension, const membership_data_t &data);
 
 set_t clo(const set_t &set); 
-set_t clo(const set_t &set, int set_support, const SupportTable &support); 
+set_t clo(const set_t &set, int set_support, const SupportTable &support, 
+	  const membership_data_t &data); 
 
 
 int main(int argc, char **argv); 
