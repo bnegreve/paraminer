@@ -1,0 +1,17 @@
+../clogen_graduals ../grad/DATA/test_merge.data 5
+running with 1 thread(s).
+nb_attributes 3
+6
+BM FOR  1+
+BM FOR  1-
+BM FOR  2+
+BM FOR  2-
+BM FOR  3+
+BM FOR  3-
+CLOGEN DEBUG
+ 1+ (6)
+ 2+ (6)
+ 1+  2+ (5)
+ 2+  3+ (6)
+ 1+  2+  3+ (5)
+5 patterns mined

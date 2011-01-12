@@ -428,7 +428,6 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   if(data.support[extension]+1 < threshold)
     return 0; 
 
-
   set_t s(base_set); 
   s.push_back(extension);
   sort(s.begin(), s.end());
@@ -521,6 +520,14 @@ for(int i = 0; i < s.size()-1; i++){
   // cout<<" SUP "<<sup<<endl;
   // set_print_raw(occurences);
   // cout<<"ENDDDDD"<<endl;
+
+
+ 
+ // cout<<"TESTING ("<<sup<<endl; 
+ // set_print(s); 
+ // cout<<"DB"<<endl; 
+ // print_grad_transaction_table(data.tt);   
+ // cout<<"END"<<endl; 
 
   return sup>=threshold?sup:0;
 }

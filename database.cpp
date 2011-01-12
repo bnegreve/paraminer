@@ -214,7 +214,10 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
     new_tt->resize(new_tt->size()-1);
   }
 
-  //merge_identical_transactions(new_tt); 
+#ifdef DATABASE_MERGE_TRANS
+  merge_identical_transactions(new_tt);
+#endif //DATABASE_MERGE_TRANS  
+
 }
 
 

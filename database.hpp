@@ -15,6 +15,8 @@
 #include "pattern.hpp"
 #include "element.hpp"
 
+/* Enable merging of identical transactions */ 
+#define DATABASE_MERGE_TRANS
 
 typedef element_t tid_t; 
 
