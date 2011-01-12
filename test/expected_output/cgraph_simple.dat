@@ -1,11 +1,9 @@
 ../clogen_cgraph ../dag/test/ 1 1 
 running with 1 thread(s).
 ELEMENT_RANGE_END5
-DATABASE REDUCTION ENABLED
 CLOGEN DEBUG
-MELINDA DEBUG
-( 1, 2 ) : 
-( 3, 4 ) : 
-( 1, 2 ) : ( 1, 4 ) : ( 2, 2 ) : ( 3, 4 ) : 
-( 1, 2 ) : ( 3, 4 ) : ( 2, 3 ) : 
+( 1, 2 ) (1)
+( 3, 4 ) (1)
+( 1, 2 ) ( 1, 4 ) ( 2, 2 ) ( 3, 4 ) (1)
+( 1, 2 ) ( 3, 4 ) ( 2, 3 ) (1)
 4 patterns mined
