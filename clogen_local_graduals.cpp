@@ -430,8 +430,8 @@ int frequentCount(vector<int> & freMap)
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
 
-  if(data.support[extension]+1 < threshold)
-    return 0; 
+  //  if(data.support[extension]+1 < threshold)
+  //    return 0; 
 
   set_t s(base_set); 
   s.push_back(extension);
@@ -457,14 +457,17 @@ for(int i = 0; i < s.size()-1; i++){
   set_intersect(&occurences, data.base_set_occurences, data.extension_occurences);
   //  Occurence original_occurences(occurences.size()); 
 
-  id_trans_t transaction_pairs(occurences.size());
+  id_trans_t transaction_pairs;
+  transaction_pairs.reserve(occurences.size());
   
   
   int i=0;
     
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
-    //    original_occurences[i++] = data.tt[*it].original_tid; 
-    transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid);
+    //    original_occurences[i++] = data.tt[*it].original_tid;
+    const Transaction &cur = data.tt[*it]; 
+    for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2)
+      transaction_pairs.push_back(tid_code_to_original(*it2)); 
     //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
 
