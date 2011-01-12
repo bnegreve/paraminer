@@ -112,15 +112,11 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 	t.original_tid=nb_trans++; 
 	t.reserve(nb_attributes); 
 	for(int k = 0; k < input[i].size(); k++){
-	  if(input[i][k] < input[j][k]){
-	    t.push_back(2*k+1); 
-	  }
-	  else if(input[i][k] > input[j][k]){
+	  if(input[i][k] <= input[j][k]){
 	    t.push_back(2*k); 
 	  }
-	  else{
-	    	    t.push_back(2*k);
-		    t.push_back(2*k+1); 
+	  else if(input[i][k] >= input[j][k]){
+	    t.push_back(2*k+1); 
 	  }
 	}
 	output->push_back(t); 
