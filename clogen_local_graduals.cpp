@@ -58,7 +58,7 @@ void print_grad_transaction(const Transaction &t){
  void print_grad_transaction_table(const TransactionTable &tt){
   for(int i = 0; i < tt.size(); i++){
     trans_t t = tid_code_to_original(i); 
-    cout<<i<<" "<<t.first<<"x"<<t.second<<" : "; print_grad_transaction(tt[i]); 
+    cout<<i<<" "<<t.first<<"x"<<t.second<<" ("<<tt[i].weight<<") : "; print_grad_transaction(tt[i]); 
     cout<<endl;
   }
 }
@@ -109,6 +109,7 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
     for(int j = 0; j < input.size(); j++){
       if(i!=j){
 	Transaction t;
+	t.weight = 1; 
 	t.original_tid=nb_trans++; 
 	t.reserve(nb_attributes); 
 	for(int k = 0; k < input[i].size(); k++){
@@ -130,6 +131,7 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
   return 0; 
 }
 
+/* convert a tid code and return the original pair of transactions */ 
 trans_t tid_code_to_original(int code){
   trans_t t; 
   t.first = code / (nb_initial_trans-1); 
@@ -829,8 +831,11 @@ int main(int argc, char **argv){
   
   //  print_grad_transaction_table(tt);   
   tt.max_element = ELEMENT_RANGE_END; 
-  transpose(tt, &ot);
 
+#ifdef DATABASE_MERGE_TRANS
+  merge_identical_transactions(&tt); 
+#endif
+  transpose(tt, &ot);
 
   all_bms.reserve(ELEMENT_RANGE_END); 
   for(int i = 0; i < ELEMENT_RANGE_END; i++){

@@ -293,10 +293,6 @@ int clogen(set_t initial_pattern){
   m_tuplespace_init(&ts, sizeof(tuple_t), 0, TUPLESPACE_OPTIONAUTOCLOSE); 
   m_thread_register(); 
 
-#ifdef DATABASE_MERGE_TRANS
-  merge_identical_transactions(&tt); 
-#endif
-  
   set_t empty_set;
   set_t exclusion_list;
 
