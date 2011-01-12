@@ -110,7 +110,10 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
       if(i!=j){
 	Transaction t;
 	t.weight = 1; 
-	t.original_tid=nb_trans++; 
+#ifdef TRACK_TIDS
+	t.tids.push_back(nb_trans); 
+#endif //TRACK_TIDS
+	t.original_tid=nb_trans++;
 	t.reserve(nb_attributes); 
 	for(int k = 0; k < input[i].size(); k++){
 	  if(input[i][k] < input[j][k]){

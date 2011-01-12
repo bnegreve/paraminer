@@ -171,8 +171,15 @@ void merge_identical_transactions(TransactionTable *tt){
   Occurence::const_iterator end = sorted.end(); 
   for(Occurence::const_iterator currentTid = refTid+1; currentTid < end; ++currentTid){
     if(set_equal((*tt)[*currentTid], (*tt)[*refTid])){
-      (*tt)[*refTid].weight += (*tt)[*currentTid].weight; 
-      (*tt)[*currentTid].clear(); 
+      /* Merge the transactions */
+      Transaction &ref = (*tt)[*refTid];
+      Transaction &cur = (*tt)[*currentTid]; 
+      ref.weight += cur.weight; 
+      cur.clear();
+#ifdef TRACK_TIDS
+      ref.tids.insert(ref.tids.end(), cur.tids.begin(), cur.tids.end());
+      cur.tids.clear(); 
+#endif //TRACK_TIDS
       x++; 
     }
     else{
@@ -194,8 +201,12 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   Transaction *current_trans = &new_tt->back(); 
   for(Transaction::const_iterator occ_it = occurence.begin(); 
       occ_it != occurence.end(); ++occ_it){
+    //TODO use placement new cpy ctor instead ?
     current_trans->original_tid = tt[*occ_it].original_tid;
     current_trans->weight =  tt[*occ_it].weight;
+#ifdef TRACK_TIDS
+    current_trans->tids = tt[*occ_it].tids;
+#endif //TRACK_TIDS
     Transaction::const_iterator trans_it_end = tt[*occ_it].end(); 
     for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
 	trans_it != trans_it_end; ++trans_it){

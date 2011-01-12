@@ -16,13 +16,17 @@
 #include "element.hpp"
 
 /* Enable merging of identical transactions */ 
-//#define DATABASE_MERGE_TRANS
+#define DATABASE_MERGE_TRANS
+#define TRACK_TIDS
 
 typedef element_t tid_t; 
 
 struct Transaction : set_t{
   int original_tid;
-  int weight; 
+  int weight;
+#ifdef TRACK_TIDS
+  set_t tids; 
+#endif 
 }; 
 struct TransactionTable : std::vector<Transaction>{
   element_t max_element;
