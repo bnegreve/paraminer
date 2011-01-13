@@ -180,11 +180,13 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   }
   
   if(extensions.size() > 0){
+    // TODO remove.. quite costly even for debug! 
+    assert(is_sorted(extensions)); 
+
     TransactionTable *new_tt = new TransactionTable;  // TODO free this memory !     
-    database_build_reduced(new_tt, tt, occs, support, *exclusion_list); //TODO occurences c, pas de s !
+    database_build_reduced(new_tt, tt, occs, support, *exclusion_list); 
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
-
 
     if(depth < depth_tuple_cutoff){
       set_t::const_iterator c_it_end = extensions.end(); 

@@ -197,8 +197,10 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 			    const set_t &exclusion_list){
   new_tt->max_element=0; 
   new_tt->reserve(occurence.size()); 
-  new_tt->push_back(Transaction()); 
+  new_tt->push_back(Transaction());
   Transaction *current_trans = &new_tt->back(); 
+
+  
   for(Transaction::const_iterator occ_it = occurence.begin(); 
       occ_it != occurence.end(); ++occ_it){
     //TODO use placement new cpy ctor instead ?
@@ -207,15 +209,28 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 #ifdef TRACK_TIDS
     current_trans->tids = tt[*occ_it].tids;
 #endif //TRACK_TIDS
-    Transaction::const_iterator trans_it_end = tt[*occ_it].end(); 
+    Transaction::const_iterator trans_it_end = tt[*occ_it].end();
+    int limit = 0; /* stores the limit between normal elements and elements from Xl */
     for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
 	trans_it != trans_it_end; ++trans_it){
-      if(support[*trans_it] > 0 /*&& !set_member(exclusion_list, *trans_it)*/){
+      if(support[*trans_it] > 0){
 	current_trans->push_back(*trans_it);
-	new_tt->max_element = std::max(new_tt->max_element, *trans_it); 
+	/* keep element in exclusion list at the end of transactions */
+	//TODO improve this EXTREAMLY costly ! 
+	if(!set_member(exclusion_list, *trans_it)){
+	  if(limit != current_trans->size()-1)
+	    std::swap(current_trans->back(), (*current_trans)[limit++]); 
+	}
       }
     }
+
     if(current_trans->size() > 0){
+      if(limit){
+	//TODO TSPFFFFF
+	sort((*current_trans).begin()+(limit-1), (*current_trans).end());
+	new_tt->max_element = std::max(new_tt->max_element, (*current_trans)[limit-1]);
+      }
+      new_tt->max_element = std::max(new_tt->max_element, current_trans->back());
       new_tt->push_back(Transaction()); 
       current_trans = &new_tt->back(); 
     }
