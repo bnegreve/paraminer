@@ -200,9 +200,12 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   new_tt->push_back(Transaction());
   Transaction *current_trans = &new_tt->back(); 
 
+  Transaction buffer; 
+  buffer.reserve(exclusion_list.size());
   
   for(Transaction::const_iterator occ_it = occurence.begin(); 
       occ_it != occurence.end(); ++occ_it){
+    
     //TODO use placement new cpy ctor instead ?
     current_trans->original_tid = tt[*occ_it].original_tid;
     current_trans->weight =  tt[*occ_it].weight;
@@ -214,22 +217,24 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
     for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
 	trans_it != trans_it_end; ++trans_it){
       if(support[*trans_it] > 0){
-	current_trans->push_back(*trans_it);
 	/* keep element in exclusion list at the end of transactions */
 	//TODO improve this EXTREAMLY costly ! 
-	if(!set_member(exclusion_list, *trans_it)){
-	  if(limit != current_trans->size()-1)
-	    std::swap(current_trans->back(), (*current_trans)[limit++]); 
+	if(set_member(exclusion_list, *trans_it)){
+	  buffer.push_back(*trans_it); 
+	}
+	else{
+	  current_trans->push_back(*trans_it);
 	}
       }
     }
-
+    
+    limit = current_trans->size(); 
+    current_trans->insert(current_trans->end(), buffer.begin(), buffer.end()); 
+    buffer.clear();
+    
     if(current_trans->size() > 0){
-      if(limit){
-	//TODO TSPFFFFF
-	sort((*current_trans).begin()+(limit-1), (*current_trans).end());
+      if(limit)
 	new_tt->max_element = std::max(new_tt->max_element, (*current_trans)[limit-1]);
-      }
       new_tt->max_element = std::max(new_tt->max_element, current_trans->back());
       new_tt->push_back(Transaction()); 
       current_trans = &new_tt->back(); 
