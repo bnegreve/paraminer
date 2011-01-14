@@ -278,7 +278,7 @@ void merge_identical_transactions(TransactionTable *tt){
   for(int i = 0; i < tt->size(); i++)
     sorted[i] = i ;
   
-  quick_sort_tids(*tt, &sorted, 0, sorted.size()); 
+  remove_non_closed(*tt, &sorted, 0, sorted.size()); 
 
   Occurence::const_iterator refTid = sorted.begin(); //sort transactions, lexical order
   Occurence::const_iterator end = sorted.end(); 
