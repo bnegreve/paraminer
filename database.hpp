@@ -79,7 +79,9 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 			    const Transaction &occurence, const SupportTable &support, 
 			    const set_t &exclusion_list); 
 
-
+void suffix_intersection(TransactionTable *tt, 
+			 std::vector<tid_t> *input,
+			 int begin, int end); 
 /** 
  * \brief Build a new database from a subset of the database \tt
  * Includes in the new table the occurences whose tids are in \occurences

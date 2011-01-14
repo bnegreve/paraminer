@@ -148,7 +148,7 @@ void remove_non_closed(TransactionTable &tt, Occurence *tids,
   if( (end - begin) <= 1)
     return; 
   
-  bool intersect_flag = false; 
+  int intersect = 0; 
   //  Array<item_t> siTids; 
   
   /* Select the middle as a pivot */
@@ -167,23 +167,23 @@ void remove_non_closed(TransactionTable &tt, Occurence *tids,
     if((cmp = set_lexical_compare_limited(pivot.begin(), pivot_limit,
 					  current_trans.begin(), 
 					  current_trans.limit)) == 1){
+      /* transaction is smaller than pivot, move its tid at the beginning of tids array */
       /* swap the tids */
       swap((*tids)[storeIdx], (*tids)[i]); 
       storeIdx++; 
     }
-    else if (cmp > 9){
+    else if (cmp == 0){
       /* Transactions are equal to the pivot, suffix intersection will be needed */ 
-      intersect_flag = true; 
+      intersect++; 
     }
   }
-
   swap((*tids)[storeIdx],   (*tids)[pivotIdx]);
 
   /* Sort first part */
   remove_non_closed(tt, tids, begin, storeIdx);
   
   /* Sort the second part and process to a SI on transaction equal to the pivot */
-  if(intersect_flag){
+  if(intersect){
     /* Partition of second window */
     int storeIdx2 = storeIdx+1; 
     for(int i = storeIdx+1; i < end; i++){
@@ -191,12 +191,14 @@ void remove_non_closed(TransactionTable &tt, Occurence *tids,
       const Transaction &current_trans = tt[currentTid]; 
       if(set_equal_limited(pivot, pivot_limit,
 			   current_trans, 
-			   current_trans.limit) > 1){
+			   current_trans.limit)){
 	/* swap the tids */
 	swap((*tids)[storeIdx2], (*tids)[i]); 
 	storeIdx2++;       
       }
     }
+    suffix_intersection(&tt, tids, storeIdx, storeIdx2);
+    storeIdx = storeIdx2-1; 
   }
   
   /* sort third part */
@@ -208,7 +210,7 @@ void suffix_intersection(TransactionTable *tt,
 			vector<tid_t> *input,
 			int begin, int end){
   
-  if((end - begin)  <= 1)
+  if((end - begin)  < 1)
     return; 
 
   TransactionTable &transactions = *tt;
@@ -254,14 +256,14 @@ void suffix_intersection(TransactionTable *tt,
   int refTransWeight = 0; 
   for(int i = begin+1; i < end; ++i){
     Transaction &cur = transactions[(*input)[i]];
-    refTransWeight += transactions[(*input)[i]].weight;
+    refTransWeight += cur.weight;
 #ifdef TRACK_TIDS    
       refTrans->tids.insert(refTrans->tids.end(), cur.tids.begin(), cur.tids.end());
       cur.tids.clear(); 
 #endif
       cur.clear();
   }
-  refTrans->weight = refTransWeight; 
+  refTrans->weight += refTransWeight; 
 }
 
 /* code from plcm */ 
@@ -478,7 +480,7 @@ void compute_element_support(SupportTable *support, const TransactionTable &tt,
     for(Transaction::const_iterator t_it = tt[*o_it].begin(); t_it != t_it_end; ++t_it){
       //      if(support->size() <= *t_it)
       //	support->resize(*t_it+1, 0); 
-      (*support)[*t_it]++; 
+      (*support)[*t_it]+=t_weight; 
     }
   }
 } 

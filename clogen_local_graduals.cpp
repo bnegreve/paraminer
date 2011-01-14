@@ -127,6 +127,7 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 	    t.push_back(2*k+1); 
 	  }
 	}
+	t.limit=t.size(); 
 	output->push_back(t); 
       }
     }
