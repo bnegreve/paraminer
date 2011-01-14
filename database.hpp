@@ -25,8 +25,10 @@ struct Transaction : set_t{
   int original_tid;
   int weight;
 #ifdef TRACK_TIDS
-  set_t tids; 
-#endif 
+  set_t tids;
+#endif
+  /* Index of the first element of the second sort */
+  int limit; 
 }; 
 struct TransactionTable : std::vector<Transaction>{
   element_t max_element;

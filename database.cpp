@@ -75,32 +75,6 @@ void data_base_shrink(TransactionTable *tt){
   
 }
 
-
-int set_lexical_compare(const set_t &t1, const set_t &t2){
-  set_t::const_iterator tp = t1.begin(), tpEnd = t1.end();   
-  set_t::const_iterator op = t2.begin(), opEnd = t2.end(); 
-  int i = 0; 
-  for(; tp < tpEnd && op < opEnd; ++tp, ++op, i++){
-    if(*tp == *op){
-      //      if(unlikely (*tp == prefixBound))
-      //	return i+10; /* if the transactions are equals up to the prefix */
-      continue; 
-    }
-    if(*tp > *op)
-      return 1; 
-    else
-      return -1; 
-  }
-    
-  if(tp == tpEnd && op == opEnd)
-    return 0; 
-  else
-    if(tp != tpEnd) 
-      return 1; 
-    else
-      return -1; 
-}
-
 struct tid_cmp{
   const TransactionTable *tt; 
   bool operator()(const int t1, const int t2){
@@ -114,7 +88,8 @@ void quick_sort_tids( const TransactionTable &tt, Occurence *tids,
   tid_cmp cmp; 
   cmp.tt=&tt; 
   std::sort(tids->begin(), tids->end(), cmp); 
-  return ; 
+  return ;
+  #if 0 
   //TODO remplace with a call to std::sort
   //  cout<<"ITER "<<begin<<" "<<end<<endl;
   //  getchar();
@@ -147,9 +122,147 @@ void quick_sort_tids( const TransactionTable &tt, Occurence *tids,
   (*tids)[pivotIdx] = tmp; 
 
   quick_sort_tids(tt, tids, begin, storeIdx);   
-  quick_sort_tids(tt, tids, storeIdx+1, end);   
+  quick_sort_tids(tt, tids, storeIdx+1, end);
+#endif 
 }
 
+/* remove elements in transaction that can never be the closure of any pattern in the given db
+   This is element that belong to the exclusion list (ie. they are not possible extensions) 
+   and don't belong to all the transactions with the same prefix
+   Also sort the tids in tids (code partially from plcm)
+*/
+void remove_non_closed(TransactionTable &tt, Occurence *tids, 
+		       int begin, int end){
+#if 0 
+  if(sort_only){
+    tid_cmp cmp; 
+    cmp.tt=&tt; 
+    std::sort(tids->begin(), tids->end(), cmp); 
+    return ;
+  }
+#endif 
+
+  //TODO remplace with a call to std::sort
+  //  cout<<"ITER "<<begin<<" "<<end<<endl;
+  //  getchar();
+  if( (end - begin) <= 1)
+    return; 
+  
+  bool intersect_flag = false; 
+  //  Array<item_t> siTids; 
+  
+  /* Select the middle as a pivot */
+  //  int pivotIdx = (end+begin)/2; 
+  //  const Transaction &pivot = transactions[(*tids)[pivotIdx]];
+  int pivotIdx = end-1; 
+  const Transaction &pivot = tt[(*tids)[pivotIdx]];
+  int pivot_limit = pivot.limit; 
+  //  cout<<pivotIdx<<" "<<pivot<<endl;
+  int storeIdx = begin; 
+  for (int i = begin; i < end-1; ++i) {
+    const tid_t currentTid = (*tids)[i];
+    const Transaction &current_trans = tt[currentTid]; 
+    //    cout<<"COMPARE "<<endl<<pivot<<endl<<"AND"<<endl<<transactions[currentTid]<<endl<<"RETURNED"<<pivot.lexicalGt(transactions[currentTid])<<endl;
+    int cmp; 
+    if((cmp = set_lexical_compare_limited(pivot.begin(), pivot_limit,
+					  current_trans.begin(), 
+					  current_trans.limit)) == 1){
+      /* swap the tids */
+      swap((*tids)[storeIdx], (*tids)[i]); 
+      storeIdx++; 
+    }
+    else if (cmp > 9){
+      /* Transactions are equal to the pivot, suffix intersection will be needed */ 
+      intersect_flag = true; 
+    }
+  }
+
+  swap((*tids)[storeIdx],   (*tids)[pivotIdx]);
+
+  /* Sort first part */
+  remove_non_closed(tt, tids, begin, storeIdx);
+  
+  /* Sort the second part and process to a SI on transaction equal to the pivot */
+  if(intersect_flag){
+    /* Partition of second window */
+    int storeIdx2 = storeIdx+1; 
+    for(int i = storeIdx+1; i < end; i++){
+      tid_t currentTid = (*tids)[i];
+      const Transaction &current_trans = tt[currentTid]; 
+      if(set_equal_limited(pivot, pivot_limit,
+			   current_trans, 
+			   current_trans.limit) > 1){
+	/* swap the tids */
+	swap((*tids)[storeIdx2], (*tids)[i]); 
+	storeIdx2++;       
+      }
+    }
+  }
+  
+  /* sort third part */
+  remove_non_closed(tt, tids, storeIdx+1, end);
+}
+
+/* Code from plcm */
+void suffix_intersection(TransactionTable *tt, 
+			vector<tid_t> *input,
+			int begin, int end){
+  
+  if((end - begin)  <= 1)
+    return; 
+
+  TransactionTable &transactions = *tt;
+ 
+  //TODO : do not proceed to anything if one transaction is <= index (shold to a first pass) */
+
+  tid_t refTransIndex = (*input)[begin];
+  Transaction *refTrans = &(transactions)[refTransIndex];
+  int limit = refTrans->limit; 
+  vector<int> buckets(1); 
+  bool flag = false; 
+  buckets.resize(tt->max_element+1, 0); 
+  for(int i = begin; i < end; ++i){
+    tid_t currentTid = (*input)[i];
+    Transaction &current_trans = (transactions)[currentTid]; 
+    if(current_trans.size() <= limit){ //intersection is empty !
+      flag = true;
+      break;
+    }    
+    else{
+      //TODO if one item is not present we can remove it (decrease MAXITEM ?)
+
+      Transaction::const_iterator x = current_trans.begin()+current_trans.limit; 
+      Transaction::const_iterator tEnd = current_trans.end(); 
+      for(; x < tEnd; ++x)
+	buckets[*x]++;
+    }
+  }
+
+  /* Troncate the current refTrans at item */
+  refTrans->resize(limit); 
+  
+  /* Add the intersection if non-empty */
+  if(!flag)
+    for(int i = 0 ; i <= tt->max_element; ++i){
+      if(buckets[i] == (end-begin)) //if item is present in all transactions, 
+	(*refTrans).push_back(i);    //it belongs to the intersection
+    }
+  
+  /* Clears others transactions */ 
+
+  
+  int refTransWeight = 0; 
+  for(int i = begin+1; i < end; ++i){
+    Transaction &cur = transactions[(*input)[i]];
+    refTransWeight += transactions[(*input)[i]].weight;
+#ifdef TRACK_TIDS    
+      refTrans->tids.insert(refTrans->tids.end(), cur.tids.begin(), cur.tids.end());
+      cur.tids.clear(); 
+#endif
+      cur.clear();
+  }
+  refTrans->weight = refTransWeight; 
+}
 
 /* code from plcm */ 
 void merge_identical_transactions(TransactionTable *tt){
@@ -213,7 +326,6 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
     current_trans->tids = tt[*occ_it].tids;
 #endif //TRACK_TIDS
     Transaction::const_iterator trans_it_end = tt[*occ_it].end();
-    int limit = 0; /* stores the limit between normal elements and elements from Xl */
     for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
 	trans_it != trans_it_end; ++trans_it){
       if(support[*trans_it] > 0){
@@ -228,13 +340,13 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
       }
     }
     
-    limit = current_trans->size(); 
+    current_trans->limit = current_trans->size(); 
     current_trans->insert(current_trans->end(), buffer.begin(), buffer.end()); 
     buffer.clear();
     
     if(current_trans->size() > 0){
-      if(limit)
-	new_tt->max_element = std::max(new_tt->max_element, (*current_trans)[limit-1]);
+      if(current_trans->limit != 0)
+	new_tt->max_element = std::max(new_tt->max_element, (*current_trans)[current_trans->limit-1]);
       new_tt->max_element = std::max(new_tt->max_element, current_trans->back());
       new_tt->push_back(Transaction()); 
       current_trans = &new_tt->back(); 
