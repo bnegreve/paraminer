@@ -172,11 +172,10 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 
     membership_data_t m_data = {tt, occs, ot[current], support};    
 
-    if( (u_data[current] = membership_oracle(c,current, m_data))){
-      //if(membership_oracle(candidate_set)){
       if(!set_member(*exclusion_list, current))
+	if( (u_data[current] = membership_oracle(c,current, m_data))){
 	extensions.push_back(current);      
-    }
+	}
   }
   
   if(extensions.size() > 0){
