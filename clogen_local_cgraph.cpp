@@ -335,6 +335,7 @@ int main(int argc, char **argv){
 
       Transaction t; 
       graph_to_transaction(&t, all_graphs.back()); 
+      t.weight = 1; 
       tt.push_back(t);
     }
   }
