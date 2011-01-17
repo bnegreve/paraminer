@@ -330,6 +330,7 @@ int main(int argc, char **argv){
   struct dirent *dirent; 
   while((dirent = readdir(dir))){
     if(dirent->d_name[0] != '.'){
+      //TODO file order depends, therfore element associated with edges can change therefore edge order can depends on final output, solve this issues it messes up with testing. 
       char buf[128];
       snprintf(buf, 128, "%s/%s", argv[idx], dirent->d_name);
       all_graphs.resize(all_graphs.size()+1); 
