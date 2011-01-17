@@ -14,8 +14,8 @@
 
 using namespace std; 
 
-extern TransactionTable tt; 
-extern TransactionTable ot; 
+extern TransactionTable &tt; 
+extern TransactionTable &ot; 
 
 extern int threshold; 
 

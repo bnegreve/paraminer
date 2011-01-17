@@ -13,8 +13,8 @@
 #include "database.hpp"
 #include "pattern.hpp"
 
-extern TransactionTable tt; 
-extern TransactionTable ot; 
+extern TransactionTable &tt; 
+extern TransactionTable &ot; 
 
 int clogen(set_t initial_pattern);
 

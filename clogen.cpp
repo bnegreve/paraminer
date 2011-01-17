@@ -8,7 +8,9 @@
 */
 #include <iostream>
 #include <algorithm>
+#include <map>
 #include <cstdio>
+#include <pthread.h> 
 
 #include "utils.hpp"
 #include "element.hpp"
@@ -34,10 +36,28 @@ int depth_tuple_cutoff = 2;
 using std::cout; 
 using std::endl;
 using std::cerr; 
-TransactionTable tt; 
-TransactionTable ot; 
+TransactionTable &tt = *new TransactionTable;
+TransactionTable &ot = *new TransactionTable; 
 
 int threshold; 
+
+static std::map<TransactionTable *, int> nb_refs_map; 
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
+void set_nb_refs(TransactionTable *p, int nb_refs){
+  pthread_mutex_lock(&mutex);
+  nb_refs_map[p] = nb_refs; 
+  pthread_mutex_unlock(&mutex); 
+}
+
+int decrease_nb_refs(TransactionTable *p){
+  int tmp; 
+  pthread_mutex_lock(&mutex);
+  assert(nb_refs_map[p] > 0); 
+  tmp = (nb_refs_map[p]-=1);
+  assert(nb_refs_map[p] >= 0); 
+  pthread_mutex_unlock(&mutex);
+  return tmp; 
+}
 
 /* Return the maximum element e so set \ {e} is in F */
 /* assumes set is ordered */
@@ -102,7 +122,8 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
   #endif
 }
 
-size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list, int sup){
+
+size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list, int sup){
   
   set_t set(s); 
   element_t max_element = tt.max_element;
@@ -157,6 +178,16 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
       ++cit; 
     else{
       /* we found one, pattern is not on the 1-parent branch*/
+
+      /* release the memory */
+      if(depth <= depth_tuple_cutoff){
+	if(decrease_nb_refs(&tt) == 0){
+	  delete &tt;
+	  delete &ot;
+	}
+      }
+      
+      /* and exit the branch */
       return 0; /* exit the exploration */
     }
   }
@@ -185,10 +216,10 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 
     membership_data_t m_data = {tt, occs, ot[current], support};    
 
-      if(!set_member(*exclusion_list, current))
-	if( (u_data[current] = membership_oracle(c,current, m_data))){
+    if(!set_member(*exclusion_list, current))
+      if( (u_data[current] = membership_oracle(c,current, m_data))){
 	extensions.push_back(current);      
-	}
+      }
   }
   
   if(extensions.size() > 0){
@@ -200,11 +231,19 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
 
+
+    if(depth <= depth_tuple_cutoff){
+      if(decrease_nb_refs(&tt) == 0){
+	delete &tt;
+	delete &ot;
+      }
+    }
+
     if(depth < depth_tuple_cutoff){
+      set_nb_refs(new_tt, extensions.size()); 
       set_t::const_iterator c_it_end = extensions.end(); 
       for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){
-	if(set_member(*exclusion_list, *c_it))
-	  continue; 
+	assert(!(set_member(*exclusion_list, *c_it)));
 	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
 	//	set_print(c); 
 	tuple_t tuple;
@@ -227,16 +266,25 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
       set_t::const_iterator c_it_end = extensions.end(); 
       for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
 	set_t new_exclusion_list(*exclusion_list);
-	if(set_member(*exclusion_list, *c_it))
-	  continue; 
 	num_pattern += expand(*new_tt, *new_ot, c, *c_it, depth+1, &new_exclusion_list, u_data[*c_it]);
 	/* insert the current extension into the exclusion list for the next calls.*/
 	exclusion_list->push_back(*c_it); 
       }
+
       delete new_tt;
       delete new_ot;
     }
   }
+
+  else{
+    if(depth <= depth_tuple_cutoff){
+      if(decrease_nb_refs(&tt) == 0){
+	delete &tt;
+	delete &ot;
+      }
+    }
+  }
+
   return num_pattern; 
 }
 
@@ -259,7 +307,8 @@ void *process_tuple(void *){
     num_patterns += expand(*tuple.tt, *tuple.ot, *tuple.s, tuple.e, 
 			   tuple.depth, tuple.exclusion_list, tuple.u_data);
     //    num_patterns += x; 
-    delete tuple.s; 
+    delete tuple.s;
+    delete tuple.exclusion_list; 
   }
   return reinterpret_cast<void*>(num_patterns); 
 }
@@ -290,11 +339,11 @@ int parse_clogen_arguments(int *argc, char **argv){
 	}
     }
   cout<<"running with "<<num_threads<<" thread(s)."<<endl;  
-
   return optind; 
 }
 
 int clogen(set_t initial_pattern){
+
   int num_pattern = 0; 
   cerr<<"DATABASE REDUCTION ENABLED"<<endl;
 #ifndef NDEBUG
@@ -316,25 +365,34 @@ int clogen(set_t initial_pattern){
   SupportTable support(tt.max_element+1, 0);  
   compute_element_support(&support, tt, all_tids);
 
-  
-  
+  set_t extensions; 
+  extensions.reserve(tt.max_element+1); 
+  set_t extensions_support(tt.max_element+1); 
+
   for(element_t  current = element_first(); 
       current != element_null; current = element_next(current)){
     membership_data_t m_data = {tt,all_tids,ot[current],support};
     int sup; 
     if( (sup = membership_oracle(empty_set,current, m_data)) ){
-      	tuple_t tuple;
-	tuple.tt = &tt; 
-	tuple.ot = &ot; 
-	tuple.s = new set_t(empty_set); 
-	tuple.e = current;
-	tuple.depth = 0;
-	tuple.exclusion_list = new set_t(exclusion_list);
-	tuple.u_data = sup; 
-	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
-	exclusion_list.push_back(current);
-	}
+      extensions.push_back(current); 
+      extensions_support[current] = sup; 
     }
+  }
+
+  set_nb_refs(&tt, extensions.size()); 
+  for(set_t::const_iterator extension = extensions.begin();
+      extension != extensions.end(); ++extension){
+      tuple_t tuple;
+      tuple.tt = &tt; 
+      tuple.ot = &ot; 
+      tuple.s = new set_t(empty_set); 
+      tuple.e = *extension;
+      tuple.depth = 0;
+      tuple.exclusion_list = new set_t(exclusion_list);
+      tuple.u_data = extensions_support[*extension]; 
+      m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
+      exclusion_list.push_back(*extension);    
+  }
   
 
   //  Run the threads

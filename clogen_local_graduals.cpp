@@ -199,15 +199,6 @@ int get_longest_path(const Occurence &occs){
 }
 
 
-void set_intersect(set_t *out, const set_t &t1, const set_t &t2){
-  assert(is_sorted(t1) && is_sorted(t2));
-  out->resize(std::min(t1.size(), t2.size()));
-  Transaction::iterator it;
-  it=set_intersection (t1.begin(), t1.end(), t2.begin(), t2.end(), out->begin());
-  
-  out->resize(it-out->begin());
-
-}
 
 
 void binary_matrix_remove_short_cycles(BinaryMatrix *bm, vector<vector<int> > *sibling, int nb_trans){

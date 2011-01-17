@@ -108,6 +108,16 @@ int set_lexical_compare(const set_t &t1, const set_t &t2){
       return -1; 
 }
 
+void set_intersect(set_t *out, const set_t &t1, const set_t &t2){
+  assert(is_sorted(t1) && is_sorted(t2));
+  out->resize(std::min(t1.size(), t2.size()));
+  Transaction::iterator it;
+  it=set_intersection (t1.begin(), t1.end(), t2.begin(), t2.end(), out->begin());
+  
+  out->resize(it-out->begin());
+
+}
+
 
 int set_lexical_compare_limited(set_t::const_iterator s1, int end1, 
 				set_t::const_iterator s2, int end2){

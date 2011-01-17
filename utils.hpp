@@ -41,6 +41,8 @@ bool set_equal_limited(const set_t &s1, int l1, const set_t &s2, int l2);
 
 int set_lexical_compare(const set_t &t1, const set_t &t2); 
 
+void set_intersect(set_t *out, const set_t &t1, const set_t &t2); 
+
 int set_lexical_compare_limited(set_t::const_iterator s1, int end1, 
 				set_t::const_iterator s2, int end2); 
 

@@ -32,6 +32,7 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
       ss>>item;
     }
     if(t.size() != 0){
+      t.limit=t.size(); 
       t.original_tid = nb_trans++;
       t.weight = 1;
       tt->push_back(t); 
@@ -222,9 +223,9 @@ void suffix_intersection(TransactionTable *tt,
   for(int i = begin+1; i < end; ++i){
     Transaction &cur = transactions[(*input)[i]];
     refTransWeight += cur.weight;
-#ifdef TRACK_TIDS    
-      refTrans->tids.insert(refTrans->tids.end(), cur.tids.begin(), cur.tids.end());
-      cur.tids.clear(); 
+#ifdef TRACK_TIDS
+    refTrans->tids.insert(refTrans->tids.end(), cur.tids.begin(), cur.tids.end());
+    cur.tids.clear(); 
 #endif
       cur.clear();
   }
