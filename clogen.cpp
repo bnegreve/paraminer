@@ -196,7 +196,7 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
     assert(is_sorted(extensions)); 
 
     TransactionTable *new_tt = new TransactionTable;  // TODO free this memory !     
-    database_build_reduced(new_tt, tt, occs, support, *exclusion_list); 
+    database_build_reduced(new_tt, tt, occs, support, *exclusion_list, extensions.size()>3); 
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
 
