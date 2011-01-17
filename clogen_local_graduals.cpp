@@ -431,6 +431,8 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
   if(s[0]%2==1) /* remove from F sets whose first element is a X- */
       return 0; 
+  if(base_set.size() == 0)
+    nb_vtrans;
 
   #if 0 
 for(int i = 0; i < s.size()-1; i++){
