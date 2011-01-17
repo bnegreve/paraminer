@@ -105,29 +105,28 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
 size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list, int sup){
   
   set_t set(s); 
-
+  element_t max_element = tt.max_element;
   /* occurences of e is occs of s u {e} since tt is restricted to occs(s) */
   Transaction occs = ot[e]; 
   
   
-  SupportTable support;
-  
+  SupportTable support(max_element+1, 0);  
   compute_element_support(&support, tt, ot[e]); 
   set.push_back(e);
   int set_support=support[e];
-  for(int i = 0; i < set.size(); i++){
-    if(set[i]<support.size()) //TODO REINTRODUCE MAXITEM
-      support[set[i]] = 0; 
+  for(set_t::const_iterator it = set.begin(); it != set.end(); ++it){
+    if(*it <= max_element)
+      support[*it] = 0; 
   }
 
   membership_data_t c_data = {tt, occs, ot[e], support};
-  set_t c = clo(set, set_support, support, c_data); 
-  //TODO ugly .. nevermind
-  for(int i = 0; i < c.size(); i++){
-    if(c[i]<support.size()) 
-      support[c[i]] = 0; //By doing this we remove from db the elements that already blong to the set.
+  set_t c = clo(set, set_support, support, c_data);
+  sort(c.begin(), c.end()); 
+  //TODO could be improved, 
+  for(set_t::const_iterator it = c.begin(); it != c.end(); ++it){
+    if(*it <= tt.max_element) 
+      support[*it] = 0; //By doing this we remove from db the elements that already blong to the set.
   }
-  //  std::sort(c.begin(), c.end()); //optional ?
 
   /* First parent test */ 
   /* We check here if the closed set \c has set \s as first parent. If
@@ -143,10 +142,25 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
     /* No need to explore this branch it will be explored from another recursive call */
     return 0;
 #else
-  for(int i = 0; i < c.size(); i++){
-    if(set_member(*exclusion_list, c[i]))
-      return 0;
+  
+  assert(is_sorted(c));
+  assert(is_sorted(*exclusion_list)); 
+  /* Check if one element from closed set belong to the exclusion list */ 
+  set_t::const_iterator xlit = exclusion_list->begin();
+  const set_t::const_iterator xlend = exclusion_list->end();
+  set_t::const_iterator cit = c.begin();  
+  const set_t::const_iterator cend = c.end();  
+  while(xlit != xlend && cit != cend){
+    if(*xlit < *cit)
+      ++xlit;
+    else if (*xlit > *cit)
+      ++cit; 
+    else{
+      /* we found one, pattern is not on the 1-parent branch*/
+      return 0; /* exit the exploration */
+    }
   }
+  
 #endif
   pattern_print(c,sup); 
   
@@ -299,7 +313,7 @@ int clogen(set_t initial_pattern){
   Occurence all_tids(tt.size()); 
   for(int i = 0; i < tt.size(); i++)
     all_tids[i]=i; 
-  SupportTable support;
+  SupportTable support(tt.max_element+1, 0);  
   compute_element_support(&support, tt, all_tids);
 
   

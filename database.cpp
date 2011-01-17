@@ -295,7 +295,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
     current_trans->original_tid = tt[*occ_it].original_tid;
     current_trans->weight =  tt[*occ_it].weight;
     Transaction::const_iterator limit = tt[*occ_it].begin() + tt[*occ_it].limit; 
-
+    set_t::const_iterator xlit = exclusion_list.begin(); 
 #ifdef TRACK_TIDS
     current_trans->tids = tt[*occ_it].tids;
 #endif //TRACK_TIDS
@@ -304,8 +304,6 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 	trans_it != trans_it_end; ++trans_it){
       if(support[*trans_it] > 0){
 #ifdef REMOVE_NON_CLOSED
-
-	set_t::const_iterator xlit = exclusion_list.begin(); 
 	/* keep element in exclusion list at the end of transactions */
 	if(trans_it >= limit)
 	  buffer.push_back(*trans_it); 
@@ -470,7 +468,6 @@ set_t canonical_form(set_t set, element_t *element){
 void compute_element_support(SupportTable *support, const TransactionTable &tt,
 			     const Occurence &occs){
 
-  support->resize(tt.max_element+1); 
   Transaction::const_iterator o_it_end = occs.end(); 
   for(Transaction::const_iterator o_it = occs.begin(); o_it != o_it_end; ++o_it){
     int t_weight = tt[*o_it].weight; 
