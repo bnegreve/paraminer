@@ -67,7 +67,7 @@ void read_transaction_table_vtrans(TransactionTable *tt, const char *filename){
   ifstream ifs (filename , ifstream::in);
   int nb_items = 0; 
   int t1 = 0, t2 = 1;
-  ifs.ignore(256, '\n');  /* skip first line */
+  ifs.ignore(2048, '\n');  /* skip first line */
   while (ifs.good()){
     
     string line; 
