@@ -18,6 +18,7 @@
 /* Enable merging of identical transactions */ 
 #define DATABASE_MERGE_TRANS
 #define TRACK_TIDS
+#define REMOVE_NON_CLOSED
 
 typedef element_t tid_t; 
 
@@ -65,7 +66,7 @@ void quick_sort_tids( const TransactionTable &tt, Occurence *tids,
  * 
  * @param tt the database to shrink
  */
-void merge_identical_transactions(TransactionTable *tt);
+void merge_identical_transactions(TransactionTable *tt, bool remove_non_closed = false);
 
 
 /** 

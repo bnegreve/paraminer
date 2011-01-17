@@ -88,42 +88,6 @@ void quick_sort_tids( const TransactionTable &tt, Occurence *tids,
   tid_cmp cmp; 
   cmp.tt=&tt; 
   std::sort(tids->begin(), tids->end(), cmp); 
-  return ;
-  #if 0 
-  //TODO remplace with a call to std::sort
-  //  cout<<"ITER "<<begin<<" "<<end<<endl;
-  //  getchar();
-  if( (end - begin) <= 1)
-    return; 
-
-  int siIdx=-1; 
-  //  Array<item_t> siTids; 
-
-  /* Select the middle as a pivot */
-  //  int pivotIdx = (end+begin)/2; 
-  //  const Transaction &pivot = transactions[(*tids)[pivotIdx]];
-  int pivotIdx = end-1; 
-  const Transaction &pivot = tt[(*tids)[pivotIdx]];
-  //  cout<<pivotIdx<<" "<<pivot<<endl;
-  int storeIdx = begin; 
-  for (int i = begin; i < end-1; ++i) {
-    const tid_t currentTid = (*tids)[i];
-    //    cout<<"COMPARE "<<endl<<pivot<<endl<<"AND"<<endl<<transactions[currentTid]<<endl<<"RETURNED"<<pivot.lexicalGt(transactions[currentTid])<<endl;
-    int cmp; 
-    if((cmp = set_lexical_compare(pivot, tt[currentTid])) == 1){
-      /* swap the tids */
-      tid_t tmp = (*tids)[storeIdx];
-      (*tids)[storeIdx++] = currentTid; 
-      (*tids)[i] = tmp; 
-    }
-  }
-  tid_t tmp = (*tids)[storeIdx];
-  (*tids)[storeIdx] = (*tids)[pivotIdx];
-  (*tids)[pivotIdx] = tmp; 
-
-  quick_sort_tids(tt, tids, begin, storeIdx);   
-  quick_sort_tids(tt, tids, storeIdx+1, end);
-#endif 
 }
 
 /* remove elements in transaction that can never be the closure of any pattern in the given db
@@ -176,6 +140,7 @@ void remove_non_closed(TransactionTable &tt, Occurence *tids,
       /* Transactions are equal to the pivot, suffix intersection will be needed */ 
       intersect++; 
     }
+
   }
   swap((*tids)[storeIdx],   (*tids)[pivotIdx]);
 
@@ -267,7 +232,7 @@ void suffix_intersection(TransactionTable *tt,
 }
 
 /* code from plcm */ 
-void merge_identical_transactions(TransactionTable *tt){
+void merge_identical_transactions(TransactionTable *tt, bool remove_non_closed_flag){
   //  cout<<"SIZE "<<tt->trans->size()<<" item "<<tt->item<<endl;
   int x = 0; 
   TransactionTable::iterator pTransactions = tt->begin(); 
@@ -279,27 +244,34 @@ void merge_identical_transactions(TransactionTable *tt){
   Occurence sorted(tt->size()); 
   for(int i = 0; i < tt->size(); i++)
     sorted[i] = i ;
-  
-  remove_non_closed(*tt, &sorted, 0, sorted.size()); 
 
-  Occurence::const_iterator refTid = sorted.begin(); //sort transactions, lexical order
-  Occurence::const_iterator end = sorted.end(); 
-  for(Occurence::const_iterator currentTid = refTid+1; currentTid < end; ++currentTid){
-    if(set_equal((*tt)[*currentTid], (*tt)[*refTid])){
-      /* Merge the transactions */
-      Transaction &ref = (*tt)[*refTid];
-      Transaction &cur = (*tt)[*currentTid]; 
-      ref.weight += cur.weight; 
-      cur.clear();
+  if(remove_non_closed_flag)
+    /* sort tids, remove non-closed elements and merge eq trans */
+    remove_non_closed(*tt, &sorted, 0, sorted.size()); 
+  else{
+    /* sort & merge only */
+    quick_sort_tids(*tt, &sorted, 0, sorted.size());
+
+    Occurence::const_iterator refTid = sorted.begin(); //sort transactions, lexical order
+    Occurence::const_iterator end = sorted.end(); 
+    for(Occurence::const_iterator currentTid = refTid+1; currentTid < end; ++currentTid){
+      if(set_equal((*tt)[*currentTid], (*tt)[*refTid])){
+	/* Merge the transactions */
+	Transaction &ref = (*tt)[*refTid];
+	Transaction &cur = (*tt)[*currentTid]; 
+	ref.weight += cur.weight; 
+	cur.clear();
 #ifdef TRACK_TIDS
-      ref.tids.insert(ref.tids.end(), cur.tids.begin(), cur.tids.end());
-      cur.tids.clear(); 
+	ref.tids.insert(ref.tids.end(), cur.tids.begin(), cur.tids.end());
+	cur.tids.clear(); 
 #endif //TRACK_TIDS
-      x++; 
+	x++; 
+      }
+      else{
+	refTid=currentTid;
+      }
     }
-    else{
-      refTid=currentTid;
-    }
+ 
   }
   //  removeEmptyTransactions(tt);
 
@@ -331,6 +303,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
     for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
 	trans_it != trans_it_end; ++trans_it){
       if(support[*trans_it] > 0){
+#ifdef REMOVE_NON_CLOSED
 	/* keep element in exclusion list at the end of transactions */
 	//TODO improve this EXTREAMLY costly ! 
 	if(set_member(exclusion_list, *trans_it)){
@@ -339,6 +312,9 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 	else{
 	  current_trans->push_back(*trans_it);
 	}
+#else
+      current_trans->push_back(*trans_it);
+#endif //REMOVE_NON_CLOSED
       }
     }
     
@@ -360,7 +336,11 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   }
 
 #ifdef DATABASE_MERGE_TRANS
-  merge_identical_transactions(new_tt);
+#ifdef REMOVE_NON_CLOSED
+  merge_identical_transactions(new_tt, true);
+#else
+  merge_identical_transactions(new_tt, false);
+#endif //REMOVE NON CLOSED
 #endif //DATABASE_MERGE_TRANS  
 
 }

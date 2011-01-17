@@ -840,7 +840,7 @@ int main(int argc, char **argv){
   tt.max_element = ELEMENT_RANGE_END; 
 
 #ifdef DATABASE_MERGE_TRANS
-  merge_identical_transactions(&tt); 
+  merge_identical_transactions(&tt,true); 
 #endif
   transpose(tt, &ot);
 
