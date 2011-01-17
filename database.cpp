@@ -278,7 +278,6 @@ void merge_identical_transactions(TransactionTable *tt, bool remove_non_closed_f
 }
 /*** END mergeIdenticalTransactions ***/  
 
-
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const SupportTable &support, 
 			    const set_t &exclusion_list){
@@ -293,24 +292,43 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   for(Transaction::const_iterator occ_it = occurence.begin(); 
       occ_it != occurence.end(); ++occ_it){
     
-    //TODO use placement new cpy ctor instead ?
     current_trans->original_tid = tt[*occ_it].original_tid;
     current_trans->weight =  tt[*occ_it].weight;
+    Transaction::const_iterator limit = tt[*occ_it].begin() + tt[*occ_it].limit; 
+
 #ifdef TRACK_TIDS
     current_trans->tids = tt[*occ_it].tids;
 #endif //TRACK_TIDS
     Transaction::const_iterator trans_it_end = tt[*occ_it].end();
-    for(Transaction::const_iterator trans_it = tt[*occ_it].begin(); 
+    for(Transaction::const_iterator trans_it = tt[*occ_it].begin();	
 	trans_it != trans_it_end; ++trans_it){
       if(support[*trans_it] > 0){
 #ifdef REMOVE_NON_CLOSED
+
+	set_t::const_iterator xlit = exclusion_list.begin(); 
 	/* keep element in exclusion list at the end of transactions */
-	//TODO improve this EXTREAMLY costly ! 
-	if(set_member(exclusion_list, *trans_it)){
+	if(trans_it >= limit)
 	  buffer.push_back(*trans_it); 
-	}
 	else{
-	  current_trans->push_back(*trans_it);
+	  bool found = false; 
+	  while(xlit != exclusion_list.end()){
+	    if(*xlit < *trans_it)
+	      ++xlit;
+	    else if (*xlit == *trans_it){
+	      ++xlit; 
+	      found = true; 
+	      break; 
+	    }
+	    else 
+	      break; 
+	  }
+
+	  if(found){
+	    buffer.push_back(*trans_it); 
+	  }
+	  else{
+	    current_trans->push_back(*trans_it);
+	  }
 	}
 #else
       current_trans->push_back(*trans_it);
