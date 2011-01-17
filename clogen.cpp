@@ -110,7 +110,8 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
   Transaction occs = ot[e]; 
   
   
-  SupportTable support; 
+  SupportTable support;
+  
   compute_element_support(&support, tt, ot[e]); 
   set.push_back(e);
   int set_support=support[e];
@@ -171,19 +172,20 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
 
     membership_data_t m_data = {tt, occs, ot[current], support};    
 
-    if( (u_data[current] = membership_oracle(c,current, m_data))){
-      //if(membership_oracle(candidate_set)){
       if(!set_member(*exclusion_list, current))
+	if( (u_data[current] = membership_oracle(c,current, m_data))){
 	extensions.push_back(current);      
-    }
+	}
   }
   
   if(extensions.size() > 0){
+    // TODO remove.. quite costly even for debug! 
+    assert(is_sorted(extensions)); 
+
     TransactionTable *new_tt = new TransactionTable;  // TODO free this memory !     
-    database_build_reduced(new_tt, tt, occs, support); //TODO occurences c, pas de s !
+    database_build_reduced(new_tt, tt, occs, support, *exclusion_list); 
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
-
 
     if(depth < depth_tuple_cutoff){
       set_t::const_iterator c_it_end = extensions.end(); 
@@ -212,6 +214,8 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
       set_t::const_iterator c_it_end = extensions.end(); 
       for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
 	set_t new_exclusion_list(*exclusion_list);
+	if(set_member(*exclusion_list, *c_it))
+	  continue; 
 	num_pattern += expand(*new_tt, *new_ot, c, *c_it, depth+1, &new_exclusion_list, u_data[*c_it]);
 	/* insert the current extension into the exclusion list for the next calls.*/
 	exclusion_list->push_back(*c_it); 
@@ -289,7 +293,6 @@ int clogen(set_t initial_pattern){
  
   m_tuplespace_init(&ts, sizeof(tuple_t), 0, TUPLESPACE_OPTIONAUTOCLOSE); 
   m_thread_register(); 
-
 
   set_t empty_set;
   set_t exclusion_list;

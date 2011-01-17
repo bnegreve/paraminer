@@ -8,6 +8,7 @@ using std::cout;
 using std::endl; 
 
 bool element_equal(const element_t a, const element_t b){
+  assert(false); 
   return a == b; 
 }
 

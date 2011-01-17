@@ -88,7 +88,21 @@ int main(int argc, char **argv){
   }
   
   element_t max = read_transaction_table(&tt, argv[idx]);
-  ELEMENT_RANGE_END = max+1; 
+  ELEMENT_RANGE_END = max+1;
+
+  // print_transaction_table(tt);
+
+  // Occurence tids; 
+  // for(int i = 0; i < tt.size(); i++){
+  //   tids.push_back(i); 
+  // }
+  // quick_sort_tids(tt, &tids, 0, tids.size());
+  // set_print(tids);
+  // merge_identical_transactions(&tt); 
+  // print_transaction_table(tt); 
+  // exit(1); 
+
+
   transpose(tt, &ot);
   threshold = std::atoi(argv[idx+1]); 
 

@@ -34,6 +34,16 @@ bool set_member_sorted(const set_t &sorted_set, const element_t &e);
 
 int set_member_index(const set_t &set, const element_t &e); 
 
+/** \brief returns true if the two sets are equals */ 
+bool set_equal(const set_t &s1, const set_t &s2);
+
+bool set_equal_limited(const set_t &s1, int l1, const set_t &s2, int l2); 
+
+int set_lexical_compare(const set_t &t1, const set_t &t2); 
+
+int set_lexical_compare_limited(set_t::const_iterator s1, int end1, 
+				set_t::const_iterator s2, int end2); 
+
 template <typename T>
 bool is_sorted(const std::vector<T> &v){
   if(v.size() < 2)

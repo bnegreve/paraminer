@@ -58,7 +58,7 @@ void print_grad_transaction(const Transaction &t){
  void print_grad_transaction_table(const TransactionTable &tt){
   for(int i = 0; i < tt.size(); i++){
     trans_t t = tid_code_to_original(i); 
-    cout<<i<<" "<<t.first<<"x"<<t.second<<" : "; print_grad_transaction(tt[i]); 
+    cout<<i<<" "<<t.first<<"x"<<t.second<<" ("<<tt[i].weight<<") : "; print_grad_transaction(tt[i]); 
     cout<<endl;
   }
 }
@@ -109,7 +109,11 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
     for(int j = 0; j < input.size(); j++){
       if(i!=j){
 	Transaction t;
-	t.original_tid=nb_trans++; 
+	t.weight = 1; 
+#ifdef TRACK_TIDS
+	t.tids.push_back(nb_trans); 
+#endif //TRACK_TIDS
+	t.original_tid=nb_trans++;
 	t.reserve(nb_attributes); 
 	for(int k = 0; k < input[i].size(); k++){
 	  if(input[i][k] < input[j][k]){
@@ -123,6 +127,7 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 	    t.push_back(2*k+1); 
 	  }
 	}
+	t.limit=t.size(); 
 	output->push_back(t); 
       }
     }
@@ -130,6 +135,7 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
   return 0; 
 }
 
+/* convert a tid code and return the original pair of transactions */ 
 trans_t tid_code_to_original(int code){
   trans_t t; 
   t.first = code / (nb_initial_trans-1); 
@@ -425,9 +431,8 @@ int frequentCount(vector<int> & freMap)
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
 
-  if(data.support[extension]+1 < threshold)
-    return 0; 
-
+  //  if(data.support[extension]+1 < threshold)
+  //    return 0; 
 
   set_t s(base_set); 
   s.push_back(extension);
@@ -453,14 +458,17 @@ for(int i = 0; i < s.size()-1; i++){
   set_intersect(&occurences, data.base_set_occurences, data.extension_occurences);
   //  Occurence original_occurences(occurences.size()); 
 
-  id_trans_t transaction_pairs(occurences.size());
+  id_trans_t transaction_pairs;
+  transaction_pairs.reserve(occurences.size());
   
   
   int i=0;
     
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
-    //    original_occurences[i++] = data.tt[*it].original_tid; 
-    transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid);
+    //    original_occurences[i++] = data.tt[*it].original_tid;
+    const Transaction &cur = data.tt[*it]; 
+    for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2)
+      transaction_pairs.push_back(tid_code_to_original(*it2)); 
     //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
 
@@ -521,6 +529,14 @@ for(int i = 0; i < s.size()-1; i++){
   // cout<<" SUP "<<sup<<endl;
   // set_print_raw(occurences);
   // cout<<"ENDDDDD"<<endl;
+
+
+ 
+ // cout<<"TESTING ("<<sup<<endl; 
+ // set_print(s); 
+ // cout<<"DB"<<endl; 
+ // print_grad_transaction_table(data.tt);   
+ // cout<<"END"<<endl; 
 
   return sup>=threshold?sup:0;
 }
@@ -822,8 +838,11 @@ int main(int argc, char **argv){
   
   //  print_grad_transaction_table(tt);   
   tt.max_element = ELEMENT_RANGE_END; 
-  transpose(tt, &ot);
 
+#ifdef DATABASE_MERGE_TRANS
+  merge_identical_transactions(&tt,true); 
+#endif
+  transpose(tt, &ot);
 
   all_bms.reserve(ELEMENT_RANGE_END); 
   for(int i = 0; i < ELEMENT_RANGE_END; i++){
