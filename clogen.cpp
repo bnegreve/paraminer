@@ -120,12 +120,11 @@ size_t expand(const TransactionTable &tt,const TransactionTable &ot, set_t s, el
       support[set[i]] = 0; 
   }
 
-  std::sort(set.begin(), set.end());
   membership_data_t c_data = {tt, occs, ot[e], support};
   set_t c = clo(set, set_support, support, c_data); 
   //TODO ugly .. nevermind
   for(int i = 0; i < c.size(); i++){
-    if(c[i]<support.size()) //TODO REINTRODUCE MAXITEM
+    if(c[i]<support.size()) 
       support[c[i]] = 0; //By doing this we remove from db the elements that already blong to the set.
   }
   //  std::sort(c.begin(), c.end()); //optional ?

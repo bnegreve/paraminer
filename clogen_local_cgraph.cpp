@@ -257,7 +257,7 @@ set_t clo(const set_t &set){
   /* We keep in the closure, only the part of the extension connected to the base */ 
   /* See Boley's paper example 8 */ 
 
-
+  
   //TODO WRONG After adding an edge we must retest if other edges from
   //the closure are still not connected to the base !!!
   Occurence oc;
@@ -300,7 +300,9 @@ set_t clo(const set_t &set){
 }
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
-  return clo(set); 
+  set_t c(set); 
+  sort(c.begin(), c.end()); 
+  return clo(c); 
 }
 
 
