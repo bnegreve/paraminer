@@ -9,13 +9,14 @@
 #include <sstream>
 #include <fstream>
 #include <set>
-
+#include <stdint.h>
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
 #include "database.hpp"
 #include "clogen.hpp" 
 #include "utils.hpp"
+
 #include "BinaryMatrix.h"
 
 using std::cout; 
@@ -30,8 +31,7 @@ int ELEMENT_RANGE_END;
 extern int threshold; 
 
 
-
-typedef pair<int, int> trans_t;
+typedef two_short_t trans_t;
 typedef vector<trans_t> id_trans_t; 
 typedef std::map<trans_t, id_trans_t> trans_id_t; 
 
@@ -58,7 +58,7 @@ void print_grad_transaction(const Transaction &t){
  void print_grad_transaction_table(const TransactionTable &tt){
   for(int i = 0; i < tt.size(); i++){
     trans_t t = tid_code_to_original(i); 
-    cout<<i<<" "<<t.first<<"x"<<t.second<<" ("<<tt[i].weight<<") : "; print_grad_transaction(tt[i]); 
+    cout<<i<<" "<<t.first_<<"x"<<t.second_<<" ("<<tt[i].weight<<") : "; print_grad_transaction(tt[i]); 
     cout<<endl;
   }
 }
@@ -138,10 +138,10 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 /* convert a tid code and return the original pair of transactions */ 
 trans_t tid_code_to_original(int code){
   trans_t t; 
-  t.first = code / (nb_initial_trans-1); 
-  t.second = code % (nb_initial_trans-1); 
-  if(t.second >= t.first)
-    t.second++; 
+  t.first_ = code / (nb_initial_trans-1); 
+  t.second_ = code % (nb_initial_trans-1); 
+  if(t.second_ >= t.first_)
+    t.second_++; 
   return t; 
 }
 
@@ -149,7 +149,7 @@ void element_print(const element_t element){
   cout<<" "<<(element/2)+1<<(element%2?"-":"+"); 
 }
 
-int get_path_length(int current, vector< pair < pair <int, int>, int> > &t){
+int get_path_length(int current, vector< pair < trans_t, int> > &t){
   /* TODO force return when reaching a path length greater than the current minimum */
   //  cout<<"CALL ON "<< t[current].first.first<<" "<<t[current].first.second<<endl; 
   /* ((t1, t2), path) */
@@ -162,7 +162,7 @@ int get_path_length(int current, vector< pair < pair <int, int>, int> > &t){
   /* recursively computes the longest path */
   t[current].second = 1; 
   for(int i = 0; i < t.size(); i++){
-    if(t[i].first.first == t[current].first.second){
+    if(t[i].first.first_ == t[current].first.second_){
       //      cout <<"YE "<< t[i].first.first<<" "<<t[i].first.second<<endl; 
       int path_len = 1 + get_path_length(i, t); 
       if(path_len > t[current].second)
@@ -182,7 +182,7 @@ int get_longest_path(const Occurence &occs){
   if(occs.size() == 0) 
     return 0; 
 
-  vector< pair< pair<int, int>, int> > t; 
+  vector< pair< trans_t, int> > t; 
 
   for(int i = 0; i < occs.size(); i++){
     t.push_back(pair<trans_t, int>(tid_code_to_original(occs[i]), 0)); 
@@ -605,17 +605,17 @@ set_t calF(BinaryMatrix * BM, const vector<BinaryMatrix> & vBM, int & resFre, ve
 ///////////////// CAL G  //////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 /* Computes the transactions quequences supporting itemset \is */
-void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
-{
-  int isSize = is.size();
-  if (isSize == 0)
-    return;
+// void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
+// {
+//   int isSize = is.size();
+//   if (isSize == 0)
+//     return;
 
-  res = *vBM[is[0]];
+//   res = *vBM[is[0]];
 
-  for (int i = 1; i < isSize; i++)
-    res &= *vBM[is[i]];
-}
+//   for (int i = 1; i < isSize; i++)
+//     res &= *vBM[is[i]];
+// }
 
 void extract_longuest_path_nodes(vector<int> *nodes, const vector<int> &path_lengths, 
 				 const vector<vector <int> > &paths){

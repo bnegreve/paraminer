@@ -298,8 +298,8 @@ void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, s
   int col, row;
   for(int i = 0; i < transaction.size(); i++){
     /* if transaction in in thransction means t1 < t2 according to the item */
-    col = transaction[i].first; 
-    row = transaction[i].second;
+    col = transaction[i].first_; 
+    row = transaction[i].second_;
     this->setValue(row, col, 1); /* therefore we set BM[t2][t1] to 1*/
   }
 

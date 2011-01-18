@@ -10,8 +10,16 @@
 #include <string.h>
 
 
+/* bad hack to efficiently compute the original pairs of tids */
+typedef union{  
+  uint16_t i16s[2]; 
+  uint32_t i32; 
+}two_short_t; 
+#define first_ i16s[0] 
+#define second_ i16s[1] 
 
-typedef pair<int, int> trans_t;
+
+typedef two_short_t trans_t;
 typedef vector<trans_t> id_trans_t; 
 
 namespace nsPattern
