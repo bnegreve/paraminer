@@ -880,8 +880,15 @@ int main(int argc, char **argv){
   }
 
   
-
-  threshold = std::atoi(argv[idx+1]) ; 
+  float f_threshold = atof(argv[idx+1]); 
+  if(f_threshold < 1){ //TODO ambiguity when 1 !
+    threshold = f_threshold/nb_vtrans+1;
+    cerr<<"THRESHOLD = "<<f_threshold<<" ["<<threshold<<" / "<<nb_vtrans+1<<"]"<<endl;
+  }
+  else{
+    threshold = f_threshold;
+    cerr<<"THRESHOLD = "<<f_threshold/(nb_vtrans+1)<<" ["<<threshold<<" / "<<nb_vtrans+1<<"]"<<endl;
+  }
 
   set_t empty_set; 
   int num_pattern = clogen(empty_set);
