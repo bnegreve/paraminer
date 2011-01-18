@@ -25,6 +25,8 @@ typedef struct{
   /**< Tids in \tt of the transactions including \extension */
   const SupportTable &support;
   /**< support of all element computed in the transaction including base_set */
+  int p_sup;
+  /**< current support of the pattern TODO move to closure_data_t */
 }membership_data_t; 
 
 /* must be defined in clogen_local_*.cpp*/

@@ -140,7 +140,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
       support[*it] = 0; 
   }
 
-  membership_data_t c_data = {tt, occs, ot[e], support};
+  membership_data_t c_data = {tt, occs, ot[e], support, set_support};
   set_t c = clo(set, set_support, support, c_data);
   sort(c.begin(), c.end()); 
   //TODO could be improved, 
@@ -214,7 +214,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   for(set_t::const_iterator it_co = cooccuring_elements.begin(); it_co != it_co_end; ++it_co){
     element_t current = *it_co; 
 
-    membership_data_t m_data = {tt, occs, ot[current], support};    
+    membership_data_t m_data = {tt, occs, ot[current], support, 0};    
 
     if(!set_member(*exclusion_list, current))
       if( (u_data[current] = membership_oracle(c,current, m_data))){

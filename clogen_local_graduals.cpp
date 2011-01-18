@@ -69,7 +69,7 @@ void read_transaction_table_vtrans(TransactionTable *tt, const char *filename){
   ifstream ifs (filename , ifstream::in);
   int nb_items = 0; 
   int t1 = 0, t2 = 1;
-  ifs.ignore(2048, '\n');  /* skip first line */
+  ifs.ignore(65536, '\n');  /* skip first line */
   while (ifs.good()){
     
     string line; 
@@ -682,7 +682,6 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
   //  reduceBM(bm, threshold, change); 
 
   /* TODO Retreive paths from membership computation */
-  BinaryMatrix bm_no_cycles(bm);
   //  binary_matrix_remove_short_cycles(&bm_no_cycles, &siblings, nb_vtrans); 
 
   //  cout<<"BINARY MATRIX FOR : "<<endl;
@@ -701,13 +700,17 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
 
   bool first_positive_flag = false;
   bool discard_next = false; 
-  for(int i = 0; i < all_bms.size(); i++){    
+  
+  for(int i = 0; i <= data.tt.max_element; i++){
+    //  for(int i = 0; i < all_bms.size(); i++){    
     if(set_member(set, i)){
       c.push_back(i);
       if(i%2==0)
 	first_positive_flag = true; 
     }
     else{
+      if(support[i] < data.p_sup)
+	continue; 
     /* skip negative items before first positive item */ 
       if(i%2==1) 
 	if(!first_positive_flag)
@@ -846,7 +849,7 @@ int main(int argc, char **argv){
   //  print_transaction_table(tt);
   
   //  print_grad_transaction_table(tt);   
-  tt.max_element = ELEMENT_RANGE_END; 
+  tt.max_element = ELEMENT_RANGE_END-1; 
 
 #ifdef DATABASE_MERGE_TRANS
   merge_identical_transactions(&tt,true); 
