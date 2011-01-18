@@ -33,7 +33,7 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
     }
     if(t.size() != 0){
       t.limit=t.size(); 
-      t.original_tid = nb_trans++;
+      nb_trans++;
       t.weight = 1;
       tt->push_back(t); 
     }
@@ -292,8 +292,6 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   
   for(Transaction::const_iterator occ_it = occurence.begin(); 
       occ_it != occurence.end(); ++occ_it){
-    
-    current_trans->original_tid = tt[*occ_it].original_tid;
     current_trans->weight =  tt[*occ_it].weight;
     Transaction::const_iterator limit = tt[*occ_it].begin() + tt[*occ_it].limit; 
     set_t::const_iterator xlit = exclusion_list.begin(); 

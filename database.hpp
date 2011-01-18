@@ -23,7 +23,6 @@
 typedef element_t tid_t; 
 
 struct Transaction : set_t{
-  int original_tid;
   int weight;
 #ifdef TRACK_TIDS
   set_t tids;

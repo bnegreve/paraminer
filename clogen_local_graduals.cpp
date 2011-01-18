@@ -113,7 +113,8 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 #ifdef TRACK_TIDS
 	t.tids.push_back(nb_trans); 
 #endif //TRACK_TIDS
-	t.original_tid=nb_trans++;
+	nb_trans++; 
+
 	t.reserve(nb_attributes); 
 	for(int k = 0; k < input[i].size(); k++){
 	  if(input[i][k] < input[j][k]){
@@ -657,7 +658,7 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
   int i=0; 
   for(Occurence::const_iterator it = occs.begin(); it != occs.end(); ++it){    
     //    original_occs[i++] = data.tt[*it].original_tid; 
-    transaction_pairs[i++] = tid_code_to_original(data.tt[*it].original_tid); 
+    transaction_pairs[i++] = tid_code_to_original(data.tt[*it].tids[0]); 
   }
   //  sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
