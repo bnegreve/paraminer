@@ -419,6 +419,18 @@ int frequentCount(vector<int> & freMap)
   return maxFreq;
 }
 
+void retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
+    
+  for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
+    //    original_occurences[i++] = data.tt[*it].original_tid;
+    const Transaction &cur = tt[*it]; 
+    for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2)
+      transaction_pairs->push_back(tid_code_to_original(*it2)); 
+    //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
+  }
+
+}
+
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
 
@@ -456,14 +468,8 @@ for(int i = 0; i < s.size()-1; i++){
   
   
   int i=0;
-    
-  for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
-    //    original_occurences[i++] = data.tt[*it].original_tid;
-    const Transaction &cur = data.tt[*it]; 
-    for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2)
-      transaction_pairs.push_back(tid_code_to_original(*it2)); 
-    //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
-  }
+
+  retreive_transaction_pairs(data.tt, occurences, &transaction_pairs); 
 
   //sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
