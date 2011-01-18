@@ -43,6 +43,8 @@ trans_id_t trans_id;
 vector<int> vtrans_t;
 int nb_vtrans = 0; 
 
+std::vector<trans_t> tid_code_to_original_array;
+
 std::vector<BinaryMatrix> all_bms; 
 
 
@@ -113,7 +115,13 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 #ifdef TRACK_TIDS
 	t.tids.push_back(nb_trans); 
 #endif //TRACK_TIDS
-	nb_trans++; 
+	trans_t p; 
+	p.first_=i; 
+	p.second_=j; 
+	tid_code_to_original_array.push_back(p);
+	nb_trans++;
+
+
 
 	t.reserve(nb_attributes); 
 	for(int k = 0; k < input[i].size(); k++){
@@ -138,6 +146,7 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 
 /* convert a tid code and return the original pair of transactions */ 
 trans_t tid_code_to_original(int code){
+  return tid_code_to_original_array[code]; 
   trans_t t; 
   t.first_ = code / (nb_initial_trans-1); 
   t.second_ = code % (nb_initial_trans-1); 
