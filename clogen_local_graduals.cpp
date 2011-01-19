@@ -10,6 +10,7 @@
 #include <fstream>
 #include <set>
 #include <stdint.h>
+#include <cmath>
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
@@ -866,13 +867,13 @@ int main(int argc, char **argv){
   
   float f_threshold = atof(argv[idx+1]); 
   if(f_threshold < 1){ //TODO ambiguity when 1 !
-    threshold = f_threshold*(nb_vtrans+1);
+    threshold = std::ceil(f_threshold*(nb_vtrans));
   }
   else{
     threshold = f_threshold;
-    f_threshold = (nb_vtrans+1)/threshold;
+    f_threshold = (nb_vtrans)/threshold;
   }
-  cerr<<"THRESHOLD = "<<f_threshold<<" ["<<threshold<<" / "<<nb_vtrans+1<<"]"<<endl;
+  cerr<<"THRESHOLD = "<<f_threshold<<" ["<<threshold<<" / "<<nb_vtrans<<"]"<<endl;
 
   set_t empty_set; 
   int num_pattern = clogen(empty_set);
