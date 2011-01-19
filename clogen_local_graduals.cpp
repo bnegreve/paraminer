@@ -19,6 +19,9 @@
 
 #include "BinaryMatrix.h"
 
+//#define DETECT_NULL_VARIATION 1
+
+
 using std::cout; 
 using std::cerr; 
 using std::endl; 
@@ -125,6 +128,7 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 
 	t.reserve(nb_attributes); 
 	for(int k = 0; k < input[i].size(); k++){
+#ifdef DETECT_NULL_VARIATION
 	  if(input[i][k] < input[j][k]){
 	    t.push_back(2*k); 
 	  }
@@ -135,6 +139,17 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
 	    t.push_back(2*k); 
 	    t.push_back(2*k+1); 
 	  }
+#else
+	  if(input[i][k] < input[j][k]){
+	    t.push_back(2*k); 
+	  }
+	  else if(input[i][k] > input[j][k]){
+	    t.push_back(2*k+1); 
+	  }
+	  else {	    
+	    t.push_back(2*k+(i>j)); 
+	  }
+#endif //DETECT_NULL_VARIATION
 	}
 	t.limit=t.size(); 
 	output->push_back(t); 
@@ -371,7 +386,7 @@ int support_from_path_lengths(const vector<int> &path_lengths){
   return sup; 
 }
 
-void rec_compute_path_length(int trans, const BinaryMatrix &BM, 
+void rec_compute_path_length_siblings(int trans, const BinaryMatrix &BM, 
 			     const vector<vector<int> > &siblings,
 			     vector<int> *path_length){
 
@@ -388,7 +403,7 @@ void rec_compute_path_length(int trans, const BinaryMatrix &BM,
 	   
 	    //if (BM.checkZero(j)) freMap[trans] = 1;
 	    if ((*path_length)[j] == 0) 
-	      rec_compute_path_length(j,BM,siblings, path_length);
+	      rec_compute_path_length_siblings(j,BM,siblings, path_length);
 
 	    int current_path_length = (*path_length)[j] + nb_siblings; 
 
@@ -403,14 +418,55 @@ void rec_compute_path_length(int trans, const BinaryMatrix &BM,
   }
 }
 
+void rec_compute_path_length(int trans, const BinaryMatrix &BM, 
+			     vector<int> *path_length){
+
+  if((*path_length)[trans] != 0)
+    return; 
+  int BMSize = BM.getSize();
+  if (!BM.checkZero(trans)) {
+
+    for(int j = 0; j < BMSize; j++)
+      {
+  	if (BM.getValue(j,trans))
+  	  {
+	   
+	    //if (BM.checkZero(j)) freMap[trans] = 1;
+	    if ((*path_length)[j] == 0) 
+	      rec_compute_path_length(j,BM, path_length);
+
+	    int current_path_length = (*path_length)[j] + 1;
+
+	    if( current_path_length > (*path_length)[trans]){
+	      (*path_length)[trans] = current_path_length; 	      
+	    }
+	  }	
+      }
+  }
+  else{
+    (*path_length)[trans] = 1; 
+  }
+}
+
 
 /* Same as loop_find_longuest_paths() but only computes support value (do not store the paths)*/
-int compute_gradual_support(const BinaryMatrix &BM, const vector<vector<int> > &siblings,
+int compute_gradual_support_siblings(const BinaryMatrix &BM, const vector<vector<int> > &siblings,
 			     vector<int> *path_length){
   int psize = path_length->size();
   for(int i = 0; i < psize; i++)
     {
-      rec_compute_path_length(i,BM, siblings, path_length);
+      rec_compute_path_length_siblings(i,BM, siblings, path_length);
+    }
+
+  return support_from_path_lengths(*path_length); 
+}
+
+/* Same as loop_find_longuest_paths() but only computes support value (do not store the paths)*/
+int compute_gradual_support(const BinaryMatrix &BM, vector<int> *path_length){
+  int psize = path_length->size();
+  for(int i = 0; i < psize; i++)
+    {
+      rec_compute_path_length(i,BM, path_length);
     }
 
   return support_from_path_lengths(*path_length); 
@@ -439,6 +495,15 @@ void retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occ
     //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
 
+}
+
+void detect_short_cycles(const BinaryMatrix &bm){
+  for (int i = 0; i < bm.getSize(); i++)
+    for (int j = 0; j < bm.getSize(); j++)
+      if(i != j && bm.getValue(i,j) && bm.getValue(j,i)){
+	cerr<<"SHORT CYCLE DETECTED "<<i<<"x"<<j<<endl; 
+	abort(); 
+      }
 }
 
 int membership_oracle(const set_t &base_set, const element_t extension, 
@@ -489,16 +554,19 @@ for(int i = 0; i < s.size()-1; i++){
 
   BinaryMatrix bm(nb_vtrans);
 
-  vector<vector<int> > siblings; 
-  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans);
-  binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans); 
-  //cout<<"BINARY MATRIX FOR : "<<endl;
-  //  set_print(s); 
-  //  bm.PrintInfo(); 
-
-
-
+  bm.constructBinaryMatrixClogen(transaction_pairs, nb_vtrans);
   vector<int> path_length(nb_vtrans, 0);
+
+#ifdef DETECT_NULL_VARIATION
+  vector<vector<int> > siblings; 
+  binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans);
+  int sup = compute_gradual_support_siblings(bm, siblings, &path_length); 
+#else
+  vector<vector<int> > siblings; 
+  detect_short_cycles(bm); 
+  binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans);
+  int sup = compute_gradual_support(bm, &path_length); 
+#endif
   
   /* Find longuest path (useless)*/
 #if 0 
@@ -509,7 +577,7 @@ for(int i = 0; i < s.size()-1; i++){
   // assert( sup == sup2); 
 #endif 
 
- int sup = compute_gradual_support(bm, siblings, &path_length); 
+
   
   // cout<<"PATHS"<<endl; 
   // for(int i = 0; i < paths.size(); i++){
@@ -672,9 +740,9 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
   //  sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
   BinaryMatrix bm(nb_vtrans);
-  vector<vector<int> > siblings;
+
   
-  bm.constructBinaryMatrixClogen(transaction_pairs,&siblings, nb_vtrans);
+  bm.constructBinaryMatrixClogen(transaction_pairs, nb_vtrans);
   
   bool change = true; 
 
@@ -736,91 +804,6 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
   //   cout<<"FIN"<<endl; 
   // }
   return c; 
-  set_t final; 
-  bool skip = false; 
-  for(int i = 0; i < c.size(); i++){
-    if( (i+1 != c.size()) && (c[i]/2 == c[i+1]/2))
-      skip = true; 
-    else
-      if(!skip)
-	final.push_back(c[i]);
-      else
-	skip = false; 
-  }
-  
-  return final; 
-  vector<int> freMap(nb_vtrans, -1); 
-  int a; 
-  set_t closed_set = calF(&bm, all_bms, a, siblings); 
-  
-  sort(closed_set.begin(), closed_set.end());
-
-  set_t closed_set_final; 
-  closed_set_final.reserve(closed_set.size());
-
-
-#if 0 //CODE TO REMOVE OPOSITE ELEMENTS
-  /* Removes items at the beginning that are negative 
-     removes sibling items X+ X-, we remove only the ones not belonging to the closure*/ 
-  if(closed_set.size() >= 2 && closed_set.size() != set.size()){
-    int flag = 1;
-    bool discard_next = false; 
-    for(set_t::iterator i = closed_set.begin() ; i != closed_set.end(); ++i){
-      if(flag){
-	if(*i % 2 == 0){
-	  continue; 
-	}
-	flag = 0; 
-      }
-      if(discard_next){
-	if(set_member(set, *i)){
-	  /* if it belongs to the initial set, keep the element anyway */
-	  closed_set_final.push_back(*i); 
-	}
-	else{
-	  /* If this element is discarded, there is no need to compare
-	     it with the next one (only two items in a row)*/
-	  continue; 
-	}
-      }
-      
-      if(  i+1 == closed_set.end() || 
-	   (*i / 2 != *(i+1) / 2)){
-
-	/* include the current item */
-	closed_set_final.push_back(*i); 
-      }
-      else{
-	/*  sibling items */
-	if(set_member(set, *i)){
-	  /* if it belongs to the initial set, keep the element anyway */
-	  closed_set_final.push_back(*i); 
-	}	
-	discard_next=false; 
-      }
-    }
-  }
-  else{
-    closed_set_final=closed_set; 
-  }
-#endif //REMOVE OPOSITE ELEMENTS
-
-  //   for(set_t::iterator i = closed_set.begin() ; i != closed_set.end()-1; ++i){
-  //     if(*i / 2 == *(i+1) / 2){
-  // 	if(!set_member(set, *(i+1))){
-  // 	  //  	  closed_set.erase(i+1);
-  // 	  i = closed_set.begin(); 
-  // 	}
-  // 	if(!set_member(set, *(i))){
-  // 	  //  	  closed_set.erase(i);
-  // 	  i = closed_set.begin(); 
-  // 	}
-  //     }
-  //   }
-  // }
-  
-  return closed_set_final;
-  //  return support_based_closure(set, set_support, support); 
 }
 
 
@@ -863,11 +846,10 @@ int main(int argc, char **argv){
     for(int j = 0; j < ot[i].size(); j++){
       trans.push_back(tid_code_to_original(ot[i][j]));
     }
- cout<<"BM FOR ";element_print(i);
 
 
    vector<vector<int> > siblings; 
-  bm.constructBinaryMatrixClogen(trans,&siblings, nb_vtrans); 
+  bm.constructBinaryMatrixClogen(trans,nb_vtrans); 
   
   // vector<int> freMap(nb_vtrans, -1); 
   // set_t t_weights(nb_vtrans); 
@@ -876,8 +858,7 @@ int main(int argc, char **argv){
   // }
 
   //   bm.constructBinaryMatrixClogen(trans);
-    
-    cout<<endl; 
+  //cout<<endl; 
     //     bm.PrintInfo();
     all_bms.push_back(bm); 
   }

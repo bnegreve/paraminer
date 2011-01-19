@@ -293,7 +293,7 @@ void BINARYMATRIX::constructBinaryMatrix(int item, vector<TransactionSequence> &
 }
 
 
-void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, std::vector<std::vector <int> > *sibling, int nb_trans)
+void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, int nb_trans)
 {
   int col, row;
   for(int i = 0; i < transaction.size(); i++){
@@ -302,21 +302,6 @@ void  BINARYMATRIX::constructBinaryMatrixClogen(const id_trans_t &transaction, s
     row = transaction[i].second_;
     this->setValue(row, col, 1); /* therefore we set BM[t2][t1] to 1*/
   }
-
-
-  // /* Shrink the matrix
-  //    ie. merge sibling transactions keep track of the merging into sibling 2D array*/
-  // sibling->resize(nb_trans);
-  // for(int i = 0; i < nb_trans; i++)
-  //   for(int j = 0; j < nb_trans; j++){
-  //     if(i != j){
-  // 	if(getValue(i,j) && getValue(j, i)){
-  // 	  /* sibling transactions */
-	  
-  // 	}
-  //     }
-  // }
-  
 
 }
 

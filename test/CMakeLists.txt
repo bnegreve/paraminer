@@ -20,9 +20,10 @@ add_test(frequent_itemset_mushroom frequent_itemset_basic.sh ../../data/mushroom
 add_test(frequent_itemset_mt_mushroom  frequent_itemset_basic.sh ../../data/mushroom.dat 5000 4)
 add_test(frequent_itemset_full_compare full_compare.sh ../../data/mushroom.dat 2500 1)
 
-add_test(graduals_test1@50 compare_outputs.sh expected_output/grad_test1_50)
-add_test(graduals_test_equal@1 compare_outputs.sh expected_output/grad_test_equal@1)
-add_test(graduals_test_merge@1 compare_outputs.sh expected_output/grad_test_merge@1)
+add_test(graduals_test1@50 compare_outputs.sh expected_output/grad_test1_50 +)
+add_test(graduals_test_equal@1 compare_outputs.sh expected_output/grad_test_equal@1 +)
+add_test(graduals_test_merge@1 compare_outputs.sh expected_output/grad_test_merge@1 +)
+add_test(graduals_neq_test1@50 compare_outputs.sh expected_output/clogen_grad_neq +)
 #this test is to be validated 
 
 
