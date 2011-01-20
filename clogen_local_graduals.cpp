@@ -572,8 +572,8 @@ for(int i = 0; i < s.size()-1; i++){
 
 
   id_trans_t transaction_pairs;
+  transaction_pairs.reserve(data.support[extension]);
 
-  transaction_pairs.reserve(occurences.size());
   
 
   int i=0;
@@ -586,6 +586,8 @@ for(int i = 0; i < s.size()-1; i++){
   // }
   
   BinaryMatrix bm(nb_tids);
+
+  /* Rename tids in the range [0, max_tids] */
   vector<int16_t> back_perms(nb_vtrans,-1);
   int perm_idx = 0;
   for(id_trans_t::const_iterator it = transaction_pairs.begin(); it != transaction_pairs.end(); ++it){
