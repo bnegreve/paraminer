@@ -563,9 +563,9 @@ for(int i = 0; i < s.size()-1; i++){
   binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans);
   int sup = compute_gradual_support_siblings(bm, siblings, &path_length); 
 #else
-  vector<vector<int> > siblings; 
-  detect_short_cycles(bm); 
-  binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans);
+  #ifndef NDEBUG
+  detect_short_cycles(bm);
+#endif 
   int sup = compute_gradual_support(bm, &path_length); 
 #endif
   
