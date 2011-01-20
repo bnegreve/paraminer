@@ -489,8 +489,11 @@ int frequentCount(vector<int> & freMap)
   return maxFreq;
 }
 
-int retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
-  int max_tid = 0;  
+
+int retreive_transaction_pairs_count(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
+  
+  vector<bool> present(nb_vtrans, false); 
+  int nb_tids = 0; 
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
     //    original_occurences[i++] = data.tt[*it].original_tid;
     const Transaction &cur = tt[*it]; 
@@ -501,15 +504,29 @@ int retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occu
 	nb_tids++; 
       }
       if(!present[t.second_]){
-	present[t.first_] = true; 
+	present[t.second_] = true; 
 	nb_tids++; 
       }
       transaction_pairs->push_back(t); 
     }
     //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
-  return max_tid; 
+  return nb_tids; 
 }
+
+
+void retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
+  
+  for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
+    //    original_occurences[i++] = data.tt[*it].original_tid;
+    const Transaction &cur = tt[*it]; 
+    for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2){      
+      transaction_pairs->push_back(tid_code_to_original(*it2)); 
+    }
+    //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
+  }
+}
+
 
 void detect_short_cycles(const BinaryMatrix &bm){
   for (int i = 0; i < bm.getSize(); i++)
@@ -524,7 +541,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 		      const membership_data_t &data){
 
   //  if(data.support[extension]+1 < threshold)
-  //    return 0; 
+    //return 0; 
 
   set_t s(base_set); 
   s.push_back(extension);
@@ -555,12 +572,36 @@ for(int i = 0; i < s.size()-1; i++){
 
 
   id_trans_t transaction_pairs;
-  transaction_pairs.reserve(data.support[extension]);
+
+  transaction_pairs.reserve(occurences.size());
   
 
   int i=0;
 
-  int max_tid = retreive_transaction_pairs(data.tt, occurences, &transaction_pairs); 
+
+  int nb_tids = retreive_transaction_pairs_count(data.tt, occurences, &transaction_pairs);
+
+  // for(int i = 0; i < transaction_pairs.size(); i++){
+  //   cout<<transaction_pairs[i].first_<<"x"<<transaction_pairs[i].second_<<endl; 
+  // }
+  
+  BinaryMatrix bm(nb_tids);
+  vector<int16_t> back_perms(nb_vtrans,-1);
+  int perm_idx = 0;
+  for(id_trans_t::const_iterator it = transaction_pairs.begin(); it != transaction_pairs.end(); ++it){
+    int t1, t2;
+    if( (t1 = back_perms[it->first_]) == -1){
+      t1 = (back_perms[it->first_] = perm_idx++); 
+    }
+    if( (t2 = back_perms[it->second_]) == -1){
+      t2 = (back_perms[it->second_] = perm_idx++); 
+    }
+
+    //    cout<<back_perms[it->first_]<<"->"<<t1<<endl; 
+    //    cout<<back_perms[it->second_]<<"->"<<t2<<endl; 
+    bm.setValue(t1,t2, true); 
+  }
+
 
   //sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
@@ -568,25 +609,21 @@ for(int i = 0; i < s.size()-1; i++){
   //print transaction pairs supporting pattern
 
 
-<<<<<<< HEAD
-  BinaryMatrix bm(max_tid+1);
-=======
 
->>>>>>> d739da8... BUG keep debug function in main release of grads !
 
-  bm.constructBinaryMatrixClogen(transaction_pairs, max_tid+1);
-  vector<int> path_length(max_tid+1, 0);
+
+
+    //bm.constructBinaryMatrixClogen(transaction_pairs, nb_vtrans);
+  //  vector<int> path_length(nb_vtrans, 0);
+  vector<int> path_length(nb_tids, 0);
 
 #ifdef DETECT_NULL_VARIATION
   vector<vector<int> > siblings; 
   binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans);
   int sup = compute_gradual_support_siblings(bm, siblings, &path_length); 
 #else
-<<<<<<< HEAD
-  #ifndef NDEBUG
-=======
+
 #ifndef NDEBUG
->>>>>>> d739da8... BUG keep debug function in main release of grads !
   detect_short_cycles(bm);
 #endif 
   int sup = compute_gradual_support(bm, &path_length); 
