@@ -535,14 +535,16 @@ for(int i = 0; i < s.size()-1; i++){
     // if(s.size() == 1)
     //   return 1; 
   
+
   Occurence occurences;
   set_intersect(&occurences, data.base_set_occurences, data.extension_occurences);
   //  Occurence original_occurences(occurences.size()); 
 
+
   id_trans_t transaction_pairs;
-  transaction_pairs.reserve(occurences.size());
+  transaction_pairs.reserve(data.support[extension]);
   
-  
+
   int i=0;
 
   retreive_transaction_pairs(data.tt, occurences, &transaction_pairs); 
