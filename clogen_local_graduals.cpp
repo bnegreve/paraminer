@@ -82,19 +82,19 @@ void read_transaction_table_vtrans(TransactionTable *tt, const char *filename){
     string line; 
     stringstream ss; 
     Transaction t;
-    int item; 
+    float item; 
     ss<<skipws; 
     getline(ifs, line); 
     ss<<line; 
     ss>>item;
     t.reserve(nb_attributes);
     while(ss.good()){
-      t.push_back(item); 
+      t.push_back((int)(item*1000)); 
       ++nb_items;
       ss>>item;
     }
     if(!ss.fail()){
-      t.push_back(item); 
+      t.push_back((int)(item*1000)); 
       ++nb_items;
       //   cout<<"READ "<<item<<endl; 
     }  
