@@ -486,16 +486,22 @@ int frequentCount(vector<int> & freMap)
   return maxFreq;
 }
 
-void retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
-    
+int retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
+  int max_tid = 0;  
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
     //    original_occurences[i++] = data.tt[*it].original_tid;
     const Transaction &cur = tt[*it]; 
-    for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2)
-      transaction_pairs->push_back(tid_code_to_original(*it2)); 
+    for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2){
+      trans_t t = tid_code_to_original(*it2);
+      if(t.first_ > max_tid)
+	max_tid = t.first_; 
+      if(t.second_ > max_tid)
+	max_tid = t.second_; 
+      transaction_pairs->push_back(t); 
+    }
     //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
-
+  return max_tid; 
 }
 
 void detect_short_cycles(const BinaryMatrix &bm){
@@ -547,7 +553,7 @@ for(int i = 0; i < s.size()-1; i++){
 
   int i=0;
 
-  retreive_transaction_pairs(data.tt, occurences, &transaction_pairs); 
+  int max_tid = retreive_transaction_pairs(data.tt, occurences, &transaction_pairs); 
 
   //sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
@@ -555,10 +561,10 @@ for(int i = 0; i < s.size()-1; i++){
   //print transaction pairs supporting pattern
 
 
-  BinaryMatrix bm(nb_vtrans);
+  BinaryMatrix bm(max_tid+1);
 
-  bm.constructBinaryMatrixClogen(transaction_pairs, nb_vtrans);
-  vector<int> path_length(nb_vtrans, 0);
+  bm.constructBinaryMatrixClogen(transaction_pairs, max_tid+1);
+  vector<int> path_length(max_tid+1, 0);
 
 #ifdef DETECT_NULL_VARIATION
   vector<vector<int> > siblings; 
