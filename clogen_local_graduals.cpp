@@ -490,10 +490,13 @@ int frequentCount(vector<int> & freMap)
 }
 
 
-int retreive_transaction_pairs_count(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
+pair<int,int> retreive_transaction_pairs_count(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
+
   
   vector<bool> present(nb_vtrans, false); 
-  int nb_tids = 0; 
+  int nb_tids = 0;
+  int max_tid = 0; 
+  int nb_pairs = 0; 
   for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
     //    original_occurences[i++] = data.tt[*it].original_tid;
     const Transaction &cur = tt[*it]; 
@@ -502,16 +505,20 @@ int retreive_transaction_pairs_count(const TransactionTable &tt, const Occurence
       if(!present[t.first_]){
 	present[t.first_] = true; 
 	nb_tids++; 
+	if(t.first_>max_tid)
+	  max_tid = t.first_; 
       }
       if(!present[t.second_]){
 	present[t.second_] = true; 
-	nb_tids++; 
+	nb_tids++;
+	if(t.second_>max_tid)
+	  max_tid = t.second_; 
       }
-      transaction_pairs->push_back(t); 
+      (*transaction_pairs)[nb_pairs++] = t; 
     }
     //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
   }
-  return nb_tids; 
+  return pair<int,int>(nb_tids, max_tid); 
 }
 
 
@@ -571,24 +578,22 @@ for(int i = 0; i < s.size()-1; i++){
   //  Occurence original_occurences(occurences.size()); 
 
 
-  id_trans_t transaction_pairs;
-  transaction_pairs.reserve(data.support[extension]);
 
-  
+  id_trans_t transaction_pairs(data.support[extension]);  
 
   int i=0;
 
+  pair<int,int> nb_max_tids = retreive_transaction_pairs_count(data.tt, occurences, &transaction_pairs);
 
-  int nb_tids = retreive_transaction_pairs_count(data.tt, occurences, &transaction_pairs);
 
   // for(int i = 0; i < transaction_pairs.size(); i++){
   //   cout<<transaction_pairs[i].first_<<"x"<<transaction_pairs[i].second_<<endl; 
   // }
   
-  BinaryMatrix bm(nb_tids);
+  BinaryMatrix bm(nb_max_tids.first);
 
   /* Rename tids in the range [0, max_tids] */
-  vector<int16_t> back_perms(nb_vtrans,-1);
+  vector<int16_t> back_perms(nb_max_tids.second+1,-1);
   int perm_idx = 0;
   for(id_trans_t::const_iterator it = transaction_pairs.begin(); it != transaction_pairs.end(); ++it){
     int t1, t2;
@@ -617,8 +622,8 @@ for(int i = 0; i < s.size()-1; i++){
 
     //bm.constructBinaryMatrixClogen(transaction_pairs, nb_vtrans);
   //  vector<int> path_length(nb_vtrans, 0);
-  vector<int> path_length(nb_tids, 0);
 
+  vector<int> path_length(nb_max_tids.first, 0);
 #ifdef DETECT_NULL_VARIATION
   vector<vector<int> > siblings; 
   binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans);
