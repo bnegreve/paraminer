@@ -495,11 +495,15 @@ int retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occu
     //    original_occurences[i++] = data.tt[*it].original_tid;
     const Transaction &cur = tt[*it]; 
     for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2){
-      trans_t t = tid_code_to_original(*it2);
-      if(t.first_ > max_tid)
-	max_tid = t.first_; 
-      if(t.second_ > max_tid)
-	max_tid = t.second_; 
+      trans_t t = tid_code_to_original(*it2); 
+      if(!present[t.first_]){
+	present[t.first_] = true; 
+	nb_tids++; 
+      }
+      if(!present[t.second_]){
+	present[t.first_] = true; 
+	nb_tids++; 
+      }
       transaction_pairs->push_back(t); 
     }
     //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
@@ -564,7 +568,11 @@ for(int i = 0; i < s.size()-1; i++){
   //print transaction pairs supporting pattern
 
 
+<<<<<<< HEAD
   BinaryMatrix bm(max_tid+1);
+=======
+
+>>>>>>> d739da8... BUG keep debug function in main release of grads !
 
   bm.constructBinaryMatrixClogen(transaction_pairs, max_tid+1);
   vector<int> path_length(max_tid+1, 0);
@@ -574,7 +582,11 @@ for(int i = 0; i < s.size()-1; i++){
   binary_matrix_remove_short_cycles(&bm, &siblings, nb_vtrans);
   int sup = compute_gradual_support_siblings(bm, siblings, &path_length); 
 #else
+<<<<<<< HEAD
   #ifndef NDEBUG
+=======
+#ifndef NDEBUG
+>>>>>>> d739da8... BUG keep debug function in main release of grads !
   detect_short_cycles(bm);
 #endif 
   int sup = compute_gradual_support(bm, &path_length); 
