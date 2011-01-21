@@ -37,6 +37,8 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
       t.weight = 1;
       tt->push_back(t); 
     }
+
+    merge_identical_transactions(tt); 
   }
 
   cout<<"Data loaded, "<<nb_items<<" items within "<<nb_trans<<" transactions."<<endl;
