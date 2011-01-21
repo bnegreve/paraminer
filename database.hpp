@@ -17,6 +17,7 @@
 
 /* Enable merging of identical transactions */ 
 #define DATABASE_MERGE_TRANS
+#define SORT_DATABASE
 #define TRACK_TIDS
 #define REMOVE_NON_CLOSED
 

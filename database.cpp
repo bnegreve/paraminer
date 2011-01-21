@@ -35,16 +35,21 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
       t.limit=t.size(); 
       nb_trans++;
       t.weight = 1;
+#ifndef NDEBUG
+      assert(is_sorted(t)); 
+#endif //
+#ifdef SORT_DATABASE
+      sort(t.begin(), t.end());
+#endif //SORT_DATABASE
       tt->push_back(t); 
-    }
-
-    merge_identical_transactions(tt); 
+    }   
   }
 
   cout<<"Data loaded, "<<nb_items<<" items within "<<nb_trans<<" transactions."<<endl;
   ifs.close();
 
-  tt->max_element = max_element; 
+  tt->max_element = max_element;
+  merge_identical_transactions(tt); 
   return max_element; 
 }
 
