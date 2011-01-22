@@ -35,12 +35,14 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
       t.limit=t.size(); 
       nb_trans++;
       t.weight = 1;
+#ifdef SORT_DATABASE
+      sort(t.begin(), t.end());
+#else
 #ifndef NDEBUG
       assert(is_sorted(t)); 
 #endif //
-#ifdef SORT_DATABASE
-      sort(t.begin(), t.end());
 #endif //SORT_DATABASE
+
       tt->push_back(t); 
     }   
   }

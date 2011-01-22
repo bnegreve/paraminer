@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <algorithm>
 #include <vector>
+#include <sstream>
+#include <fstream>
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
@@ -26,6 +28,111 @@ using namespace std;
 void element_print(const element_t element){
   cout<<element; 
 }
+
+
+typedef struct{
+  bool operator()(const pair<int,int> &a, const pair<int,int> &b){
+    return a.second > b.second; 
+  }
+}pair_gt_second_t; 
+int compute_permutation_by_frequency(const char *filename, set_t *permutations, int minsup){
+  
+  vector<pair<int, int> >freq_table; 
+  element_t max_element = 0; 
+  ifstream ifs (filename , ifstream::in);
+  int nb_items = 0; 
+  int nb_trans = 0;
+  while (ifs.good()){
+    string line; 
+    stringstream ss; 
+    int item; 
+    ss<<skipws; 
+    getline(ifs, line); 
+    ss<<line; 
+    ss>>item;
+    while(ss.good()){
+      if(item > max_element) {
+	max_element=item;
+	freq_table.resize(max_element+1, pair<int,int>(-1, 0));
+      }
+      ++nb_items; 
+      freq_table[item].second++; 
+      ss>>item;
+    }
+  }
+
+  for(int i = 0; i < freq_table.size(); i++){
+    freq_table[i].first = i; 
+  }
+  /* Compute permutations */ 
+  pair_gt_second_t gt; 
+  sort(freq_table.begin(), freq_table.end(),gt); 
+
+  permutations->resize(max_element+1); 
+  
+  int item_index = 0; 
+  for(int i = 0; i < freq_table.size(); i++){
+    if(freq_table[i].second >= minsup)
+      (*permutations)[freq_table[i].first] = item_index++;
+    else
+      (*permutations)[freq_table[i].first] = -1;
+  }
+
+  // for(int i = 0 ; i < permutations->size(); i++){
+  //   cout<<i<<" -> "<<(*permutations)[i]<<endl; 
+  // }
+  
+  return item_index; 
+}
+
+
+element_t read_transaction_table(TransactionTable *tt, const char *filename, const set_t &permutations){
+  element_t max_element = 0; 
+  ifstream ifs (filename , ifstream::in);
+  int nb_items = 0; 
+  int nb_trans = 0;
+  while (ifs.good()){
+    string line; 
+    stringstream ss; 
+    Transaction t;
+    int item; 
+    ss<<skipws; 
+    getline(ifs, line); 
+    ss<<line; 
+    ss>>item;
+    while(ss.good()){
+      element_t p; 
+      if( (p = permutations[item]) != -1)
+	t.push_back(p);
+      if(p > max_element) max_element=p; 
+      ++nb_items; 
+      ss>>item;
+    }
+    if(t.size() != 0){
+      t.limit=t.size(); 
+      nb_trans++;
+      t.weight = 1;
+#ifdef SORT_DATABASE
+      sort(t.begin(), t.end());
+#else
+#ifndef NDEBUG
+      assert(is_sorted(t)); 
+#endif //
+#endif //SORT_DATABASE
+
+      tt->push_back(t); 
+    }   
+  }
+
+  cout<<"Data loaded, "<<nb_items<<" items within "<<nb_trans<<" transactions."<<endl;
+  ifs.close();
+
+  tt->max_element = max_element;
+  merge_identical_transactions(tt); 
+  return max_element; 
+}
+
+
 
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
@@ -86,8 +193,11 @@ int main(int argc, char **argv){
   if(argc-idx != 2){
     usage(argv[0]); 
   }
+  threshold = std::atoi(argv[idx+1]); 
   
-  element_t max = read_transaction_table(&tt, argv[idx]);
+  vector<element_t> permutations; 
+  compute_permutation_by_frequency(argv[idx], &permutations, threshold); 
+  element_t max = read_transaction_table(&tt, argv[idx]);  
   ELEMENT_RANGE_END = max+1;
 
   // print_transaction_table(tt);
@@ -104,7 +214,7 @@ int main(int argc, char **argv){
 
 
   transpose(tt, &ot);
-  threshold = std::atoi(argv[idx+1]); 
+
 
   set_t empty_set; 
   int num_pattern = clogen(empty_set);
