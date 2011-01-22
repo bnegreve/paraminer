@@ -32,7 +32,7 @@ void element_print(const element_t element){
 
 typedef struct{
   bool operator()(const pair<int,int> &a, const pair<int,int> &b){
-    return a.second > b.second; 
+    return a.second < b.second; 
   }
 }pair_gt_second_t; 
 int compute_permutation_by_frequency(const char *filename, set_t *permutations, int minsup){
