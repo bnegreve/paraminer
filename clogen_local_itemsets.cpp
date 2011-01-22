@@ -197,7 +197,7 @@ int main(int argc, char **argv){
   
   vector<element_t> permutations; 
   compute_permutation_by_frequency(argv[idx], &permutations, threshold); 
-  element_t max = read_transaction_table(&tt, argv[idx]);  
+  element_t max = read_transaction_table(&tt, argv[idx], permutations);  
   ELEMENT_RANGE_END = max+1;
 
   // print_transaction_table(tt);
