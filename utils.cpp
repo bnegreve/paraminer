@@ -207,3 +207,15 @@ set_t support_based_closure(const set_t &set, int set_support, const SupportTabl
   return c; 
 }
 
+void set_insert_sorted(set_t *sorted_set, const element_t e){
+  /* TODO improve efficiency */
+  sorted_set->push_back(e); 
+  set_t::iterator xlit = sorted_set->begin(); 
+  while(xlit != sorted_set->end()){
+    if(*xlit > e){
+      std::swap(*xlit, (sorted_set->back())); 
+    }
+    ++xlit;
+  }
+ 
+}

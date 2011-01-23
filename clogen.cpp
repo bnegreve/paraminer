@@ -163,7 +163,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
     /* No need to explore this branch it will be explored from another recursive call */
     return 0;
 #else
-  
+    
   assert(is_sorted(c));
   assert(is_sorted(*exclusion_list)); 
   /* Check if one element from closed set belong to the exclusion list */ 
@@ -218,7 +218,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
 
     if(!set_member(*exclusion_list, current))
       if( (u_data[current] = membership_oracle(c,current, m_data))){
-	extensions.push_back(current);      
+	extensions.push_back(current);
       }
   }
   
@@ -257,7 +257,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
 	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
 
 	/* insert the current extension into the exclusion list for the next calls.*/
-	exclusion_list->push_back(*c_it); 
+	set_insert_sorted(exclusion_list, *c_it); 
       }
     }
     else{
@@ -268,7 +268,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
 	set_t new_exclusion_list(*exclusion_list);
 	num_pattern += expand(*new_tt, *new_ot, c, *c_it, depth+1, &new_exclusion_list, u_data[*c_it]);
 	/* insert the current extension into the exclusion list for the next calls.*/
-	exclusion_list->push_back(*c_it); 
+	set_insert_sorted(exclusion_list, *c_it); 
       }
 
       delete new_tt;
@@ -391,7 +391,8 @@ int clogen(set_t initial_pattern){
       tuple.exclusion_list = new set_t(exclusion_list);
       tuple.u_data = extensions_support[*extension]; 
       m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
-      exclusion_list.push_back(*extension);    
+      
+      set_insert_sorted(&exclusion_list, *extension); 
   }
   
 

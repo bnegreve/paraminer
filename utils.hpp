@@ -32,6 +32,8 @@ bool set_member(const set_t &set, const element_t &e);
  */
 bool set_member_sorted(const set_t &sorted_set, const element_t &e); 
 
+void set_insert_sorted(set_t *sorted_set, const element_t e); 
+
 int set_member_index(const set_t &set, const element_t &e); 
 
 /** \brief returns true if the two sets are equals */ 
