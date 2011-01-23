@@ -54,7 +54,9 @@ void graph_print(const graph_t &graph)  {
 
 void graph_to_transaction(Transaction *t, const graph_t &graph){
   for(graph_t::const_iterator it = graph.begin(); it != graph.end(); ++it){
-    int node_id; 
+    int node_id;
+
+
     edge_node_t::iterator ent = edge_node.find(*it); 
     if(ent != edge_node.end()){
       node_id = ent->second;
@@ -64,9 +66,11 @@ void graph_to_transaction(Transaction *t, const graph_t &graph){
       edge_node.insert(ent, make_pair(*it, node_id));
       node_edge.push_back(*it); 
     }
-    t->push_back(node_id); 
+    t->push_back(node_id);
   }
   sort(t->begin(), t->end()); 
+  t->weight = 1; 
+  t->limit = t->size(); 
 }
 
 void read_input_graph(graph_t *graph, const std::string &graph_filename){
@@ -300,9 +304,24 @@ set_t clo(const set_t &set){
 }
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
-  set_t c(set); 
-  sort(c.begin(), c.end()); 
-  return clo(c); 
+  set_t c(set);
+  
+  edge_set_t graph = set_to_edge_set(set); 
+
+  bool change = false; 
+  while(change){
+    //TODO must be improved. 
+    change = false; 
+    for(int e = 0; e <= data.tt.max_element; e++){
+      if(data.support[e] == set_support){
+	if(edge_is_connected_to_graph(graph, e)){
+	  c.push_back(e);
+	  change = true; 
+	}
+      }
+    }
+  }
+  return c; 
 }
 
 
