@@ -219,3 +219,21 @@ void set_insert_sorted(set_t *sorted_set, const element_t e){
   }
  
 }
+
+
+void reverse_permutations(set_t *permutations){
+  vector<bool> done(permutations->size(), false); 
+
+  for(int i = 0; i < done.size(); i++){
+    if(done[i] == false){
+      int current_idx = i, current_value = (*permutations)[i];
+      while(current_value != -1 && done[current_value] == false){
+	  done[current_value] = true;	
+	  int tmp = (*permutations)[current_value];
+	  (*permutations)[current_value] = current_idx; 
+	  current_idx = current_value;
+	  current_value = tmp; 
+      }      
+    }     
+  }  
+}

@@ -88,4 +88,11 @@ set_t support_based_closure(const set_t &s);
 set_t support_based_closure(const set_t &set, int set_support, const SupportTable &support); 
 
 
+/** 
+ * \brief For each elements in \permutations stores value at i at cell T[i]
+ * 
+ * @param permutations 
+ */
+void reverse_permutations(set_t *permutations);
+
 #endif 	    /* !_UTILS_H_ */

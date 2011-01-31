@@ -25,8 +25,10 @@ extern int threshold;
 
 using namespace std;
 
+set_t permutations; 
+
 void element_print(const element_t element){
-  cout<<element; 
+  cout<<permutations[element]; 
 }
 
 
@@ -34,7 +36,8 @@ typedef struct{
   bool operator()(const pair<int,int> &a, const pair<int,int> &b){
     return a.second < b.second; 
   }
-}pair_gt_second_t; 
+}pair_gt_second_t;
+
 int compute_permutation_by_frequency(const char *filename, set_t *permutations, int minsup){
   
   vector<pair<int, int> >freq_table; 
@@ -158,9 +161,15 @@ int main(int argc, char **argv){
   }
   threshold = std::atoi(argv[idx+1]); 
   
-  vector<element_t> permutations; 
   compute_permutation_by_frequency(argv[idx], &permutations, threshold); 
-  element_t max = read_transaction_table(&tt, argv[idx], permutations);  
+  element_t max = read_transaction_table(&tt, argv[idx], permutations);
+  
+
+  set_t permutations2(permutations);
+
+  reverse_permutations(&permutations); 
+
+
   ELEMENT_RANGE_END = max+1;
 
   // print_transaction_table(tt);
