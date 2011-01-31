@@ -138,43 +138,6 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 		      const membership_data_t &data){
   return data.support[extension] >= threshold ? data.support[extension] : 0; 
 }
-		      
-set_t clo(const set_t &s){
-  Occurence oc;
-  set_t clo; 
-  set_t set(s); 
-  sort(set.begin(), set.end()); 
-  get_occurences_2d(tt, set, &oc); 
-
-  set_t dummy_set; 
-  for(int i = 0 ; i < oc.size(); i++)
-    dummy_set.push_back(oc[i]); 
-
-  for(int i = 0; i < ot.size(); i++){ 
-    if(get_set_presence_1d((ot)[i], dummy_set) == 1)
-      clo.push_back(i); //
-  }
-  return clo; 
-}
-
-set_t clo(const set_t &set, const Transaction &occurences){
-
-  set_t clo; 
-  vector<int> freq; 
-  Transaction::const_iterator t_it_end = occurences.end(); 
-  for(Transaction::const_iterator t_it = occurences.begin(); t_it != t_it_end; ++t_it){
-    if(*t_it >= freq.size())
-      freq.resize(*t_it); 
-    freq[*t_it]++; 
-  }
-  
-  for(int i = 0; i < freq.size(); i++){
-    if(freq[i] == occurences.size()){
-      clo.push_back(i); 
-    }
-  }
-  return clo; 
-}
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
   return support_based_closure(set, set_support, support); 

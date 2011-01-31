@@ -225,27 +225,6 @@ bool is_connected(const set_t &set){
   return is_connected_rec(edge_set, edge_set[0], touched_edges, 1); 
 }
 
-// bool edge_is_connected_to_graph(const edge_set_t &set, edge_t e){
-
-//   for(set_t::const_iterator s_it = set.begin(); s_it != set.end(); ++s_it){
-//     if(e.first 
-
-//   }
-
-//   for(int i = 0; i < set.size(); i++){
-//     /* Find all successors of current edge */
-//     std::pair<std::map<int, int>::const_iterator, std::map<int, int>::const_iterator> range = 
-//       graph.equal_range(set[i]);
-
-//       for(std::map<int, int>::const_iterator it = range.first; it != range.second; ++it){
-// 	if(it->second == e)
-// 	  return true; 
-//     }
-//   }
-//   return false; 
-// }
-
-
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
   if(data.support[extension] >= threshold){  
@@ -254,53 +233,6 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   }
   return false; 
 
-}
-
-
-set_t clo(const set_t &set){
-  /* We keep in the closure, only the part of the extension connected to the base */ 
-  /* See Boley's paper example 8 */ 
-
-  
-  //TODO WRONG After adding an edge we must retest if other edges from
-  //the closure are still not connected to the base !!!
-  Occurence oc;
-  set_t clo(set); 
-  get_occurences_2d(tt, set, &oc);
-  
-  set_t dummy_set; 
-  for(int i = 0 ; i < oc.size(); i++)
-    dummy_set.push_back(oc[i]); 
-
-  /* Deal with the empty set case */ 
-  if(set.size() == 0){
-    for(int i = 0; i < ot.size(); i++){
-      if(get_set_presence_1d((ot)[i], dummy_set) == 1){
-	clo.push_back(i); //
-      }
-    }
-    if(is_connected(clo))
-       return clo; 
-    return set; 
-  }  
-  
-  edge_set_t edge_set(set_to_edge_set(set)); 
-
-  for(int i = 0; i < ot.size(); i++){
-    if(set_member(clo, i)){
-      continue; 
-    }
-	
-    if(get_set_presence_1d((ot)[i], dummy_set) == 1){
-      /* If edge belong to the closure */
-
-      if(edge_is_connected_to_graph(edge_set, i)){
-	clo.push_back(i); 
-      }
-    }
-  }
-  std::sort(clo.begin(), clo.end()); 
-  return clo;
 }
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
