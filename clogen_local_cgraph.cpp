@@ -229,7 +229,8 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 		      const membership_data_t &data){
   if(data.support[extension] >= threshold){  
     edge_set_t edge_set = set_to_edge_set(base_set);
-    return edge_is_connected_to_graph(edge_set, extension);
+    if(edge_is_connected_to_graph(edge_set, extension))
+      return data.support[extension];
   }
   return false; 
 
