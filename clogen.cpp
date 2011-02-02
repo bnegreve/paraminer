@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <map>
 #include <cstdio>
+#include <cctype>
 #include <pthread.h> 
 
 #include "utils.hpp"
@@ -316,30 +317,60 @@ void *process_tuple(void *){
 
 #endif //PARALLEL_PROCESS
 
+void clogen_usage(char *bin_name){
+  cerr<<bin_name<<" [-t numthreads=1] [-c tuplecutoff=2] \
+[<problem specific arg 1> .. <problem specific arg n>]"<<endl;
+  exit(EXIT_FAILURE); 
+}
+
 int parse_clogen_arguments(int *argc, char **argv){
   char opt_char=0;
+  opterr = 0; 
+  int local_options = 0; 
   while ((opt_char = getopt(*argc, argv, "c:t:")) != -1)
     {
       switch(opt_char)
 	{
 	case 'c':
-	  depth_tuple_cutoff = atoi(optarg); 
+	  //	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0]);
+	  depth_tuple_cutoff = atoi(optarg);
+	  *optarg = '\0';
 	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<endl;
-	  *optarg = '\0'; 
 	  break ;
 	case 't':
+	  //	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0]);
 	  num_threads = atoi(optarg);
 	  *optarg = '\0'; 
-	  break; 
+	  break;
 	default:
-	  
-	  // usage(argv[0]); 
-	  // exit(-1);
 	  break;	  
 	}
     }
-  cout<<"running with "<<num_threads<<" thread(s)."<<endl;  
-  return optind; 
+
+  /* remove options from argv .. */
+  for(int i = 0; i < *argc; i++){
+    if(!strncmp(argv[i], "-t",2)){
+      *(argv[i]) = '\0'; 
+    }
+    else if (!strncmp(argv[i], "-c",2)){
+      *(argv[i]) = '\0'; 
+    }
+  }
+
+  int idx = 0; 
+  for(int i = 0; i < *argc; i++){
+    if(*(argv[i]) != '\0'){
+      argv[idx++] = argv[i]; 
+    }
+  }
+
+  *argc = idx; 
+
+  int tmp = optind; 
+  optind = 0; 
+  opterr = 1;   
+  cout<<"running with "<<num_threads<<" thread(s)."<<endl;
+  return optind;
 }
 
 int clogen(set_t initial_pattern){

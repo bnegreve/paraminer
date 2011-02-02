@@ -155,14 +155,14 @@ void usage(char *bin_name){
 
 int main(int argc, char **argv){
 
-  int idx = parse_clogen_arguments(&argc, argv); 
-  if(argc-idx != 2){
+  parse_clogen_arguments(&argc, argv); 
+  if(argc != 3){
     usage(argv[0]); 
   }
-  threshold = std::atoi(argv[idx+1]); 
+  threshold = std::atoi(argv[2]); 
   
-  compute_permutation_by_frequency(argv[idx], &permutations, threshold); 
-  element_t max = read_transaction_table(&tt, argv[idx], permutations);
+  compute_permutation_by_frequency(argv[1], &permutations, threshold); 
+  element_t max = read_transaction_table(&tt, argv[1], permutations);
   
 
   set_t permutations2(permutations);

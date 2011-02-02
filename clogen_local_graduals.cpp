@@ -825,7 +825,7 @@ void usage(char *bin_name){
 int main(int argc, char **argv){
 
   int idx = parse_clogen_arguments(&argc, argv); 
-  if(argc-idx != 2){
+  if(argc-idx != 3){
     usage(argv[0]); 
   }
 

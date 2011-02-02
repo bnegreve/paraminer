@@ -258,14 +258,34 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
 
 
 void usage(char *bin_name){
-  cout<<bin_name<<" graphdescription dataset minsup [-t numthreads=1] [-c tuplecutoff=2]"<<endl;
+  cerr<<bin_name<<" graphdescription dataset minsup [-t numthreads=1] [-c tuplecutoff=2]"<<endl;
   exit(EXIT_FAILURE); 
 }
 
 
 int main(int argc, char **argv){
 
-  int idx = parse_clogen_arguments(&argc, argv); 
+  parse_clogen_arguments(&argc, argv); 
+
+  char opt_char = 0; 
+
+  while ((opt_char = getopt(argc, argv, "C")) != -1)
+    {
+      switch(opt_char){
+      case 'C':
+  	break;
+      default: 
+	cout<<"OPTCHAR "<<opt_char<<endl;
+  	usage(argv[0]);
+  	break;
+      }
+    }
+  int idx = optind;
+
+  for(int i = 0; i < argc; i++){
+    cout<<i<<" : "<<argv[i]<<endl;
+  }
+
   if(argc-idx != 3){
     usage(argv[0]); 
     exit(EXIT_FAILURE); 
