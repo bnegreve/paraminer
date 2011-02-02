@@ -33,7 +33,7 @@ typedef std::vector<edge_t> node_edge_t;
 typedef std::vector<edge_t> edge_set_t; 
 node_edge_t node_edge;
 
-
+bool mine_only_closed = true; 
 int last_edge_id = 0;
 
 extern int threshold;
@@ -236,29 +236,34 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 }
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
+  if(!mine_only_closed)
+    return set; 
   set_t c(set);
   
   edge_set_t graph = set_to_edge_set(set); 
 
   bool change = false; 
-  while(change){
+  do{
     //TODO must be improved. 
     change = false; 
     for(int e = 0; e <= data.tt.max_element; e++){
-      if(data.support[e] == set_support){
-	if(edge_is_connected_to_graph(graph, e)){
-	  c.push_back(e);
-	  change = true; 
+      if(!set_member(c, e)){
+	if(data.support[e] == set_support){
+	  if(edge_is_connected_to_graph(graph, e)){
+	    c.push_back(e);
+	    graph.push_back(node_edge[e]); 
+	    change = true; 
+	  }
 	}
       }
     }
-  }
+  }while (change);
   return c; 
 }
 
 
 void usage(char *bin_name){
-  cerr<<bin_name<<" graphdescription dataset minsup [-t numthreads=1] [-c tuplecutoff=2]"<<endl;
+  cerr<<bin_name<<" graphdescription dataset minsup [-t numthreads=1] [-c tuplecutoff=2] [-a mine all closed graphs]"<<endl;
   exit(EXIT_FAILURE); 
 }
 
@@ -269,22 +274,19 @@ int main(int argc, char **argv){
 
   char opt_char = 0; 
 
-  while ((opt_char = getopt(argc, argv, "C")) != -1)
+  while ((opt_char = getopt(argc, argv, "a")) != -1)
     {
       switch(opt_char){
-      case 'C':
+      case 'a':
+	mine_only_closed = false; 
+	cout<<"Mining all connected graphs"<<endl;
   	break;
       default: 
-	cout<<"OPTCHAR "<<opt_char<<endl;
   	usage(argv[0]);
   	break;
       }
     }
   int idx = optind;
-
-  for(int i = 0; i < argc; i++){
-    cout<<i<<" : "<<argv[i]<<endl;
-  }
 
   if(argc-idx != 3){
     usage(argv[0]); 
