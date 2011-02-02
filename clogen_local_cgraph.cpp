@@ -6,6 +6,8 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include <cmath>
+
 #include <dirent.h>
 #include "clogen_local.hpp"
 #include "utils.hpp"
@@ -293,8 +295,10 @@ int main(int argc, char **argv){
     usage(argv[0]); 
     exit(EXIT_FAILURE); 
   }
-  threshold = std::atoi(argv[idx+1]);
+
+  
   edge_threshold = std::atoi(argv[idx+2]); 
+
 
   DIR *dir; 
   if(! (dir = opendir(argv[idx]))){
@@ -316,6 +320,18 @@ int main(int argc, char **argv){
       tt.push_back(t);
     }
   }
+
+float f_threshold = atof(argv[idx+1]); 
+  if(f_threshold < 1){ //TODO ambiguity when 1 !
+    threshold = std::ceil(f_threshold*(tt.size()));
+  }
+  else{
+    threshold = f_threshold;
+    f_threshold = (tt.size())/threshold;
+  }
+  cerr<<"THRESHOLD = "<<f_threshold<<" ["<<threshold<<" / "<<tt.size()<<"]"<<endl;
+
+
 
   ELEMENT_RANGE_END = node_edge.size();
   tt.max_element = ELEMENT_RANGE_END; 
