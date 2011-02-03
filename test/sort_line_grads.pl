@@ -22,15 +22,21 @@ sub grad_item_cmp{
 my @lines; 
 while ($line = <STDIN>){    
     my @items; 
+    my $freq; 
     while($line =~ /([0-9]+)([\+\-]) /g){
 	push @items, [$1, $2]; 
     }
-    if($#items != -1){
+
+    if($line =~ /(\([0-9]+\))/){
+	$freq = $1; 
+    }
+#skip patterns of size 1 that are not outputed by glcm
+    if($#items > 0){
 	my $str; 
 	foreach $n (sort grad_item_cmp @items){
 	    $str .="@$n[0]@$n[1] ";
 	}
-	$str .="\n"; 
+	$str .="$freq\n"; 
 	push @lines, $str; 
     }
 }
