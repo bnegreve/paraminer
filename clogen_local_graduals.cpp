@@ -831,7 +831,7 @@ int main(int argc, char **argv){
 
   
   TransactionTable tmp; 
-  read_transaction_table_vtrans(&tmp, argv[idx]);
+  read_transaction_table_vtrans(&tmp, argv[idx+1]);
   nb_vtrans = tmp.size(); 
   ELEMENT_RANGE_END = nb_attributes*2;
   
@@ -873,13 +873,13 @@ int main(int argc, char **argv){
   }
 
   
-  float f_threshold = atof(argv[idx+1]); 
+  float f_threshold = atof(argv[idx+2]); 
   if(f_threshold < 1){ //TODO ambiguity when 1 !
     threshold = std::ceil(f_threshold*(nb_vtrans));
   }
   else{
     threshold = f_threshold;
-    f_threshold = (nb_vtrans)/threshold;
+    f_threshold = (float)threshold/(nb_vtrans);
   }
   cerr<<"THRESHOLD = "<<f_threshold<<" ["<<threshold<<" / "<<nb_vtrans<<"]"<<endl;
 
