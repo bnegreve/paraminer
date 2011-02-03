@@ -2,18 +2,12 @@
 running with 1 thread(s).
 nb_attributes 3
 4
-BM FOR  1+
-BM FOR  1-
-BM FOR  2+
-BM FOR  2-
-BM FOR  3+
-BM FOR  3-
+THRESHOLD = 0.25 [1 / 4]
+DATABASE REDUCTION ENABLED
 CLOGEN DEBUG
+MELINDA DEBUG
  1+  2+ (4)
- 2+ (4)
- 1+  2+  2-  3- (2)
+ 3+ (4)
  1+  2+  3+ (3)
- 2+  2- (2)
- 2+  3+ (4)
- 2+  2-  3+ (2)
-7 patterns mined
+ 1+  2+  3- (2)
+4 patterns mined
