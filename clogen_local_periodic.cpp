@@ -28,7 +28,7 @@ using namespace std;
 set_t permutations; 
 
 void element_print(const element_t element){
-  cout<<permutations[element]; 
+  cout<<element; 
 }
 
 
@@ -146,9 +146,11 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   set_intersect(&occurences, data.base_set_occurences, data.extension_occurences);
 
   // Get original tids
-  set_t orig_tids(tt.size());
+  set_t orig_tids;
+  
+  
   for(int i = 0; i < occurences.size(); i++){
-    std::copy(data.tt[occurences[i]].tids.begin(),  data.tt[occurences[i]].tids.end(), orig_tids.begin());
+    orig_tids.insert(orig_tids.end(), data.tt[occurences[i]].tids.begin(),  data.tt[occurences[i]].tids.end());
   }
   
   if(orig_tids.size() < 2)
@@ -156,7 +158,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
   std::sort(orig_tids.begin(), orig_tids.end());
   int max_gap = orig_tids.back() - orig_tids.front(); 
-  vector<int> gaps(max_gap, 0); 
+  vector<int> gaps(max_gap+1, 0); 
 
   
   for(int i = 1; i < orig_tids.size(); i++){
@@ -166,7 +168,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   
   int big_gap = 0; 
   int big_gap_support = 0; 
-  for(int i = 0; i < max_gap; i++){
+  for(int i = 0; i <= max_gap; i++){
     if(gaps[i] > big_gap_support){
       big_gap_support = gaps[i]; 
       big_gap = i ; 
@@ -175,7 +177,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
   int return_value = big_gap * 1000 + big_gap_support;
   
-  return big_gap_support>=threshold?big_gap:0; 
+  return big_gap_support>=threshold?return_value:0; 
 }
 
 set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){  
@@ -197,7 +199,6 @@ int main(int argc, char **argv){
   }
   threshold = std::atoi(argv[2]); 
   
-  //  compute_permutation_by_frequency(argv[1], &permutations, threshold); 
   element_t max = read_transaction_table(&tt, argv[1], permutations);
 
 
