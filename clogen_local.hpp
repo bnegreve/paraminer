@@ -13,8 +13,6 @@
 #include "pattern.hpp"
 #include "element.hpp" 
 
-//int main(int argc, char **argv);
-
 typedef struct{
   const TransactionTable &tt;	  
   /**< A database containing at least all the transaction including
@@ -24,18 +22,14 @@ typedef struct{
   const Occurence &extension_occurences;
   /**< Tids in \tt of the transactions including \extension */
   const SupportTable &support;
-  /**< support of all element computed in the transaction including base_set */
-  int p_sup;
-  /**< current support of the pattern TODO move to closure_data_t */
+  /**< support of all element computed in the transaction including
+     base_set. The support of e is the sum of the transactions weight
+     of each transactions containing e. */
 }membership_data_t; 
 
 /* must be defined in clogen_local_*.cpp*/
 extern element_t ELEMENT_RANGE_START; 
 extern element_t ELEMENT_RANGE_END; 
-
-int membership_oracle(const set_t &set); 
-int membership_oracle(const set_t &set, const TransactionTable &tt, 
-		      const Transaction &occurences); 
 
 /** 
  * \brief Membership! Must return 1 iff the given \base_set union
@@ -65,15 +59,26 @@ int membership_oracle(const set_t &set, const TransactionTable &tt,
  * 
  * @return 1 iff \base_set union \extension is an interesting set pattern.
  */
-int membership_oracle(const set_t &base_set, const element_t extension, 
-		      const TransactionTable &tt, const Transaction &occurences, const SupportTable &support);
-
 
 int membership_oracle(const set_t &base_set, const element_t extension, const membership_data_t &data);
 
-set_t clo(const set_t &set); 
-set_t clo(const set_t &set, int set_support, const SupportTable &support, 
-	  const membership_data_t &data); 
+
+
+typedef struct{
+  const TransactionTable &tt;	  
+  /**< A database containing at least all the transactions of the set to be closed*/
+  const Occurence &occurences;
+  /**< Tids in \tt of the transactions including the set to be closed */  
+  const SupportTable &support;
+  /**< support of all element computed in the transaction including
+     base_set. The support of e is the sum of the transactions weight
+     of each transactions containing e. */
+  int set_support;
+  /**< The support of the set to be closed (sum of the transaction weight of each transactions) */  
+}closure_data_t;
+
+
+set_t clo(const set_t &set, const closure_data_t &data); 
 
 
 int main(int argc, char **argv); 

@@ -141,8 +141,8 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
       support[*it] = 0; 
   }
 
-  membership_data_t c_data = {tt, occs, ot[e], support, set_support};
-  set_t c = clo(set, set_support, support, c_data);
+  closure_data_t c_data = {tt, ot[e], support, set_support};
+  set_t c = clo(set, c_data);
   sort(c.begin(), c.end()); 
   //TODO could be improved, 
   for(set_t::const_iterator it = c.begin(); it != c.end(); ++it){
@@ -215,7 +215,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   for(set_t::const_iterator it_co = cooccuring_elements.begin(); it_co != it_co_end; ++it_co){
     element_t current = *it_co; 
 
-    membership_data_t m_data = {tt, occs, ot[current], support, 0};    
+    membership_data_t m_data = {tt, occs, ot[current], support};    
 
     if(!set_member(*exclusion_list, current))
       if( (u_data[current] = membership_oracle(c,current, m_data))){
@@ -227,12 +227,12 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
     // TODO remove.. quite costly even for debug! 
     assert(is_sorted(extensions)); 
 
-    TransactionTable *new_tt = new TransactionTable;  // TODO free this memory !     
+    TransactionTable *new_tt = new TransactionTable; 
     database_build_reduced(new_tt, tt, occs, support, *exclusion_list, extensions.size()>3); 
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
 
-
+    /* free thread-shared memory */
     if(depth <= depth_tuple_cutoff){
       if(decrease_nb_refs(&tt) == 0){
 	delete &tt;
@@ -278,6 +278,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   }
 
   else{
+    /* free thread-shared memory */
     if(depth <= depth_tuple_cutoff){
       if(decrease_nb_refs(&tt) == 0){
 	delete &tt;

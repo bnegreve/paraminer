@@ -18,7 +18,6 @@ using std::cerr;
 using std::endl; 
 using namespace std; 
 
-int ELEMENT_RANGE_START = 0; 
 int ELEMENT_RANGE_END; 
 
 extern int threshold; 
@@ -142,8 +141,8 @@ int membership_oracle(const set_t &base_set, const element_t extension,
   return data.support[extension] >= threshold ? data.support[extension] : 0; 
 }
 
-set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
-  return support_based_closure(set, set_support, support); 
+set_t clo(const set_t &set, const closure_data_t &data){
+  return support_based_closure(set, data.set_support, data.support); 
 }
 
 

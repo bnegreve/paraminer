@@ -19,8 +19,7 @@ using std::cout;
 using std::cerr; 
 using std::endl; 
 
- int ELEMENT_RANGE_START = 0; 
- int ELEMENT_RANGE_END ; 
+int ELEMENT_RANGE_END ; 
 
 typedef std::multimap<int, int> graph_t; 
 std::vector<graph_t> all_graphs;
@@ -238,7 +237,7 @@ int membership_oracle(const set_t &base_set, const element_t extension,
 
 }
 
-set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
+set_t clo(const set_t &set, const closure_data_t &data){
   if(!mine_only_closed)
     return set; 
   set_t c(set);
@@ -251,7 +250,7 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
     change = false; 
     for(int e = 0; e <= data.tt.max_element; e++){
       if(!set_member(c, e)){
-	if(data.support[e] == set_support){
+	if(data.support[e] == data.set_support){
 	  if(edge_is_connected_to_graph(graph, e)){
 	    c.push_back(e);
 	    graph.push_back(node_edge[e]); 

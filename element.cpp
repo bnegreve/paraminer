@@ -7,6 +7,8 @@
 using std::cout;
 using std::endl; 
 
+element_t ELEMENT_RANGE_START = 0; 
+
 bool element_equal(const element_t a, const element_t b){
   assert(false); 
   return a == b; 

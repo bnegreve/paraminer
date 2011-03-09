@@ -28,7 +28,7 @@ using std::cerr;
 using std::endl; 
 using namespace std; 
 using namespace nsPattern; 
-int ELEMENT_RANGE_START = 0; 
+
 int ELEMENT_RANGE_END; 
 
 
@@ -734,11 +734,11 @@ void restrict_binary_matrix(BinaryMatrix *bm, const vector<int> &nodes){
       bm->resetIndex(i); 
 }
 
-set_t clo(const set_t &set, int set_support, const SupportTable &support, const membership_data_t &data){
+set_t clo(const set_t &set, const closure_data_t &data){
   set_t c;
   //return set; 
   c.reserve(set.size()); 
-  const Occurence &occs = data.base_set_occurences; 
+  const Occurence &occs = data.occurences; 
   id_trans_t transaction_pairs(occs.size());
   
   int i=0; 
@@ -786,7 +786,7 @@ set_t clo(const set_t &set, int set_support, const SupportTable &support, const 
 	first_positive_flag = true; 
     }
     else{
-      if(support[i] < data.p_sup)
+      if(data.support[i] < data.set_support)
 	continue; 
     /* skip negative items before first positive item */ 
       if(i%2==1) 
