@@ -40,7 +40,7 @@ typedef struct{
 int compute_permutation_by_frequency(const char *filename, set_t *permutations, int minsup){
   
   vector<pair<int, int> >freq_table; 
-  element_t max_element = 0; 
+  element_t max_element = -1; 
   ifstream ifs (filename , ifstream::in);
   int nb_items = 0; 
   int nb_trans = 0;
