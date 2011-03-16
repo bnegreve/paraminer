@@ -51,16 +51,17 @@ int compute_permutation_by_frequency(const char *filename, set_t *permutations, 
     ss<<skipws; 
     getline(ifs, line); 
     ss<<line; 
-    ss>>item;
-    while(ss.good()){
-      if(item > max_element) {
-	max_element=item;
-	freq_table.resize(max_element+1, pair<int,int>(-1, 0));
-      }
-      ++nb_items; 
-      freq_table[item].second++; 
+    do{
       ss>>item;
-    }
+      if(!ss.fail()){
+	if(item > max_element) {
+	  max_element=item;
+	  freq_table.resize(max_element+1, pair<int,int>(-1, 0));
+	}
+	++nb_items; 
+	freq_table[item].second++; 
+      }
+    }while(ss.good()); 
   }
 
   for(int i = 0; i < freq_table.size(); i++){
@@ -101,15 +102,18 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename, con
     ss<<skipws; 
     getline(ifs, line); 
     ss<<line; 
-    ss>>item;
-    while(ss.good()){
-      element_t p; 
-      if( (p = permutations[item]) != -1)
-	t.push_back(p);
-      if(p > max_element) max_element=p; 
-      ++nb_items; 
+
+    do{
       ss>>item;
-    }
+      if(!ss.fail()){
+	element_t p; 
+	if( (p = permutations[item]) != -1)
+	  t.push_back(p);
+	if(p > max_element) max_element=p; 
+	++nb_items; 
+      }
+    }while(ss.good()); 
+
     if(t.size() != 0){
       t.limit=t.size(); 
       nb_trans++;

@@ -25,12 +25,14 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename){
     getline(ifs, line); 
     ss<<line; 
     ss>>item;
-    while(ss.good()){
-      t.push_back(item);
-      if(item > max_element) max_element=item; 
-      ++nb_items; 
+    do{
       ss>>item;
-    }
+      if(!ss.fail()){
+	t.push_back(item);
+	if(item > max_element) max_element=item; 
+	++nb_items; 
+      }
+    }while(ss.good()); 
     if(t.size() != 0){
       t.limit=t.size(); 
       nb_trans++;
