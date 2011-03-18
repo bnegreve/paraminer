@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <pthread.h>
 #include "utils.hpp"
 
 using namespace std; 
@@ -26,15 +27,18 @@ void set_print(const set_t &set){
 }
 
 void pattern_print(const set_t &set, int u_data){
+  static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+  pthread_mutex_lock(&mutex); 
   if(set.size() == 0){
     cout<<"{emptyset}"<<endl; 
-    return ; 
   }
-  for(int i = 0 ; i < set.size(); i++){
-    element_print(set[i]); 
-    cout<<" "; 
-  }  
+  else
+    for(int i = 0 ; i < set.size(); i++){
+      element_print(set[i]); 
+      cout<<" "; 
+    }  
   cout<<"("<<u_data<<")"<<endl;
+  pthread_mutex_unlock(&mutex); 
 }
 
 void set_print_raw(const set_t &set){
