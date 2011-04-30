@@ -155,7 +155,7 @@ set_t clo(const set_t &set, const closure_data_t &data){
 
 
 void usage(char *bin_name){
-  cout<<bin_name<<" inputfile minsup [-t numthreads=1] [-c tuplecutoff=2]"<<endl;
+  cout<<bin_name<<" inputfile minsup [-t numthreads=1] [-c tuplecutoff=2] [-l display tidlist (default is off)]"<<endl;
   exit(EXIT_FAILURE); 
 }
 

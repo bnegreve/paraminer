@@ -42,6 +42,8 @@ TransactionTable &ot = *new TransactionTable;
 
 int threshold; 
 
+bool displayTid = false ;
+
 static std::map<TransactionTable *, int> nb_refs_map; 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
 void set_nb_refs(TransactionTable *p, int nb_refs){
@@ -197,10 +199,12 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
 
   // Get original tids
   set_t orig_tids;
-  for(int i = 0; i < occs.size(); i++){
-    orig_tids.insert(orig_tids.end(), tt[occs[i]].tids.begin(),  tt[occs[i]].tids.end());
+  if (displayTid) {
+    for(int i = 0; i < occs.size(); i++){
+      orig_tids.insert(orig_tids.end(), tt[occs[i]].tids.begin(),  tt[occs[i]].tids.end());
+    }
+    std::sort(orig_tids.begin(), orig_tids.end());
   }
-  std::sort(orig_tids.begin(), orig_tids.end());
 
   pattern_print(c,sup, orig_tids); 
   
@@ -336,7 +340,7 @@ int parse_clogen_arguments(int *argc, char **argv){
   char opt_char=0;
   opterr = 0; 
   int local_options = 0; 
-  while ((opt_char = getopt(*argc, argv, "c:t:")) != -1)
+  while ((opt_char = getopt(*argc, argv, "c:t:l")) != -1)
     {
       switch(opt_char)
 	{
@@ -351,6 +355,9 @@ int parse_clogen_arguments(int *argc, char **argv){
 	  num_threads = atoi(optarg);
 	  *optarg = '\0'; 
 	  break;
+	case 'l':
+	  displayTid = true ;
+	  break ;
 	default:
 	  break;	  
 	}
@@ -363,6 +370,9 @@ int parse_clogen_arguments(int *argc, char **argv){
     }
     else if (!strncmp(argv[i], "-c",2)){
       *(argv[i]) = '\0'; 
+    }
+    else if (!strncmp(argv[i], "-l",2)){
+      *(argv[i]) = '\0' ;
     }
   }
 

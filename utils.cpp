@@ -38,10 +38,13 @@ void pattern_print(const set_t &set, int u_data, const set_t &tids){
       cout<<" "; 
     }  
   cout<<"("<<u_data<<")" ;
-  cout << " [ " ;
-  for (int i=0 ; i<tids.size() ; ++i)
-    cout << tids[i] << " " ;
-  cout << "]" << endl;
+  if (tids.size() > 0) {
+    cout << " [ " ;
+    for (int i=0 ; i<tids.size() ; ++i)
+      cout << tids[i] << " " ;
+    cout << "]" ;
+  }
+  cout << endl ;
   
   pthread_mutex_unlock(&mutex); 
 }
