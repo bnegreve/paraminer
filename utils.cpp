@@ -26,7 +26,7 @@ void set_print(const set_t &set){
   cout<<endl; 
 }
 
-void pattern_print(const set_t &set, int u_data){
+void pattern_print(const set_t &set, int u_data, const set_t &tids){
   static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
   pthread_mutex_lock(&mutex); 
   if(set.size() == 0){
@@ -37,7 +37,12 @@ void pattern_print(const set_t &set, int u_data){
       element_print(set[i]); 
       cout<<" "; 
     }  
-  cout<<"("<<u_data<<")"<<endl;
+  cout<<"("<<u_data<<")" ;
+  cout << " [ " ;
+  for (int i=0 ; i<tids.size() ; ++i)
+    cout << tids[i] << " " ;
+  cout << "]" << endl;
+  
   pthread_mutex_unlock(&mutex); 
 }
 

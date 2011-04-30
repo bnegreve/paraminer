@@ -6,6 +6,9 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+
+#define TRACK_TIDS
+
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
@@ -116,6 +119,7 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename, con
 
     if(t.size() != 0){
       t.limit=t.size(); 
+      t.tids.push_back(nb_trans); 
       nb_trans++;
       t.weight = 1;
 #ifdef SORT_DATABASE

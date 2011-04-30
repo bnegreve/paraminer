@@ -194,7 +194,15 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   }
   
 #endif
-  pattern_print(c,sup); 
+
+  // Get original tids
+  set_t orig_tids;
+  for(int i = 0; i < occs.size(); i++){
+    orig_tids.insert(orig_tids.end(), tt[occs[i]].tids.begin(),  tt[occs[i]].tids.end());
+  }
+  std::sort(orig_tids.begin(), orig_tids.end());
+
+  pattern_print(c,sup, orig_tids); 
   
   size_t num_pattern = 1; 
  
