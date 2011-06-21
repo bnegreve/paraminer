@@ -71,7 +71,7 @@ void graph_to_transaction(Transaction *t, const graph_t &graph){
     }
     t->push_back(node_id);
   }
-  sort(t->begin(), t->end()); 
+  sort(t->begin(), t->end());
   t->weight = 1; 
   t->limit = t->size(); 
 }
@@ -324,8 +324,14 @@ int main(int argc, char **argv){
       all_graphs.resize(all_graphs.size()+1); 
       read_input_graph(&all_graphs.back(), buf);
 
-      Transaction t; 
-      graph_to_transaction(&t, all_graphs.back()); 
+      Transaction t;
+      if(show_tids)	
+	t.tids.push_back(nb_graphs); 
+      graph_to_transaction(&t, all_graphs.back());
+
+
+
+
       t.weight = 1; 
       tt.push_back(t);
       nb_graphs++; 
