@@ -13,11 +13,12 @@
 #include <cctype>
 #include <pthread.h> 
 
+#include "clogen_local.hpp"
 #include "utils.hpp"
 #include "element.hpp"
 #include "pattern.hpp"
 #include "database.hpp"
-#include "clogen_local.hpp"
+
 
 int num_threads = 1; 
 
@@ -42,7 +43,7 @@ TransactionTable &ot = *new TransactionTable;
 
 int threshold; 
 
-bool displayTid = false ;
+bool show_tids = false ;
 
 static std::map<TransactionTable *, int> nb_refs_map; 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
@@ -197,9 +198,12 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   
 #endif
 
+
+#ifdef TRACK_TIDS
   // Get original tids
   set_t orig_tids;
-  if (displayTid) {
+  if (show_tids) {
+    orig_tids.reserve(occs.size()); 
     for(int i = 0; i < occs.size(); i++){
       orig_tids.insert(orig_tids.end(), tt[occs[i]].tids.begin(),  tt[occs[i]].tids.end());
     }
@@ -207,7 +211,10 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   }
 
   pattern_print(c,sup, orig_tids); 
-  
+#else
+  set_t *orig_tids; //dummy set, won't be read
+  pattern_print(c,sup, *orig_tids); 
+#endif //TRACK_TIDS
   size_t num_pattern = 1; 
  
   set_t cooccuring_elements; 
@@ -332,6 +339,7 @@ void *process_tuple(void *){
 
 void clogen_usage(char *bin_name){
   cerr<<bin_name<<" [-t numthreads=1] [-c tuplecutoff=2] \
+ [-l display tidlist (default is off)] \
 [<problem specific arg 1> .. <problem specific arg n>]"<<endl;
   exit(EXIT_FAILURE); 
 }
@@ -356,7 +364,7 @@ int parse_clogen_arguments(int *argc, char **argv){
 	  *optarg = '\0'; 
 	  break;
 	case 'l':
-	  displayTid = true ;
+	  show_tids = true ;
 	  break ;
 	default:
 	  break;	  

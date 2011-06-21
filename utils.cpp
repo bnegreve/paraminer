@@ -38,12 +38,15 @@ void pattern_print(const set_t &set, int u_data, const set_t &tids){
       cout<<" "; 
     }  
   cout<<"("<<u_data<<")" ;
+
+#ifdef TRACK_TIDS
   if (tids.size() > 0) {
     cout << " [ " ;
     for (int i=0 ; i<tids.size() ; ++i)
       cout << tids[i] << " " ;
     cout << "]" ;
   }
+#endif //TRACK_TIDS
   cout << endl ;
   
   pthread_mutex_unlock(&mutex); 

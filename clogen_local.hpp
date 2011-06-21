@@ -31,6 +31,10 @@ typedef struct{
 extern element_t ELEMENT_RANGE_START; 
 extern element_t ELEMENT_RANGE_END; 
 
+extern bool show_tids; /**< this boolean value is set to true if the
+			  program is called with the -l option
+			  (display tids) */
+
 /** 
  * \brief Membership! Must return 1 iff the given \base_set union
  * \extension is a interesting set.

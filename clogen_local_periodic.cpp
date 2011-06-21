@@ -6,8 +6,10 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
-#include "clogen_local.hpp"
+
 #define TRACK_TIDS
+#include "clogen_local.hpp"
+
 #include "pattern.hpp"
 #include "database.hpp"
 #include "clogen.hpp" 

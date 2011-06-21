@@ -21,6 +21,8 @@ using std::endl;
 
 int ELEMENT_RANGE_END ; 
 
+int global_nb_edges = 0; 
+int global_nb_nodes = 0;
 typedef std::multimap<int, int> graph_t; 
 std::vector<graph_t> all_graphs;
 
@@ -78,7 +80,9 @@ void read_input_graph(graph_t *graph, const std::string &graph_filename){
   //  std::map<int, bool> possible_root; 
 
   std::ifstream ifs (graph_filename.c_str(), std::ifstream::in);
-  int nb_edges=0; 
+  int nb_edges=0;
+  int nb_nodes= 0; 
+  int last_node = -1; 
   //ifs<<std::skipws;   
   ifs.ignore(256, '\n'); 
   while(ifs.good()){
@@ -93,6 +97,11 @@ void read_input_graph(graph_t *graph, const std::string &graph_filename){
 	  edge.second = tmp; 
 	}
 	graph->insert(edge);	
+	
+	if(edge.first != last_node){
+	  nb_nodes++;
+	  last_node= edge.first; 
+	}
 	nb_edges++;
       }
       // std::map<int, bool>::iterator p_it;
@@ -112,7 +121,8 @@ void read_input_graph(graph_t *graph, const std::string &graph_filename){
     }
   }
 
-  
+   global_nb_edges += nb_edges; 
+   global_nb_nodes += nb_nodes; 
   // /* complete */ 
 
   // map<int, bool>::const_iterator it; 
@@ -304,6 +314,7 @@ int main(int argc, char **argv){
     perror(""); 
   }
 
+  int nb_graphs = 0; 
   struct dirent *dirent; 
   while((dirent = readdir(dir))){
     if(dirent->d_name[0] != '.'){
@@ -317,6 +328,7 @@ int main(int argc, char **argv){
       graph_to_transaction(&t, all_graphs.back()); 
       t.weight = 1; 
       tt.push_back(t);
+      nb_graphs++; 
     }
   }
 
@@ -346,6 +358,7 @@ float f_threshold = atof(argv[idx+1]);
   transpose(tt, &ot);
 
   cout<<"ELEMENT_RANGE_END"<<ELEMENT_RANGE_END<<endl;
+  cout<<"AVARAGE NB NODE : EDGES" <<global_nb_nodes/nb_graphs<<" : "<<global_nb_edges/nb_graphs<<endl; 
   // read_transaction_table(&tt, argv[idx+1]); 
   // threshold = std::atoi(argv[optind+2]); 
   // transpose(tt, &ot);

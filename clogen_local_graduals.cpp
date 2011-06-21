@@ -11,6 +11,9 @@
 #include <set>
 #include <stdint.h>
 #include <cmath>
+
+#define TRACK_TIDS
+
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"

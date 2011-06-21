@@ -7,8 +7,6 @@
 #include <sstream>
 #include <fstream>
 
-#define TRACK_TIDS
-
 #include "clogen_local.hpp"
 
 #include "pattern.hpp"
@@ -23,7 +21,7 @@ using namespace std;
 
 int ELEMENT_RANGE_END; 
 
-extern int threshold; 
+extern int threshold;
 
 using namespace std;
 
@@ -118,8 +116,11 @@ element_t read_transaction_table(TransactionTable *tt, const char *filename, con
     }while(ss.good()); 
 
     if(t.size() != 0){
-      t.limit=t.size(); 
-      t.tids.push_back(nb_trans); 
+      t.limit=t.size();
+#ifdef TRACK_TIDS
+      if(show_tids)
+	t.tids.push_back(nb_trans);
+#endif //TRACK_TIDS
       nb_trans++;
       t.weight = 1;
 #ifdef SORT_DATABASE

@@ -8,7 +8,6 @@
 #include "database.hpp"
 #include "utils.hpp"
 
-
 using namespace std; 
 
 element_t read_transaction_table(TransactionTable *tt, const char *filename){
