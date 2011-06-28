@@ -343,13 +343,15 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
       }
     }
     
-    current_trans->limit = current_trans->size(); 
+    current_trans->limit = current_trans->size();
+    sort(buffer.begin(), buffer.end()); //TODO quite inefficient
     current_trans->insert(current_trans->end(), buffer.begin(), buffer.end()); 
     buffer.clear();
     
     if(current_trans->size() > 0){
-      if(current_trans->limit != 0)
+      if(current_trans->limit != 0){
 	new_tt->max_element = std::max(new_tt->max_element, (*current_trans)[current_trans->limit-1]);
+      }
       new_tt->max_element = std::max(new_tt->max_element, current_trans->back());
       new_tt->push_back(Transaction()); 
       current_trans = &new_tt->back(); 

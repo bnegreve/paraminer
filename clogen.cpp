@@ -63,6 +63,14 @@ int decrease_nb_refs(TransactionTable *p){
   return tmp; 
 }
 
+
+struct support_sort_cmp_t{
+  const TransactionTable &ot;
+  bool operator()(int a, int b) {
+    return ot[a].size() < ot[b].size(); 
+  }
+};
+  
 /* Return the maximum element e so set \ {e} is in F */
 /* assumes set is ordered */
 element_t get_tail(const set_t &set, const TransactionTable &tt,
@@ -125,7 +133,6 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
   return make_pair(set_t(0), get_tail(set, tt, occurences));
   #endif
 }
-
 
 size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list, int sup){
   
@@ -243,13 +250,15 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   }
   
   if(extensions.size() > 0){
-    // TODO remove.. quite costly even for debug! 
-    assert(is_sorted(extensions)); 
+
 
     TransactionTable *new_tt = new TransactionTable; 
     database_build_reduced(new_tt, tt, occs, support, *exclusion_list, extensions.size()>3); 
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
+
+    support_sort_cmp_t support_sort = {*new_ot};      
+    std::sort(extensions.begin(), extensions.end(), support_sort); 
 
     /* free thread-shared memory */
     if(depth <= depth_tuple_cutoff){
