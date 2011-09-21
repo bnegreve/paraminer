@@ -135,7 +135,15 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
 }
 
 size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list, int sup){
+
   
+  int db_size = 0; 
+    for(int i = 0; i < tt.size(); i++){
+      db_size += tt[i].size(); 
+    }
+    cout<<"DBSIZE "<<tt.size()<<endl; 
+
+
   set_t set(s); 
   element_t max_element = tt.max_element;
   /* occurences of e is occs of s u {e} since tt is restricted to occs(s) */
