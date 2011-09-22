@@ -124,4 +124,6 @@ void compute_element_support(SupportTable *support, const TransactionTable &tt,
 
 void all_occurences(Transaction *occs, const TransactionTable &tt); 
 
+void print_tt_info(const TransactionTable &tt); 
+
 #endif	    /* _ITEMSET_SPECIFIC_HPP_ */

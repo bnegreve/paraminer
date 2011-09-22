@@ -501,3 +501,15 @@ void all_occurences(Transaction *occs, const TransactionTable &tt){
     (*occs)[i] = i; 
   }
 }
+
+void print_tt_info(const TransactionTable &tt){
+  cerr<<"nb distinct elements\t:\t"<<tt.max_element+1<<endl;
+  cerr<<"nb transactions\t\t:\t"<<tt.size()<<endl;
+  int db_size = 0; 
+  for(int i = 0; i < tt.size(); i++){
+    db_size += tt[i].size(); 
+  }
+  cerr<<"database size\t\t:\t"<<db_size<<endl;
+  
+  cerr<<"density (%)\t\t:\t"<< (double)db_size/((tt.max_element+1) * tt.size())*100<<endl;
+}
