@@ -39,6 +39,7 @@ int m_distribute(opaque_tuple_t *tuple){
 int m_retrieve(){
   return 1;
 }
+
 #endif
 
 
@@ -55,7 +56,6 @@ int m_distribute(opaque_tuple_t *tuple){
   } 
   return 2; 
 }
-
 
 int m_retrieve(){
   return 0;
