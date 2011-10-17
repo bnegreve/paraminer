@@ -16,6 +16,11 @@ set(CMAKE_CXX_FLAGS_PROF "-O3 -g -pg")
 set(CMAKE_C_FLAGS_PROF "-O3 -g -pg")
 set(CMAKE_EXE_LINKER_FLAGS_PROF "-pg")
 
+#set default build type to Release
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE "Release")
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
 message(STATUS "BUILD : ${CMAKE_BUILD_TYPE}")
 
 
