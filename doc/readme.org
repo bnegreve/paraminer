@@ -158,7 +158,7 @@ clo(P){
 The main function is here to achieves three goals:
 1. Parse the command line arguments
 2. Load and pre-process the dataset 
-3. Invoque the clogen_routine to start the exploration. 
+3. Invoque the clogen() routine to start the exploration. 
 
 *** Parsing the command line arguments
     
