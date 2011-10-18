@@ -1,6 +1,37 @@
 ParaMiner : a generic, parallel algorithm for closed pattern mining.
 #+STYLE: <link rel="stylesheet" type="text/css" href="stylesheet.css" />
 
+* Quick start 
+
+1. Download the complete archive ParaMiner+Melinda here: http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz
+
+2. Extract with 
+    : tar xzvf paraminermelinda.tgz
+    and move into the directory with 
+    : cd paraminermelinda
+
+3. Compile Melinda
+#+BEGIN_EXAMPLE
+$> cd melinda
+$> cmake . 
+$> make
+$> cd ../
+#+END_EXAMPLE
+
+4. Compile ParaMiner
+#+BEGIN_EXAMPLE
+$> cd paraminer
+$> cmake . 
+$> make
+#+END_EXAMPLE
+
+5. Run the closed frequent itemset mining (FIM) instance of ParaMiner on the test.dat dataset an absolute frequency threshold of 2 (and 4 threads).
+#+BEGIN_EXAMPLE
+$> ./clogen_itemsets test.dat 2 -t 4
+#+END_EXAMPLE
+
+It will output the closed frequent itemset occurring in test.dat with an absolute frequency threshold of at least 2. 
+
 * Compilation
 
 In order to build paraminer you need the Melinda Library which is available at 

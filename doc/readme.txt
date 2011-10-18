@@ -2,33 +2,63 @@
  ====================================================================
 
 Author: bengreve <bengreve@confiance.imag.fr>
-Date: 2011-10-18 18:39:17 CEST
+Date: 2011-10-18 20:29:08 CEST
 
 
 Table of Contents
 =================
-1 Compilation 
-        1.1 Switching build modes 
-2 Running an instance of ParaMiner 
-    2.1 Closed frequent itemset mining (FIM) with ParaMiner 
-        2.1.1 Input file format 
-        2.1.2 Running the FIM instance of ParaMiner 
-        2.1.3 Output format 
-    2.2 Other built-in instances of ParaMiner 
-        2.2.1 Closed frequent relational graphs 
-        2.2.2 Closed graudal itemsets 
-        2.2.3 Closed periodic patterns 
-3 Creating your own instance of ParaMiner 
-    3.1 A selection criterion 
-    3.2 A closure operator 
-    3.3 A main function 
-        3.3.1 Parsing the command line arguments 
-        3.3.2 Loading the dataset 
-        3.3.3 Invoking the search space 
-4 Bugs 
+1 Quick start 
+2 Compilation 
+        2.1 Switching build modes 
+3 Running an instance of ParaMiner 
+    3.1 Closed frequent itemset mining (FIM) with ParaMiner 
+        3.1.1 Input file format 
+        3.1.2 Running the FIM instance of ParaMiner 
+        3.1.3 Output format 
+    3.2 Other built-in instances of ParaMiner 
+        3.2.1 Closed frequent relational graphs 
+        3.2.2 Closed graudal itemsets 
+        3.2.3 Closed periodic patterns 
+4 Creating your own instance of ParaMiner 
+    4.1 A selection criterion 
+    4.2 A closure operator 
+    4.3 A main function 
+        4.3.1 Parsing the command line arguments 
+        4.3.2 Loading the dataset 
+        4.3.3 Invoking the search space 
+5 Bugs 
 
 
-1 Compilation 
+1 Quick start 
+~~~~~~~~~~~~~~
+
+1. Download the complete archive ParaMiner+Melinda here: [http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz]
+
+2. Extract with 
+    tar xzvf paraminermelinda.tgz
+    and move into the directory with 
+    cd paraminermelinda
+
+3. Compile Melinda
+  $> cd melinda
+  $> cmake . 
+  $> make
+  $> cd ../
+
+
+4. Compile ParaMiner
+  $> cd paraminer
+  $> cmake . 
+  $> make
+
+
+5. Run the closed frequent itemset mining (FIM) instance of ParaMiner on the test.dat dataset an absolute frequency threshold of 2 (and 4 threads).
+  $> ./clogen_itemsets test.dat 2 -t 4
+
+
+It will output the closed frequent itemset occurring in test.dat with an absolute frequency threshold of at least 2. 
+
+2 Compilation 
 ~~~~~~~~~~~~~~
 
 In order to build paraminer you need the Melinda Library which is available at 
@@ -46,7 +76,7 @@ directory.
 
 For example clogen\_itemsets is built. See section RUN.
 
-1.1 Switching build modes 
+2.1 Switching build modes 
 --------------------------
 
 You can compile ParaMiner in debug mode (useful if you want to implement your own pattern problem). 
@@ -62,7 +92,7 @@ Use:
 
 to switch back de Release mode.
 
-2 Running an instance of ParaMiner 
+3 Running an instance of ParaMiner 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to solve a pattern mining problem, you need an instance of
@@ -71,7 +101,7 @@ instance of ParaMiner to mine closed frequent itemset in [instance fim].
 Or you can learn how to create your own instance of ParaMiner in
 [creating your own instance].
 
-2.1 Closed frequent itemset mining (FIM) with ParaMiner 
+3.1 Closed frequent itemset mining (FIM) with ParaMiner 
 ========================================================
 
 If you correctly compiled ParaMiner, you should have a clogen\_itemset
@@ -80,7 +110,7 @@ binary file in the src/ directory.
 You can use this instance of ParaMiner to mine closed frequent itemset
 from a transactional dataset.
 
-2.1.1 Input file format 
+3.1.1 Input file format 
 ------------------------
     
 Dataset stored within a single ASCII file.
@@ -99,7 +129,7 @@ eg.
 
 is a valid dataset.
 
-2.1.2 Running the FIM instance of ParaMiner 
+3.1.2 Running the FIM instance of ParaMiner 
 --------------------------------------------
 
 You can mine closed frequent itemsets occurring in this dataset by executing the following command:
@@ -109,7 +139,7 @@ Alternatively, if you have a multi-core/parallel computer with 8
 cores, you can exploit them by executing the following command: 
 ./clogen_itemsets test.dat 2 -t 8
 
-2.1.3 Output format 
+3.1.3 Output format 
 --------------------
 
 The FIM implementation of ParaMiner has the following format: 
@@ -128,26 +158,26 @@ will generate the following output on the standard output:
 The results can be stored by redirecting the standard output into a file:
 ./clogen_itemsets test.dat 2 -t 1 > results.out
 
-2.2 Other built-in instances of ParaMiner 
+3.2 Other built-in instances of ParaMiner 
 ==========================================
 
-2.2.1 Closed frequent relational graphs 
+3.2.1 Closed frequent relational graphs 
 ----------------------------------------
 
-2.2.2 Closed graudal itemsets 
+3.2.2 Closed graudal itemsets 
 ------------------------------
 
-2.2.3 Closed periodic patterns 
+3.2.3 Closed periodic patterns 
 -------------------------------
  
 
-3 Creating your own instance of ParaMiner 
+4 Creating your own instance of ParaMiner 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you want to create your own instance of ParaMiner to mine your own
 type of patterns (say dark patters), you to write a clogen_local_dark.cpp file which will contain an implementation for the following functions:
 
-3.1 A selection criterion 
+4.1 A selection criterion 
 ==========================
 In a function called membership\_oracle(). 
 The selection criterion to distingish candidate patterns from patterns.
@@ -164,7 +194,7 @@ simple as:
   }
 
 
-3.2 A closure operator 
+4.2 A closure operator 
 =======================
 In a function called clo()
 
@@ -184,22 +214,22 @@ therefore we are only going to use the identity.
   }
 
 
-3.3 A main function 
+4.3 A main function 
 ====================
 
 The main function is here to achieves three goals:
 1. Parse the command line arguments
 2. Load and pre-process the dataset 
-3. Invoque the clogen_routine to start the exploration. 
+3. Invoque the clogen() routine to start the exploration. 
 
-3.3.1 Parsing the command line arguments 
+4.3.1 Parsing the command line arguments 
 -----------------------------------------
     
 You must start your main function by calling the
 parse_clogen_arguments(argc, argv) function.  It will capture the
 arguments used by ParaMiner remove them from argv and decrease argc.
 
-3.3.2 Loading the dataset 
+4.3.2 Loading the dataset 
 --------------------------
 
 The dataset must be loaded into a table called tt which is of type TransactionTable. 
@@ -219,13 +249,13 @@ So far our clogen_local_dark.cpp file looks like this:
   }
 
 
-3.3.3 Invoking the search space 
+4.3.3 Invoking the search space 
 --------------------------------
 
 Once your dataset is loaded into tt, you must call the clogen() main routine with empty_set
 as an argument if you want to start the exploration from the emptyset.
 
-4 Bugs 
+5 Bugs 
 ~~~~~~~
 
 Repport bugs and/or comments at:
