@@ -12,27 +12,30 @@ ParaMiner : a generic, parallel algorithm for closed pattern mining.
 
 3. Compile Melinda
 #+BEGIN_EXAMPLE
-$> cd melinda
-$> cmake . 
-$> make
-$> cd ../
+cd melinda
+cmake . 
+make
+cd ../
 #+END_EXAMPLE
 
 4. Compile ParaMiner
 #+BEGIN_EXAMPLE
-$> cd paraminer
-$> cmake . 
-$> make
+cd paraminer
+cmake . 
+make
 #+END_EXAMPLE
 
 5. Run the closed frequent itemset mining (FIM) instance of ParaMiner on the test.dat dataset an absolute frequency threshold of 2 (and 4 threads).
 #+BEGIN_EXAMPLE
-$> ./clogen_itemsets test.dat 2 -t 4
+./clogen_itemsets test.dat 2 -t 4
 #+END_EXAMPLE
 
 It will output the closed frequent itemset occurring in test.dat with an absolute frequency threshold of at least 2. 
 
 * Compilation
+
+ParaMiner is a core algorithm, and it uses the Melinda library as a
+parallelism engine.
 
 In order to build paraminer you need the Melinda Library which is available at 
 http://membres-liglab.imag.fr/negrevergne/software/melinda
@@ -40,37 +43,37 @@ http://membres-liglab.imag.fr/negrevergne/software/melinda
 Edit the src/CMakeLists.txt and change the MELINDA\_DIR file to the correct melinda location. 
 
 #+BEGIN_EXAMPLE
-$> cmake . 
-$> make
+cmake . 
+make
 #+END_EXAMPLE
 
-This will create several a binary (executable) files on for each
-clogen\_<problem_name> file for each clogen_local_<problem_name> in the
+This will create several a binary (executable) files, one for each
+clogen\_<problem\_name> file for each clogen\_local\_<problem\_name> in the
 directory.
 
-For example clogen\_itemsets is built. See section RUN.
+For example clogen\_itemsets is built. See section [[instance fim]].
 
 *** Switching build modes
 
 You can compile ParaMiner in debug mode (useful if you want to implement your own pattern problem). 
 #+BEGIN_EXAMPLE
-$> cmake -DCMAKE_BUILD_TYPE=Debug
-$> make
+cmake -DCMAKE_BUILD_TYPE=Debug
+make
 #+END_EXAMPLE
 
 To set the build system in debug mode
 
 Use:
 #+BEGIN_EXAMPLE
-$> cmake -DCMAKE_BUILD_TYPE=Release
-$> make
+cmake -DCMAKE_BUILD_TYPE=Release
+make
 #+END_EXAMPLE
 to switch back de Release mode.
 
 * Running an instance of ParaMiner
 
-In order to solve a pattern mining problem, you need an instance of
-ParaMiner to solve this problem.  You can see how to use the built-in
+In order to solve a pattern mining problem, you need the adequate instance of
+ParaMiner.  You can see how to use the built-in
 instance of ParaMiner to mine closed frequent itemset in [[instance fim]].
 Or you can learn how to create your own instance of ParaMiner in
 [[creating your own instance]].

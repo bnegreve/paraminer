@@ -2,7 +2,7 @@
  ====================================================================
 
 Author: bengreve <bengreve@confiance.imag.fr>
-Date: 2011-10-18 20:29:08 CEST
+Date: 2011-10-18 20:55:25 CEST
 
 
 Table of Contents
@@ -40,20 +40,20 @@ Table of Contents
     cd paraminermelinda
 
 3. Compile Melinda
-  $> cd melinda
-  $> cmake . 
-  $> make
-  $> cd ../
+  cd melinda
+  cmake . 
+  make
+  cd ../
 
 
 4. Compile ParaMiner
-  $> cd paraminer
-  $> cmake . 
-  $> make
+  cd paraminer
+  cmake . 
+  make
 
 
 5. Run the closed frequent itemset mining (FIM) instance of ParaMiner on the test.dat dataset an absolute frequency threshold of 2 (and 4 threads).
-  $> ./clogen_itemsets test.dat 2 -t 4
+  ./clogen_itemsets test.dat 2 -t 4
 
 
 It will output the closed frequent itemset occurring in test.dat with an absolute frequency threshold of at least 2. 
@@ -61,42 +61,45 @@ It will output the closed frequent itemset occurring in test.dat with an absolut
 2 Compilation 
 ~~~~~~~~~~~~~~
 
+ParaMiner is a core algorithm, and it uses the Melinda library as a
+parallelism engine.
+
 In order to build paraminer you need the Melinda Library which is available at 
 [http://membres-liglab.imag.fr/negrevergne/software/melinda]
 
 Edit the src/CMakeLists.txt and change the MELINDA\_DIR file to the correct melinda location. 
 
-  $> cmake . 
-  $> make
+  cmake . 
+  make
 
 
-This will create several a binary (executable) files on for each
-clogen\_<problem_name> file for each clogen_local_<problem_name> in the
+This will create several a binary (executable) files, one for each
+clogen\_<problem\_name> file for each clogen\_local\_<problem\_name> in the
 directory.
 
-For example clogen\_itemsets is built. See section RUN.
+For example clogen\_itemsets is built. See section [instance fim].
 
 2.1 Switching build modes 
 --------------------------
 
 You can compile ParaMiner in debug mode (useful if you want to implement your own pattern problem). 
-  $> cmake -DCMAKE_BUILD_TYPE=Debug
-  $> make
+  cmake -DCMAKE_BUILD_TYPE=Debug
+  make
 
 
 To set the build system in debug mode
 
 Use:
-  $> cmake -DCMAKE_BUILD_TYPE=Release
-  $> make
+  cmake -DCMAKE_BUILD_TYPE=Release
+  make
 
 to switch back de Release mode.
 
 3 Running an instance of ParaMiner 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to solve a pattern mining problem, you need an instance of
-ParaMiner to solve this problem.  You can see how to use the built-in
+In order to solve a pattern mining problem, you need the adequate instance of
+ParaMiner.  You can see how to use the built-in
 instance of ParaMiner to mine closed frequent itemset in [instance fim].
 Or you can learn how to create your own instance of ParaMiner in
 [creating your own instance].
