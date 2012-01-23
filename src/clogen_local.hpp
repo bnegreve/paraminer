@@ -87,4 +87,7 @@ set_t clo(const set_t &set, const closure_data_t &data);
 
 int main(int argc, char **argv); 
 
+
+extern int num_threads;
+
 #endif	    /* _CLOGEN_LOCAL_HPP_ */

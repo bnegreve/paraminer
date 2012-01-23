@@ -8,8 +8,14 @@
 */
 
 #include <iostream>
+#include <fstream>
 #include <algorithm>
+#include <sstream>
 #include <pthread.h>
+#include <sys/time.h>
+extern "C" {
+#include <thread.h>
+}
 #include "utils.hpp"
 
 using namespace std; 
@@ -251,4 +257,60 @@ void reverse_permutations(set_t *permutations){
       }      
     }     
   }  
+}
+
+
+using std::ofstream; 
+static vector<ofstream *> trace_file_fds;
+static struct timeval *start_time = NULL;
+
+
+static void trace_check_file_exists(int tid){
+      
+  if(trace_file_fds.size() > tid && trace_file_fds[tid] != NULL){
+    return; 
+  }
+  else{
+    /* unlikely */
+    trace_file_fds.resize(tid + 1, NULL); 
+    std::ostringstream oss; 
+    oss<<"TRACE_"<<tid<<".dat"; 
+    trace_file_fds[tid] = new ofstream(oss.str().c_str()); 
+  }
+}
+
+
+void trace_init(int nb_threads){
+  if(start_time == NULL){
+    start_time = new struct timeval; 
+    gettimeofday(start_time, NULL);
+  }
+
+  for(int i = 0; i <= nb_threads; i++)
+    trace_check_file_exists(i);
+}
+
+void trace_timestamp_print(const string &info){
+  
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  
+  int thread_id =  m_thread_id();
+
+  ostream *os = trace_file_fds[thread_id];
+
+  *os<<((tv.tv_sec + (double)tv.tv_usec/1000000.) - (start_time->tv_sec + (double) start_time->tv_usec/1000000.))*1000<<", "; 
+  *os<<thread_id<<", "<<info<<endl; 
+  // for(int i = 0; i < info.size() - 1; i++){
+  //   *os<<", "<<info[i];
+  // }
+  // if(info.size() > 0){
+  //   *os<<", "<<info[info.size()-1];
+  // }
+}
+
+void trace_exit(){
+  for(int i = 0; i < trace_file_fds.size(); i++){
+    delete trace_file_fds[i]; 
+  }
 }

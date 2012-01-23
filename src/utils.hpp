@@ -10,6 +10,8 @@
 #ifndef   	_UTILS_H_
 #define   	_UTILS_H_
 
+#include <string>
+#include <vector>
 #include "database.hpp" 
 #include "pattern.hpp"
 
@@ -94,5 +96,32 @@ set_t support_based_closure(const set_t &set, int set_support, const SupportTabl
  * @param permutations 
  */
 void reverse_permutations(set_t *permutations);
+
+
+/** 
+ * \brief Write the current time, the thread id and an info string into a trace file.
+ * 
+ * There is one trace file per thread.  Each info is comma separated.
+ * The first field is the time stamp, the second field is a thread
+ * identifier the last field is an info string (given)
+ * 
+ */
+void trace_timestamp_print(const std::string &info); 
+
+
+/** 
+ * \brief Must be called before any usage of trace_*() function
+ * 
+ * \warning Not thread safe ! Must be called only once.
+ */
+
+void trace_init(int nb_threads); 
+/** 
+ * \brief Must be called before end of program in order to ensure that all traces were written. 
+ * 
+ */
+void trace_exit(); 
+
+
 
 #endif 	    /* !_UTILS_H_ */
