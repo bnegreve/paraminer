@@ -259,7 +259,7 @@ void reverse_permutations(set_t *permutations){
   }  
 }
 
-
+#ifdef TIMING
 using std::ofstream; 
 static vector<ofstream *> trace_file_fds;
 static struct timeval *start_time = NULL;
@@ -278,9 +278,11 @@ static void trace_check_file_exists(int tid){
     trace_file_fds[tid] = new ofstream(oss.str().c_str()); 
   }
 }
-
+#endif //TIMING
 
 void trace_init(int nb_threads){
+#ifdef TIMING
+
   if(start_time == NULL){
     start_time = new struct timeval; 
     gettimeofday(start_time, NULL);
@@ -288,10 +290,15 @@ void trace_init(int nb_threads){
 
   for(int i = 0; i <= nb_threads; i++)
     trace_check_file_exists(i);
+
+#endif //TIMING 
 }
 
-void trace_timestamp_print(const string &info){
-  
+
+
+void trace_timestamp_print(const string &info, int start_end){
+#ifdef TIMING
+
   struct timeval tv;
   gettimeofday(&tv, NULL);
   
@@ -300,17 +307,29 @@ void trace_timestamp_print(const string &info){
   ostream *os = trace_file_fds[thread_id];
 
   *os<<((tv.tv_sec + (double)tv.tv_usec/1000000.) - (start_time->tv_sec + (double) start_time->tv_usec/1000000.))*1000<<", "; 
-  *os<<thread_id<<", "<<info<<endl; 
-  // for(int i = 0; i < info.size() - 1; i++){
-  //   *os<<", "<<info[i];
-  // }
-  // if(info.size() > 0){
-  //   *os<<", "<<info[info.size()-1];
-  // }
+
+  switch(start_end){
+  case (EVENT_START):
+    *os<<thread_id<<", "<<"START "<<info<<endl; 
+    break; 
+  case (EVENT_END):
+   *os<<thread_id<<", "<<"END "<<info<<endl; 
+    break;
+  default:
+    *os<<thread_id<<", "<<info<<endl; 
+    break; 
+  }
+
+#endif //TIMING
 }
 
 void trace_exit(){
+#ifdef TIMING
+
   for(int i = 0; i < trace_file_fds.size(); i++){
     delete trace_file_fds[i]; 
   }
+
+#endif //TIMING 
 }
+

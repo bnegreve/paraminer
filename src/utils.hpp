@@ -15,6 +15,7 @@
 #include "database.hpp" 
 #include "pattern.hpp"
 
+#define TIMING 
 
 void set_print(const set_t &set);
 
@@ -98,6 +99,10 @@ set_t support_based_closure(const set_t &set, int set_support, const SupportTabl
 void reverse_permutations(set_t *permutations);
 
 
+const int EVENT_NODELAY = 0;
+const int EVENT_START = 1;
+const int EVENT_END = 2;
+
 /** 
  * \brief Write the current time, the thread id and an info string into a trace file.
  * 
@@ -106,7 +111,7 @@ void reverse_permutations(set_t *permutations);
  * identifier the last field is an info string (given)
  * 
  */
-void trace_timestamp_print(const std::string &info); 
+void trace_timestamp_print(const std::string &info, int start_end = EVENT_NODELAY); 
 
 
 /** 
@@ -121,7 +126,5 @@ void trace_init(int nb_threads);
  * 
  */
 void trace_exit(); 
-
-
 
 #endif 	    /* !_UTILS_H_ */
