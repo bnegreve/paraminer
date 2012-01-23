@@ -251,11 +251,27 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   
   if(extensions.size() > 0){
 
-
+#define TIMING_TRACES
+#ifdef TIMING_TRACES
+    if(depth == 0)
+      trace_timestamp_print("DBR START"); 
+#endif 			  
+			  
     TransactionTable *new_tt = new TransactionTable; 
     database_build_reduced(new_tt, tt, occs, support, *exclusion_list, extensions.size()>3); 
+
+#ifdef TIMING_TRACES
+    if(depth == 0)
+      trace_timestamp_print("TRANSPOSE START");
+#endif 			  
+    
     TransactionTable *new_ot = new TransactionTable; 
     transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
+
+#ifdef TIMING_TRACES
+    if(depth == 0)
+      trace_timestamp_print("TRANSPOSE END");
+#endif 			  
 
     support_sort_cmp_t support_sort = {*new_ot};      
     std::sort(extensions.begin(), extensions.end(), support_sort); 

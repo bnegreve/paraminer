@@ -195,7 +195,8 @@ int main(int argc, char **argv){
 
   transpose(tt, &ot);
 
-
+  trace_init(num_threads);
+  
   set_t empty_set; 
   int num_pattern = clogen(empty_set);
   cout<<num_pattern<<" patterns mined"<<endl;
