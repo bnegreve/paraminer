@@ -82,10 +82,10 @@ print "\n";
 for($i = 0; $i < $max_event; $i++){
     foreach $k (keys %output){
 	if(defined  $output{$k}[$i]){
-	    print $output{$k}[$i]." "; 
+	    print $output{$k}[$i]."\t"; 
 	}
 	else {
-	    print "ukn ";
+	    print "ukn\t";
 	}
 	    
     }
