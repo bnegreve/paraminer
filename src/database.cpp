@@ -292,7 +292,7 @@ void merge_identical_transactions(TransactionTable *tt, bool remove_non_closed_f
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const SupportTable &support, 
 			    const set_t &exclusion_list, int depth, bool merge){
-  trace_timestamp_print("COPY SUPPORT SET", EVENT_START); 
+  if(depth == 0)  trace_timestamp_print("COPY SUPPORT SET", EVENT_START); 
   new_tt->max_element=0; 
   new_tt->reserve(occurence.size()); 
   new_tt->push_back(Transaction());
@@ -362,7 +362,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   if(current_trans->size() == 0){
     new_tt->resize(new_tt->size()-1);
   }
-  trace_timestamp_print("COPY SUPPORT SET", EVENT_END); 
+  if (depth == 0) trace_timestamp_print("COPY SUPPORT SET", EVENT_END); 
   if(merge){
     if(depth == 0)
     trace_timestamp_print("MERGE", EVENT_START); 
