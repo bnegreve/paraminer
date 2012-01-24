@@ -23,7 +23,7 @@
 while($line = <STDIN>){
     if($line =~ /^\s*#/){print STDERR $line; next;}
     chomp $line; 
-    @input = split(/ +/,  $line);
+    @input = split(/[ \t]+/,  $line);
     
 
     for($cur = 0; $cur <= $#input; $cur++){
