@@ -17,46 +17,53 @@
 # 40, 0, START chicken
 # 45, 0, END chicken
 
-# The following command 
-# $> ./stat_traces.pl < input.traces | ./stats.pl
-# will output 
+# The command:
+# $> ./stat_traces.pl input.trace | ./stats.pl
+# will output:
 #
 # gluc global chicken 
 # COLUMN 0 : SUM = 17, SIZ = 2, AVG = 8.5, STD = 4.5
 # COLUMN 1 : SUM = 25, SIZ = 1, AVG = 25, STD = 0
 # COLUMN 2 : SUM = 17, SIZ = 2, AVG = 8.5, STD = 3.5
 #
+# Note that one or more input trace file are accepted, therefore: 
+# $> ./stat_traces.pl trace_*.trace | ./stats.pl
+# can be used. 
 #
 # see stats.pl for more details about it. 
 
-
-
 %output; 
-while($line = <STDIN>){
-    if($line =~ /^\s*#/){next;}
-    chomp $line; 
 
-    @input = split(/[\t ]*,[\t ]*/,  $line);
+foreach $file (@ARGV){
+    print STDERR "Reading trace file: $file.\n";
+    open INPUT, "<$file" or die $!;
+    while($line = <INPUT>){
+	if($line =~ /^\s*#/){next;}
+	chomp $line; 
 
-    if($#input != 2){
-	die "input format is <timestamp in s>, <thread id>, <event name>\n"; 
-    }
-    
-    $time = $input[0]; 
-    $thread_id = $input[1]; 
-    $event_name = $input[2]; 
+	@input = split(/[\t ]*,[\t ]*/,  $line);
 
-    if($event_name =~ /START[ \t]*(.*)/){
-	if(defined $events{$1} and $events{$1} != -1){
-	    print STDERR "Warning START END sequence not respected\n"; 
+	if($#input != 2){
+	    die "input format is <timestamp in s>, <thread id>, <event name>\n"; 
 	}
-	$events{$1} = $time; 
+	
+	$time = $input[0]; 
+	$thread_id = $input[1]; 
+	$event_name = $input[2]; 
+
+	if($event_name =~ /START[ \t]*(.*)/){
+	    if(defined $events{$1} and $events{$1} != -1){
+		print STDERR "Warning START END sequence not respected\n"; 
+	    }
+	    $events{$1} = $time; 
+	}
+	elsif($event_name =~ /END[ \t]*(.*)/){	
+	    $delay = $time - $events{$1}; 
+	    $events{$1} = -1; 
+	    push @{$output{$1}}, $delay; 
+	}
     }
-    elsif($event_name =~ /END[ \t]*(.*)/){	
-	$delay = $time - $events{$1}; 
-	$events{$1} = -1; 
-	push @{$output{$1}}, $delay; 
-    }
+    close INPUT; 
 }
 
 $max_event = 0; 
