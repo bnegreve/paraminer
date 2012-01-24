@@ -255,7 +255,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
       trace_timestamp_print("DBR", EVENT_START ); 
 			  
     TransactionTable *new_tt = new TransactionTable; 
-    database_build_reduced(new_tt, tt, occs, support, *exclusion_list, extensions.size()>3); 
+    database_build_reduced(new_tt, tt, occs, support, *exclusion_list, depth, extensions.size()>3); 
 
     if(depth == 0){
       trace_timestamp_print("DBR", EVENT_END);

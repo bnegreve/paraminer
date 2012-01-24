@@ -78,7 +78,7 @@ void merge_identical_transactions(TransactionTable *tt, bool remove_non_closed =
 
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const SupportTable &support, 
-			    const set_t &exclusion_list, bool merge=true); 
+			    const set_t &exclusion_list, int depth, bool merge=true); 
 
 void suffix_intersection(TransactionTable *tt, 
 			 std::vector<tid_t> *input,

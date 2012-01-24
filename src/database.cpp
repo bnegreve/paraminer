@@ -291,7 +291,7 @@ void merge_identical_transactions(TransactionTable *tt, bool remove_non_closed_f
 
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const SupportTable &support, 
-			    const set_t &exclusion_list, bool merge){
+			    const set_t &exclusion_list, int depth, bool merge){
   new_tt->max_element=0; 
   new_tt->reserve(occurence.size()); 
   new_tt->push_back(Transaction());
@@ -363,13 +363,17 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
   }
 
   if(merge){
+    if(depth == 0)
+    trace_timestamp_print("MERGE", EVENT_START); 
 #ifdef DATABASE_MERGE_TRANS
 #ifdef REMOVE_NON_CLOSED
     merge_identical_transactions(new_tt, true);
 #else
     merge_identical_transactions(new_tt, false);
 #endif //REMOVE NON CLOSED
-#endif //DATABASE_MERGE_TRANS  
+#endif //DATABASE_MERGE_TRANS
+    if(depth == 0)
+      trace_timestamp_print("MERGE", EVENT_END); 
   }
 
 }
