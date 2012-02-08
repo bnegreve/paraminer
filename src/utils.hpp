@@ -42,14 +42,22 @@ int set_member_index(const set_t &set, const element_t &e);
 /** \brief returns true if the two sets are equals */ 
 bool set_equal(const set_t &s1, const set_t &s2);
 
+/** \brief returns true if the two sets are equals up to l1 in s1 and l2 in l2*/
 bool set_equal_limited(const set_t &s1, int l1, const set_t &s2, int l2); 
 
+/** \brief returns true if the two sets are equals ignoring element in excluded*/
+bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2, std::vector<bool> &excluded); 
+
 int set_lexical_compare(const set_t &t1, const set_t &t2); 
+
+
 
 void set_intersect(set_t *out, const set_t &t1, const set_t &t2); 
 
 int set_lexical_compare_limited(set_t::const_iterator s1, int end1, 
 				set_t::const_iterator s2, int end2); 
+
+
 
 template <typename T>
 bool is_sorted(const std::vector<T> &v){

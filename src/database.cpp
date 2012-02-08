@@ -397,18 +397,25 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
  * consecutives transaction w.r.t the lexicographical order. See
  * quick_sort_tids. 
  */
-void find_partitions(const TransactionTable &tt, const set_t &tids, 
+void find_partitions(const TransactionTable &tt, const set_t &tids, const set_t &el,
 		     vector<pair<int,int> > *partitions){
   assert(tids.size()>0); 
+  //TODO
+  
+  /* Convert the exclusion list to bit representation */
+  vector<bool> el_bit(tt.max_element+1,  false); 
+  for(int i = 0; i < el.size(); i++)
+    el_bit[i] = true; 
+
   //TODO should be doable while sorting. 
   int first_index = 0, last_index = 0; 
   const Transaction &ref = tt[tids[0]];   
   for(int i = 1; i < tids.size(); i++){
-    if(!set_equal_limited(tt[tids[i]], tt[tids[i]].limit, ref, ref.limit)){
+    if(!set_equal_with_excluded_elements(tt[tids[i]], ref, el_bit)){
       last_index = i - 1; 
       partitions->push_back(make_pair(first_index, last_index)); 
       first_index = i; 
-      i++; /* skip to the next tid */
+      const Transaction &ref = tt[tids[i]];   
     }
   }
   partitions->push_back(make_pair(first_index, tids.size() -1)); 
@@ -440,25 +447,27 @@ void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &t
  
   cerr<<endl<<endl<<endl;
   cerr<<"DATABASE BUILD REDUCE 2"<<endl;
-  print_transaction_table(tt); 
   /* Sort the list of tids w.r.t to the lexicographical order of the transactions */ 
   Transaction occs(occurence); 
+  print_transaction_table(tt); 
   quick_sort_tids(tt, &occs, 0, occs.size());
   
-  // cerr<<"ORDER"<<endl; 
-  // set_print(occs); 
+  cerr<<"ORDER"<<endl; 
+  set_print(occs); 
 
-  // cerr<<"ORDERED SUPPORT SET"<<endl; 
-  // for(int i = 0; i < occs.size(); i++){
-  //   print_transaction(tt[occs[i]]); 
-  // }
+  cerr<<"ORDERED SUPPORT SET"<<endl; 
+  for(int i = 0; i < occs.size(); i++){
+    cout<<i<<" "<<occs[i];print_transaction(tt[occs[i]]); 
+  }
 
   /* Parition the tids in groups of equivalent transactions */
   vector<pair<int,int> > all_partitions; 
-  find_partitions(tt, occs, &all_partitions); 
+  find_partitions(tt, occs, exclusion_list, &all_partitions); 
 
-  cerr<<"EXCLUSION LIST"<<endl;
-  set_print_raw(exclusion_list); 
+  cerr<<"EXCLUSION LIST :";
+  set_print_raw(exclusion_list);
+  cerr<<"tids :";
+  set_print_raw(occs); 
   for(int i = 0; i < all_partitions.size(); i++){
     cerr<<"("<<all_partitions[i].first<<", "<<all_partitions[i].second<<")"<<endl;
   }

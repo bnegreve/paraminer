@@ -97,6 +97,38 @@ bool set_equal_limited(const set_t &s1, int l1, const set_t &s2, int l2){
   return true; 
 }
 
+
+
+/** \brief returns true if the two sets are equals ignoring element in excluded*/
+bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2, std::vector<bool> &excluded){
+
+  set_t::const_iterator end1 = s1.begin();
+  set_t::const_iterator end2 = s2.begin(); 
+
+  set_t::const_iterator it1 = s1.begin(), it2 = s2.begin();
+  while(it1 != s1.end() && it2 != s2.end()){
+    if(excluded[*it1]){
+      ++it1; continue; 
+    }
+    if(excluded[*it2]){
+      ++it2; continue; 
+    }
+    if(*it1 != *it2)
+      return false; 
+    ++it1; ++it2;
+  }
+  
+  for(;it1 != s1.end();++it1)
+    if(!excluded[*it1])
+      return false; 
+  
+  for(;it2 != s2.end();++it2)
+    if(!excluded[*it2])
+      return false; 
+
+  return true; 
+}
+
 bool set_member(const set_t &set, const element_t &e){
   for(set_t::const_iterator it = set.begin(); it  != set.end(); ++it){
     if(*it == e)
