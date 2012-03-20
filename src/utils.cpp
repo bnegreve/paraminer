@@ -100,13 +100,16 @@ bool set_equal_limited(const set_t &s1, int l1, const set_t &s2, int l2){
 
 
 /** \brief returns true if the two sets are equals ignoring element in excluded*/
-bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2, std::vector<bool> &excluded){
+bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2,
+ std::vector<bool> &excluded){
 
-  set_t::const_iterator end1 = s1.begin();
-  set_t::const_iterator end2 = s2.begin(); 
+
+    
+  set_t::const_iterator end1 = s1.end();
+  set_t::const_iterator end2 = s2.end(); 
 
   set_t::const_iterator it1 = s1.begin(), it2 = s2.begin();
-  while(it1 != s1.end() && it2 != s2.end()){
+  while(it1 != end1 && it2 != end2){
     if(excluded[*it1]){
       ++it1; continue; 
     }
@@ -128,6 +131,74 @@ bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2, std::vec
 
   return true; 
 }
+
+/** \brief returns wether the first set is smaller than the other
+    prioritizing elements that are not exlcuded. */
+bool set_compare_with_excluded_elements(const set_t &s1, const set_t &s2,
+ std::vector<bool> &excluded){
+
+  /* First compare non-el elements */
+  set_t::const_iterator end1 = s1.end();
+  set_t::const_iterator end2 = s2.end(); 
+
+  set_t::const_iterator it1 = s1.begin(), it2 = s2.begin();
+
+  
+  while(it1 != end1 && it2 != end2){
+    if(excluded[*it1]){
+      ++it1; continue; 
+    }
+    if(excluded[*it2]){
+      ++it2; continue; 
+    }
+    if(*it1 < *it2)
+      return true; 
+
+    else if(*it1 > *it2)
+      return false; 
+
+    ++it1; ++it2;
+  }
+  
+  for(;it1 != end1;++it1)
+    if(!excluded[*it1])
+      return false; 
+  
+  for(;it2 != end2;++it2)
+    if(!excluded[*it2])
+      return true;
+  
+  /* now compare el-elements. */
+  it1 = s1.begin(), it2 = s2.begin();
+
+    while(it1 != end1 && it2 != end2){
+    if(!excluded[*it1]){
+      ++it1; continue; 
+    }
+    if(!excluded[*it2]){
+      ++it2; continue; 
+    }
+    if(*it1 < *it2)
+      return true; 
+
+    else if(*it1 > *it2)
+      return false; 
+
+    ++it1; ++it2;
+  }
+  
+  for(;it1 != s1.end();++it1)
+    if(excluded[*it1])
+      return false; 
+  
+  for(;it2 != s2.end();++it2)
+    if(excluded[*it2])
+      return true;
+
+  /* set are equals */
+  return false; 
+}
+
 
 bool set_member(const set_t &set, const element_t &e){
   for(set_t::const_iterator it = set.begin(); it  != set.end(); ++it){

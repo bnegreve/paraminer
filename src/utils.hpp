@@ -48,6 +48,12 @@ bool set_equal_limited(const set_t &s1, int l1, const set_t &s2, int l2);
 /** \brief returns true if the two sets are equals ignoring element in excluded*/
 bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2, std::vector<bool> &excluded); 
 
+/** \brief returns wether the first set is smaller than the other
+    prioritizing elements that are not exlcuded. */
+bool set_compare_with_excluded_elements(const set_t &s1, const set_t &s2,
+					std::vector<bool> &excluded); 
+
+
 int set_lexical_compare(const set_t &t1, const set_t &t2); 
 
 
