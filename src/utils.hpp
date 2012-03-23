@@ -15,7 +15,7 @@
 #include "database.hpp" 
 #include "pattern.hpp"
 
-#define TIMING 
+//#define TIMING 
 
 void set_print(const set_t &set);
 
