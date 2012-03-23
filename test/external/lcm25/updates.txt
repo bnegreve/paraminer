@@ -1,0 +1,22 @@
+18/Jan/2005. 2.0->2.1
+    add "eliminate duplication of items in a transaction".
+    such as 1,5,10,10,11,10,30 => 1,5,10,11,30
+24/Jan/2005
+  - add "transnum.pl" and "untransnum.pl" for using strings as items.
+      USAGE: transnum.pl tablefile1 < inputfile > outputfile
+    replace strings by numbers so that no two distinct strings become the same.
+      the table of the replacement is output to "tablefile"
+     USAGE: untransnum.pl tablefile1 < inputfile > outputfile
+      replace numbers by strings according to tablefile.
+  - add execution scriputs "exec_all", "exec_closed", "exec_maximal" 
+    USAGE: [exec_all/exec_closed/exec_maximal] datafile support outputfile
+      the usage is the same as fim_all, fim_closed, fim_maximal.
+2/Feb/2005
+  - add "transnum_.pl", which adds the column number to each string, 
+    for distingish the same strings in different columns.
+  - also add "exec_all_", "exec_closed_", and "exec_maximal_".
+    the usages are the same as "exec_all" etc.
+7/Feb/2005
+  - modify "lcm_max" so that decralations of variables are located at 
+   the beginning of the routines.
+

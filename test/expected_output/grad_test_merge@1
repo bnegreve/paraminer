@@ -1,0 +1,15 @@
+../clogen_graduals ../grad/DATA/test_merge.data 5
+running with 1 thread(s).
+nb_attributes 3
+6
+THRESHOLD = 0.833333 [5 / 6]
+DATABASE REDUCTION ENABLED
+CLOGEN DEBUG
+MELINDA DEBUG
+ 1+ (6)
+ 2+ (6)
+ 3+ (6)
+ 1+  2+ (5)
+ 2+  3+ (5)
+ 1+  2+  3+ (5)
+6 patterns mined
