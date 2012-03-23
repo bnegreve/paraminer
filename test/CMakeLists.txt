@@ -8,6 +8,7 @@ set(SOURCES ../itemset_specific.cpp ../utils.cpp ../element.cpp ../pattern.cpp .
 include_directories("../")
 link_directories("../")
 
+enable_testing()
 #add_executable(is_included_1d  is_included_1d.cpp ${SOURCES})
 #add_executable(transpose transpose.cpp ${SOURCES})
 
