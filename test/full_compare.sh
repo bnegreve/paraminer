@@ -9,11 +9,20 @@
 ## Last update Mon Nov 22 15:14:00 2010 Benjamin Negrevergne
 ##
 
-PARAMINER_FIM= ../src/clogen_itemsets
-LCM_FIM= ../external/lcm25/fim_closed
+PARAMINER_FIM="../src/clogen_itemsets"
+LCM_FIM="./external/lcm25/fim_closed"
 
-$LCM_FIM  $1 $2 /tmp/lcmout > /dev/null
+CMD_LINE="$LCM_FIM  $1 $2 /tmp/lcmout"
+
+echo "CMD LINE: >$CMD_LINE<"
+
+$CMD_LINE > /dev/null
 ./sort_line.pl x < /tmp/lcmout  > /tmp/lcmout2 && sort < /tmp/lcmout2 > /tmp/lcmout
-$PARAMINER_FIM $1 $2 -t $3 | ./sort_line.pl x | sort > /tmp/clogenout
 
-diff /tmp/lcmout /tmp/clogenout 
+CMD_LINE="$PARAMINER_FIM  $1 $2 -t $3"
+echo "CMD LINE: >$CMD_LINE<"
+$CMD_LINE | ./sort_line.pl x | sort > /tmp/pmout
+
+
+
+diff /tmp/lcmout /tmp/pmout 
