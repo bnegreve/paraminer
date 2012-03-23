@@ -20,7 +20,7 @@ using std::endl;
 using namespace std; 
 
 
-define PERMUTE_ITEMS
+#define PERMUTE_ITEMS
 
 int ELEMENT_RANGE_END; 
 
