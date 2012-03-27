@@ -14,6 +14,7 @@ enable_testing()
 
 add_custom_target(frequent_itemset_basic.sh DEPENDS clogen_itemsets)
 
+
 add_test(cgraph_simple compare_outputs.sh expected_output/cgraph_simple.dat \()
 add_test(cgraph_hughes compare_outputs.sh expected_output/cgraph_hughes.dat \()
 add_test(cgraph_hughes_gspan cgraph_gspan_test.sh 0.55)

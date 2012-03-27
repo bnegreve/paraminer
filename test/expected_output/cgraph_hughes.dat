@@ -1,4 +1,4 @@
-../clogen_cgraph ../dag/Hughes/ 800 60
+../src/clogen_cgraph ../data/cgraph/Hughes/ 800 60
 running with 1 thread(s).
 ELEMENT_RANGE_END664
 ( 5, 19 ) ( 5, 55 ) (991)

@@ -1,4 +1,4 @@
-../clogen_cgraph ../dag/test/ 1 1 
+../src/clogen_cgraph ../data/cgraph/test/ 1 1 
 running with 1 thread(s).
 THRESHOLD = 2 [1 / 2]
 ELEMENT_RANGE_END5
