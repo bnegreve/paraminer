@@ -713,8 +713,10 @@ void reduce_partition(const TransactionTable &tt, const Transaction &occurrences
   /* Aggregate tids within the representative transaction */
   representative->tids.resize(tid_list_size);
   for(int i = partition.first; i <= partition.second; i++){
+    int offset = 0; 
     const Transaction &current_trans = tt[occurrences[i]]; 
-    copy(current_trans.tids.begin(), current_trans.tids.end(), representative->tids.end());
+    copy(current_trans.tids.begin(), current_trans.tids.end(), representative->tids.begin()+offset);
+    offset+= current_trans.tids.size(); 
   }
 #endif
 }
