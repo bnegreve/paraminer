@@ -794,9 +794,8 @@ void restrict_binary_matrix(BinaryMatrix *bm, const vector<int> &nodes){
 }
 
 set_t clo(const set_t &set, const closure_data_t &data){
-  set_t c;
+  set_t c(set);
   //return set; 
-  c.reserve(set.size()); 
   const Occurence &occs = data.occurences; 
   id_trans_t transaction_pairs(occs.size());
   
@@ -840,7 +839,6 @@ set_t clo(const set_t &set, const closure_data_t &data){
   for(int i = 0; i <= data.tt.max_element; i++){
     //  for(int i = 0; i < all_bms.size(); i++){    
     if(set_member(set, i)){
-      c.push_back(i);
       if(i%2==0)
 	first_positive_flag = true; 
     }
