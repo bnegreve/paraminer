@@ -33,6 +33,7 @@ void set_print(const set_t &set){
 }
 
 void pattern_print(const set_t &set, int u_data, const set_t &tids){
+  return; //TODO REMOVE
   static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
   pthread_mutex_lock(&mutex); 
   if(set.size() == 0){

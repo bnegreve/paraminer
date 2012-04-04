@@ -380,6 +380,107 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 }
 
 
+/** 
+ * \brief Find the transaction partitions from a transaction table given a set of tids. 
+ * 
+ * A partition is a group of equivalent transactions. two transactions
+ * are equivalent when they contains the same set of elements not
+ * included in the exclusion list.  
+ *
+ * After a call to this function the partitions are available under
+ * the for of pairs of index in the occurrence array. The first
+ * element refers to the index of the first tid in the partition, the
+ * second refers to the last.
+ *
+ * \warning the set of tids must be
+ * ordered in the sens that two consecutives tids must refer to* two
+ * consecutives transaction w.r.t the lexicographical order. See
+ * quick_sort_tids. 
+ */
+void find_partitions(const TransactionTable &tt, const set_t &tids, 
+		     vector<pair<int,int> > *partitions){
+  assert(tids.size()>0); 
+  //TODO should be doable while sorting. 
+  int first_index = 0, last_index = 0; 
+  const Transaction &ref = tt[tids[0]];   
+  for(int i = 1; i < tids.size(); i++){
+    if(!set_equal_limited(tt[tids[i]], tt[tids[i]].limit, ref, ref.limit)){
+      last_index = i - 1; 
+      partitions->push_back(make_pair(first_index, last_index)); 
+      first_index = i; 
+      i++; /* skip to the next tid */
+    }
+  }
+  partitions->push_back(make_pair(first_index, tids.size() -1)); 
+}
+
+
+/** 
+ * \brief Builds the representative partition from a partition of equivalent transactions
+ * 
+ * @param tt 
+ * @param occurrence 
+ * @param output 
+ */
+void reduce_partition(const TransactionTable &tt, const Transaction &occurrences,
+		      const pair<int,int> &partition, 
+		      Transaction *representative){
+
+}
+
+void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &tt,
+			    const Transaction &occurence, const SupportTable &support, 
+			    const set_t &exclusion_list, int depth, bool merge){
+
+
+  /* Problème: lorsqu'on ajoute un element dans la liste d'exclusion
+     ça marche plus parceque les transaction ne sont pas ordonnées
+     convenablement (les nouveaux elements de EL ne sont pas
+     nécéssairement a la fin)*/
+ 
+  cerr<<endl<<endl<<endl;
+  cerr<<"DATABASE BUILD REDUCE 2"<<endl;
+  print_transaction_table(tt); 
+  /* Sort the list of tids w.r.t to the lexicographical order of the transactions */ 
+  Transaction occs(occurence); 
+  quick_sort_tids(tt, &occs, 0, occs.size());
+  
+  // cerr<<"ORDER"<<endl; 
+  // set_print(occs); 
+
+  // cerr<<"ORDERED SUPPORT SET"<<endl; 
+  // for(int i = 0; i < occs.size(); i++){
+  //   print_transaction(tt[occs[i]]); 
+  // }
+
+  /* Parition the tids in groups of equivalent transactions */
+  vector<pair<int,int> > all_partitions; 
+  find_partitions(tt, occs, &all_partitions); 
+
+  cerr<<"EXCLUSION LIST"<<endl;
+  set_print_raw(exclusion_list); 
+  for(int i = 0; i < all_partitions.size(); i++){
+    cerr<<"("<<all_partitions[i].first<<", "<<all_partitions[i].second<<")"<<endl;
+  }
+  
+  /* For each transaction build the representative transaction and
+     push it in the new dataset*/
+  for(int i = 0; i < all_partitions.size(); i++){
+    new_tt->push_back(Transaction());
+    Transaction *new_trans = &new_tt->back(); 
+    reduce_partition(tt, occs, all_partitions[i], new_trans); 
+  }
+  
+  cerr<<endl<<endl<<endl;
+  
+  /*
+    parcours le support set. 
+    trie les transactions 
+    si dbr 
+
+   */
+}
+
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence){
   assert(false);  

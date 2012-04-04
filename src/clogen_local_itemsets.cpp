@@ -19,6 +19,9 @@ using std::cerr;
 using std::endl; 
 using namespace std; 
 
+
+//define PERMUTE_ITEMS
+
 int ELEMENT_RANGE_END; 
 
 extern int threshold;
@@ -86,6 +89,14 @@ int compute_permutation_by_frequency(const char *filename, set_t *permutations, 
   //   cout<<i<<" -> "<<(*permutations)[i]<<endl; 
   // }
   
+#ifdef PERMUTE_ITEMS
+
+#else
+  /* reset pertutations (dirty) */ 
+  for(int i = 0; i < permutations->size(); i++){
+    (*permutations)[i] = i; 
+  }
+#endif 
   return item_index; 
 }
 
@@ -169,6 +180,7 @@ int main(int argc, char **argv){
   }
   threshold = std::atoi(argv[2]); 
   
+
   compute_permutation_by_frequency(argv[1], &permutations, threshold); 
   element_t max = read_transaction_table(&tt, argv[1], permutations);
   

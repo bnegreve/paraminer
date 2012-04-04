@@ -203,7 +203,11 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
     if(depth == 0)
       trace_timestamp_print("DBR", EVENT_START ); 
 			  
-    TransactionTable *new_tt = new TransactionTable; 
+
+    TransactionTable *new_tt = new TransactionTable;
+    cerr<<"preparing to reduce for "<<pattern_augmentation<<endl; 
+
+    database_build_reduced2(new_tt, tt, occs, support, exclusion_list, depth, augmentations.size()>3); 
     database_build_reduced(new_tt, tt, occs, support, exclusion_list, depth, augmentations.size()>3); 
 
     if(depth == 0){
