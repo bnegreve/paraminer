@@ -628,19 +628,18 @@ void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &t
   
   /* For each transaction build the representative transaction and
      push it in the new dataset*/
-  int partition_max_element = 0; 
   new_tt->max_element = 0; 
   for(int i = 0; i < all_partitions.size(); i++){
+    element_t partition_max_element; 
     new_tt->push_back(Transaction());
     Transaction *new_trans = &new_tt->back(); 
     reduce_partition(tt, occs, all_partitions[i], pattern_bit, 
 		     pattern.size(), new_trans, &partition_max_element); 
-    new_tt->max_element = max(tt.max_element, partition_max_element);
-    
+    new_tt->max_element = max(new_tt->max_element, partition_max_element);
+    cerr<<partition_max_element<<" "<<endl;
     // TODO REMOVE
     //    elsort_transaction (&new_tt->back(), tt.max_element, exclusion_list); 
   }
-  
 }
 
 
@@ -668,10 +667,6 @@ void reduce_partition(const TransactionTable &tt, const Transaction &occurrences
 		      Transaction *representative, element_t *max_element){
 
   int num_trans = partition.second - partition.first + 1;
-  // if(num_trans == 1){
-  //   (*representative) = tt[occurrences[partition.first]]; 
-  //   return; 
-  // }
 
   int tid_list_size = 0; 
   int weight = 0; 
@@ -696,8 +691,10 @@ void reduce_partition(const TransactionTable &tt, const Transaction &occurrences
 	trans_size ++;
   }
   
-  if(trans_size <= 0) 
+  if(trans_size <= 0) {
+    *max_element = 0; 
     return; 
+  }
 
   /* Build the representative transaction. */
   representative->reserve(trans_size); 
