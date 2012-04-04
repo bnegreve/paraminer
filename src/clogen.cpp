@@ -134,6 +134,20 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
   #endif
 }
 
+void expand_async(TransactionTable &tt,const TransactionTable &ot,
+		    const set_t &parent_pattern, element_t pattern_augmentation, int depth, const set_t &exclusion_list, int membership_retval){
+  tuple_t tuple;
+  tuple.tt = &tt; 
+  tuple.ot = &ot; 
+  tuple.s = new set_t(parent_pattern); 
+  tuple.e = pattern_augmentation; 
+  tuple.depth = depth; 
+  tuple.exclusion_list = new set_t(exclusion_list); 
+  tuple.u_data = membership_retval; 
+  m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
+}
+
+
 size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list, int sup){
 
   set_t set(s); 
@@ -284,17 +298,9 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
       set_t::const_iterator c_it_end = extensions.end(); 
       for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){
 	assert(!(set_member(*exclusion_list, *c_it)));
-	//	cout<<"thread "<<m_thread_id()<<" is putting tuple: "<<endl;
-	//	set_print(c); 
-	tuple_t tuple;
-	tuple.tt = new_tt; 
-	tuple.ot = new_ot; 
-	tuple.s = new set_t(c); 
-	tuple.e = *c_it; 
-	tuple.depth = depth+1; 
-	tuple.exclusion_list = new set_t(*exclusion_list); 
-	tuple.u_data = u_data[*c_it]; 
-	m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
+
+
+	expand_async(*new_tt, *new_ot, c, *c_it, depth+1, *exclusion_list, u_data[*c_it]);
 
 	/* insert the current extension into the exclusion list for the next calls.*/
 	set_insert_sorted(exclusion_list, *c_it); 
