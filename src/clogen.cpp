@@ -135,7 +135,8 @@ std::pair<set_t, element_t> get_first_parent(const set_t &set, const Transaction
 }
 
 void expand_async(TransactionTable &tt,const TransactionTable &ot,
-		    const set_t &parent_pattern, element_t pattern_augmentation, int depth, const set_t &exclusion_list, int membership_retval){
+		  const set_t &parent_pattern, element_t pattern_augmentation, 
+		  int depth, const set_t &exclusion_list, int membership_retval){
   tuple_t tuple;
   tuple.tt = &tt; 
   tuple.ot = &ot; 
@@ -148,28 +149,30 @@ void expand_async(TransactionTable &tt,const TransactionTable &ot,
 }
 
 
-size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_t e, int depth, set_t *exclusion_list, int sup){
+size_t expand(TransactionTable &tt,const TransactionTable &ot,
+	      const set_t &parent_pattern, element_t pattern_augmentation, 
+	      int depth, set_t *exclusion_list, int sup){
 
-  set_t set(s); 
+  set_t pattern(parent_pattern); 
   element_t max_element = tt.max_element;
   /* occurences of e is occs of s u {e} since tt is restricted to occs(s) */
-  Transaction occs = ot[e]; 
+  Transaction occs = ot[pattern_augmentation]; 
   
   
   SupportTable support(max_element+1, 0);  
-  compute_element_support(&support, tt, ot[e]); 
-  set.push_back(e);
-  int set_support=support[e];
-  for(set_t::const_iterator it = set.begin(); it != set.end(); ++it){
+  compute_element_support(&support, tt, ot[pattern_augmentation]); 
+  pattern.push_back(pattern_augmentation);
+  int set_support=support[pattern_augmentation];
+  for(set_t::const_iterator it = pattern.begin(); it != pattern.end(); ++it){
     if(*it <= max_element)
       support[*it] = 0; 
   }
 
-  closure_data_t c_data = {tt, ot[e], support, set_support};
-  set_t c = clo(set, c_data);
-  sort(c.begin(), c.end()); 
+  closure_data_t c_data = {tt, ot[pattern_augmentation], support, set_support};
+  set_t closed_pattern = clo(pattern, c_data);
+  sort(closed_pattern.begin(), closed_pattern.end()); 
   //TODO could be improved, 
-  for(set_t::const_iterator it = c.begin(); it != c.end(); ++it){
+  for(set_t::const_iterator it = closed_pattern.begin(); it != closed_pattern.end(); ++it){
     if(*it <= tt.max_element) 
       support[*it] = 0; //By doing this we remove from db the elements that already blong to the set.
   }
@@ -184,18 +187,18 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
   //#define GET_FIRST_PARENT
 #ifdef GET_FIRST_PARENT
   std::pair<set_t, element_t> first_parent = get_first_parent(c, tt, occs);       
-  if(!(first_parent.first == s && first_parent.second == e))
+  if(!(first_parent.first == s && first_parent.second == pattern_augmentation))
     /* No need to explore this branch it will be explored from another recursive call */
     return 0;
 #else
     
-  assert(is_sorted(c));
+  assert(is_sorted(closed_pattern));
   assert(is_sorted(*exclusion_list)); 
   /* Check if one element from closed set belong to the exclusion list */ 
   set_t::const_iterator xlit = exclusion_list->begin();
   const set_t::const_iterator xlend = exclusion_list->end();
-  set_t::const_iterator cit = c.begin();  
-  const set_t::const_iterator cend = c.end();  
+  set_t::const_iterator cit = closed_pattern.begin();  
+  const set_t::const_iterator cend = closed_pattern.end();  
   while(xlit != xlend && cit != cend){
     if(*xlit < *cit)
       ++xlit;
@@ -231,10 +234,10 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
     std::sort(orig_tids.begin(), orig_tids.end());
   }
 
-  pattern_print(c,sup, orig_tids); 
+  pattern_print(closed_pattern,sup, orig_tids); 
 #else
   set_t *orig_tids; //dummy set, won't be read
-  pattern_print(c,sup, *orig_tids); 
+  pattern_print(closed_pattern,sup, *orig_tids); 
 #endif //TRACK_TIDS
   size_t num_pattern = 1; 
  
@@ -258,7 +261,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
     membership_data_t m_data = {tt, occs, ot[current], support};    
 
     if(!set_member(*exclusion_list, current))
-      if( (u_data[current] = membership_oracle(c,current, m_data))){
+      if( (u_data[current] = membership_oracle(closed_pattern, current, m_data))){
 	extensions.push_back(current);
       }
   }
@@ -298,11 +301,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
       set_t::const_iterator c_it_end = extensions.end(); 
       for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){
 	assert(!(set_member(*exclusion_list, *c_it)));
-
-
-	expand_async(*new_tt, *new_ot, c, *c_it, depth+1, *exclusion_list, u_data[*c_it]);
-
-	/* insert the current extension into the exclusion list for the next calls.*/
+	expand_async(*new_tt, *new_ot, closed_pattern, *c_it, depth+1, *exclusion_list, u_data[*c_it]);
 	set_insert_sorted(exclusion_list, *c_it); 
       }
     }
@@ -312,7 +311,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, set_t s, element_
       set_t::const_iterator c_it_end = extensions.end(); 
       for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
 	set_t new_exclusion_list(*exclusion_list);
-	num_pattern += expand(*new_tt, *new_ot, c, *c_it, depth+1, &new_exclusion_list, u_data[*c_it]);
+	num_pattern += expand(*new_tt, *new_ot, closed_pattern, *c_it, depth+1, &new_exclusion_list, u_data[*c_it]);
 	/* insert the current extension into the exclusion list for the next calls.*/
 	set_insert_sorted(exclusion_list, *c_it); 
       }
