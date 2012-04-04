@@ -71,6 +71,33 @@ struct support_sort_cmp_t{
   }
 };
   
+/** 
+ * Returns true if parent pattern is the first parrent of \pattern
+ * according to exclusion list.  Note that given the exclusion list,
+ * parent_pattern is not needed to compute this result.
+ * 
+ */
+bool parent_pattern_is_first_parent(const set_t &pattern, const set_t &exclusion_list){
+  assert(is_sorted(pattern));
+  assert(is_sorted(exclusion_list)); 
+  /* Check if one element from closed set belong to the exclusion list */ 
+  set_t::const_iterator xlit = exclusion_list.begin();
+  const set_t::const_iterator xlend = exclusion_list.end();
+  set_t::const_iterator cit = pattern.begin();  
+  const set_t::const_iterator cend = pattern.end();  
+  while(xlit != xlend && cit != cend){
+    if(*xlit < *cit)
+      ++xlit;
+    else if (*xlit > *cit)
+      ++cit; 
+    else{
+      return false; 
+    }
+  }
+  return true; 
+}
+
+
 void expand_async(TransactionTable &tt,const TransactionTable &ot,
 		  const set_t &parent_pattern, element_t pattern_augmentation, 
 		  int depth, const set_t &exclusion_list, int membership_retval){
@@ -114,34 +141,19 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       support[*it] = 0; //By doing this we remove from db the elements that already blong to the set.
   }
 
-  assert(is_sorted(closed_pattern));
-  assert(is_sorted(*exclusion_list)); 
-  /* Check if one element from closed set belong to the exclusion list */ 
-  set_t::const_iterator xlit = exclusion_list->begin();
-  const set_t::const_iterator xlend = exclusion_list->end();
-  set_t::const_iterator cit = closed_pattern.begin();  
-  const set_t::const_iterator cend = closed_pattern.end();  
-  while(xlit != xlend && cit != cend){
-    if(*xlit < *cit)
-      ++xlit;
-    else if (*xlit > *cit)
-      ++cit; 
-    else{
-      /* we found one, pattern is not on the 1-parent branch*/
-
-      /* release the memory */
-      if(depth <= depth_tuple_cutoff){
-	if(decrease_nb_refs(&tt) == 0){
-	  delete &tt;
-	  delete &ot;
-	}
+  /* Test wether parent_pattern is the first parent of closed_pattern. */ 
+  if(!parent_pattern_is_first_parent(closed_pattern, *exclusion_list)){
+    /* If it isn't release the memory and abort the current branch exploration. */
+    if(depth <= depth_tuple_cutoff){
+      if(decrease_nb_refs(&tt) == 0){
+	delete &tt;
+	delete &ot;
       }
-      
-      /* and exit the branch */
-      return 0; /* exit the exploration */
     }
+    return 0; 
   }
-  
+      
+
 #ifdef TRACK_TIDS
   // Get original tids
   set_t orig_tids;
