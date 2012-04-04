@@ -115,7 +115,7 @@ void expand_async(TransactionTable &tt,const TransactionTable &ot,
 
 size_t expand(TransactionTable &tt,const TransactionTable &ot,
 	      const set_t &parent_pattern, element_t pattern_augmentation, 
-	      int depth, set_t *exclusion_list, int membership_retval){
+	      int depth, const set_t &exclusion_list, int membership_retval){
 
   set_t pattern(parent_pattern); 
   element_t max_element = tt.max_element;
@@ -142,7 +142,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
   }
 
   /* Test wether parent_pattern is the first parent of closed_pattern. */ 
-  if(!parent_pattern_is_first_parent(closed_pattern, *exclusion_list)){
+  if(!parent_pattern_is_first_parent(closed_pattern, exclusion_list)){
     /* If it isn't release the memory and abort the current branch exploration. */
     if(depth <= depth_tuple_cutoff){
       if(decrease_nb_refs(&tt) == 0){
@@ -191,7 +191,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
 
     membership_data_t m_data = {tt, occs, ot[current], support};    
 
-    if(!set_member(*exclusion_list, current))
+    if(!set_member(exclusion_list, current))
       if( (augmentations_membership_retval[current] = membership_oracle(closed_pattern, current, m_data))){
 	augmentations.push_back(current);
       }
@@ -203,7 +203,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       trace_timestamp_print("DBR", EVENT_START ); 
 			  
     TransactionTable *new_tt = new TransactionTable; 
-    database_build_reduced(new_tt, tt, occs, support, *exclusion_list, depth, augmentations.size()>3); 
+    database_build_reduced(new_tt, tt, occs, support, exclusion_list, depth, augmentations.size()>3); 
 
     if(depth == 0){
       trace_timestamp_print("DBR", EVENT_END);
@@ -227,33 +227,38 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       }
     }
 
+    set_t new_exclusion_list(exclusion_list);
+
+
     if(depth < depth_tuple_cutoff){
+      /* Asynchronous call to expand. */
       set_nb_refs(new_tt, augmentations.size()); 
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
-	assert(!(set_member(*exclusion_list, *c_it)));
-	expand_async(*new_tt, *new_ot, closed_pattern, *c_it, depth+1, *exclusion_list, augmentations_membership_retval[*c_it]);
-	set_insert_sorted(exclusion_list, *c_it); 
+	assert(!(set_member(new_exclusion_list, *c_it)));
+	expand_async(*new_tt, *new_ot, closed_pattern,
+		     *c_it, depth+1, new_exclusion_list,
+		     augmentations_membership_retval[*c_it]);
+	set_insert_sorted(&new_exclusion_list, *c_it); 
       }
     }
     else{
-
-      
+      /* Standard recursive call to expand. */
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){     
-	set_t new_exclusion_list(*exclusion_list);
-	num_pattern += expand(*new_tt, *new_ot, closed_pattern, *c_it, depth+1, &new_exclusion_list, augmentations_membership_retval[*c_it]);
+	num_pattern += expand(*new_tt, *new_ot, closed_pattern, 
+			      *c_it, depth+1, new_exclusion_list, 
+			      augmentations_membership_retval[*c_it]);
 	/* insert the current augmentation into the exclusion list for the next calls.*/
-	set_insert_sorted(exclusion_list, *c_it); 
+	set_insert_sorted(&new_exclusion_list, *c_it); 
       }
-
       delete new_tt;
       delete new_ot;
     }
   }
 
   else{
-    /* free thread-shared memory */
+    /* this is a tail call, free thread-shared memory */
     if(depth <= depth_tuple_cutoff){
       if(decrease_nb_refs(&tt) == 0){
 	delete &tt;
@@ -277,12 +282,8 @@ void *process_tuple(void *){
     if(r == TUPLESPACE_CLOSED)
       break; 
 
-    //    cout<<"thread "<<m_thread_id()<<" is processing tuple: "<<endl;
-    //    set_print(*(set_t*)tuple); 
-    //    size_t x = expand(*tuple.set, tuple.depth); 
-    //    cout<<"tuple made "<< x <<"tuples"<<endl;
     num_patterns += expand(*tuple.tt, *tuple.ot, *tuple.s, tuple.e, 
-			   tuple.depth, tuple.exclusion_list, tuple.u_data);
+			   tuple.depth, *tuple.exclusion_list, tuple.u_data);
     //    num_patterns += x; 
     delete tuple.s;
     delete tuple.exclusion_list; 
