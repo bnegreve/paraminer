@@ -101,6 +101,7 @@ void quick_sort_tids( const TransactionTable &tt, Occurence *tids,
   std::sort(tids->begin(), tids->end(), cmp); 
 }
 
+
 /* remove elements in transaction that can never be the closure of any pattern in the given db
    This is element that belong to the exclusion list (ie. they are not possible extensions) 
    and don't belong to all the transactions with the same prefix
@@ -380,115 +381,11 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 }
 
 
-/** 
- * \brief Find the transaction partitions from a transaction table given a set of tids. 
- * 
- * A partition is a group of equivalent transactions. two transactions
- * are equivalent when they contains the same set of elements not
- * included in the exclusion list.  
- *
- * After a call to this function the partitions are available under
- * the for of pairs of index in the occurrence array. The first
- * element refers to the index of the first tid in the partition, the
- * second refers to the last.
- *
- * \warning the set of tids must be
- * ordered in the sens that two consecutives tids must refer to* two
- * consecutives transaction w.r.t the lexicographical order. See
- * quick_sort_tids. 
- */
-void find_partitions(const TransactionTable &tt, const set_t &tids, const set_t &el,
-		     vector<pair<int,int> > *partitions){
-  assert(tids.size()>0); 
-  //TODO
-  
-  /* Convert the exclusion list to bit representation */
-  vector<bool> el_bit(tt.max_element+1,  false); 
-  for(int i = 0; i < el.size(); i++)
-    el_bit[i] = true; 
-
-  //TODO should be doable while sorting. 
-  int first_index = 0, last_index = 0; 
-  const Transaction &ref = tt[tids[0]];   
-  for(int i = 1; i < tids.size(); i++){
-    if(!set_equal_with_excluded_elements(tt[tids[i]], ref, el_bit)){
-      last_index = i - 1; 
-      partitions->push_back(make_pair(first_index, last_index)); 
-      first_index = i; 
-      const Transaction &ref = tt[tids[i]];   
-    }
-  }
-  partitions->push_back(make_pair(first_index, tids.size() -1)); 
-}
 
 
-/** 
- * \brief Builds the representative partition from a partition of equivalent transactions
- * 
- * @param tt 
- * @param occurrence 
- * @param output 
- */
-void reduce_partition(const TransactionTable &tt, const Transaction &occurrences,
-		      const pair<int,int> &partition, 
-		      Transaction *representative){
-
-}
-
-void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &tt,
-			    const Transaction &occurence, const SupportTable &support, 
-			    const set_t &exclusion_list, int depth, bool merge){
 
 
-  /* Problème: lorsqu'on ajoute un element dans la liste d'exclusion
-     ça marche plus parceque les transaction ne sont pas ordonnées
-     convenablement (les nouveaux elements de EL ne sont pas
-     nécéssairement a la fin)*/
- 
-  cerr<<endl<<endl<<endl;
-  cerr<<"DATABASE BUILD REDUCE 2"<<endl;
-  /* Sort the list of tids w.r.t to the lexicographical order of the transactions */ 
-  Transaction occs(occurence); 
-  print_transaction_table(tt); 
-  quick_sort_tids(tt, &occs, 0, occs.size());
-  
-  cerr<<"ORDER"<<endl; 
-  set_print(occs); 
 
-  cerr<<"ORDERED SUPPORT SET"<<endl; 
-  for(int i = 0; i < occs.size(); i++){
-    cout<<i<<" "<<occs[i];print_transaction(tt[occs[i]]); 
-  }
-
-  /* Parition the tids in groups of equivalent transactions */
-  vector<pair<int,int> > all_partitions; 
-  find_partitions(tt, occs, exclusion_list, &all_partitions); 
-
-  cerr<<"EXCLUSION LIST :";
-  set_print_raw(exclusion_list);
-  cerr<<"tids :";
-  set_print_raw(occs); 
-  for(int i = 0; i < all_partitions.size(); i++){
-    cerr<<"("<<all_partitions[i].first<<", "<<all_partitions[i].second<<")"<<endl;
-  }
-  
-  /* For each transaction build the representative transaction and
-     push it in the new dataset*/
-  for(int i = 0; i < all_partitions.size(); i++){
-    new_tt->push_back(Transaction());
-    Transaction *new_trans = &new_tt->back(); 
-    reduce_partition(tt, occs, all_partitions[i], new_trans); 
-  }
-  
-  cerr<<endl<<endl<<endl;
-  
-  /*
-    parcours le support set. 
-    trie les transactions 
-    si dbr 
-
-   */
-}
 
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence){
@@ -627,4 +524,197 @@ void print_tt_info(const TransactionTable &tt){
   cerr<<"database size\t\t:\t"<<db_size<<endl;
   
   cerr<<"density (%)\t\t:\t"<< (double)db_size/((tt.max_element+1) * tt.size())*100<<endl;
+}
+
+
+
+void database_build_el_permutations(const std::vector<bool> &el_bit, int el_size, 
+				    element_t max_element,
+				    element_t *first_el, set_t *permutations){
+  permutations->resize(max_element+1); 
+  *first_el = max_element + 1 - el_size; 
+  int el_cur = *first_el; 
+  int not_el_cur = 0; 
+  for(int i = 0; i <= max_element; i++){
+    if(!el_bit[i])
+      (*permutations)[i] = not_el_cur++; 
+    else
+      (*permutations)[i] = el_cur++; 
+  }
+
+  assert(el_cur == max_element+1); 
+  assert(not_el_cur == *first_el); 
+}
+
+
+/* <pl compare functor */
+struct tid_permuted_limited_cmp{
+  const TransactionTable *tt;
+  const set_t *permutations; 
+  element_t limit; 
+  bool operator()(const int tid_1, const int tid_2){
+    const Transaction &t1 =  (*tt)[tid_1]; 
+    const Transaction &t2 =  (*tt)[tid_2];
+
+    return set_permuted_limited_compare(t1, t2, *permutations, limit); 
+  }
+}; 
+
+void database_sort_permuted_limited(const TransactionTable &tt, 
+				    const set_t &permutations,
+				    const element_t limit, 
+				    Occurence *tids){
+
+  tid_permuted_limited_cmp cmp; 
+  cmp.tt = &tt;
+  cmp.permutations = &permutations; 
+  cmp.limit = limit; 
+
+  std::sort(tids->begin(), tids->end(), cmp); 
+}
+
+void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &tt,
+			    const Transaction &occurence, const set_t &pattern, 
+			    const set_t &exclusion_list, int depth, bool merge){
+ 
+
+  /* Sort the list of tids w.r.t to the lexicographical order of the transactions */ 
+  Transaction occs(occurence);
+  
+  //  print_transaction_table(tt);
+  
+  vector<bool> el_bit;
+  set_to_bit_representation(exclusion_list, tt.max_element, &el_bit); 
+
+  element_t first_el;
+  set_t permutations;
+
+  /* build a permutation array so that lower elements have smaller
+     values. This step is required to group the transactions with the same set of
+     not-in-el elements. (next step.) */
+  database_build_el_permutations(el_bit, exclusion_list.size(), tt.max_element, &first_el, &permutations);
+
+  /* group the transactions that have the same set of elements not in
+     el. (Only tids array is modified, the database remains unmodified.) */
+  database_sort_permuted_limited(tt, permutations, first_el, &occs);
+    
+   // cerr<<"ORDER"<<endl; 
+   // set_print(occs); 
+
+  // cerr<<"ORDERED SUPPORT SET"<<endl; 
+  // for(int i = 0; i < occs.size(); i++){
+  //   cout<<i<<" "<<occs[i]<<" ";
+  //   Transaction t(tt[occs[i]]);
+  //   elsort_transaction(&t, tt.max_element, exclusion_list); 
+  //   print_transaction(t); 
+  // }
+
+  /* Parition the tids in groups of equivalent transactions */
+  vector<pair<int,int> > all_partitions; 
+  find_partitions(tt, occs, el_bit, &all_partitions); 
+
+  // cerr<<"EXCLUSION LIST :";
+  // set_print_raw(exclusion_list);
+  // cerr<<"tids :";
+  // set_print_raw(occs); 
+  // for(int i = 0; i < all_partitions.size(); i++){
+  //   cerr<<"("<<all_partitions[i].first<<", "<<all_partitions[i].second<<")"<<endl;
+  // }
+
+  
+  set_bit_t pattern_bit;
+  set_to_bit_representation(pattern, tt.max_element, &pattern_bit); 
+
+  
+  /* For each transaction build the representative transaction and
+     push it in the new dataset*/
+  int partition_max_element = 0; 
+  new_tt->max_element = 0; 
+  for(int i = 0; i < all_partitions.size(); i++){
+    new_tt->push_back(Transaction());
+    Transaction *new_trans = &new_tt->back(); 
+    reduce_partition(tt, occs, all_partitions[i], pattern_bit, 
+		     pattern.size(), new_trans, &partition_max_element); 
+    new_tt->max_element = max(tt.max_element, partition_max_element);
+    
+    // TODO REMOVE
+    //    elsort_transaction (&new_tt->back(), tt.max_element, exclusion_list); 
+  }
+  
+}
+
+
+
+void find_partitions(const TransactionTable &tt, const set_t &tids, const vector<bool> &el_bit,
+		     vector<pair<int,int> > *partitions){
+  assert(tids.size()>0); 
+
+  int first_index = 0, last_index = 0; 
+  const Transaction *ref = &tt[tids[0]];   
+  for(int i = 1; i < tids.size(); i++){
+    if(!set_equal_with_excluded_elements(tt[tids[i]], *ref, el_bit)){
+      last_index = i - 1; 
+      partitions->push_back(make_pair(first_index, last_index)); 
+      first_index = i; 
+      ref = &tt[tids[i]];   
+    }
+  }
+  partitions->push_back(make_pair(first_index, tids.size() -1)); 
+}
+
+void reduce_partition(const TransactionTable &tt, const Transaction &occurrences,
+		      const pair<int,int> partition, 
+		      const set_bit_t &pattern, int pattern_size, 
+		      Transaction *representative, element_t *max_element){
+
+  int num_trans = partition.second - partition.first + 1;
+  // if(num_trans == 1){
+  //   (*representative) = tt[occurrences[partition.first]]; 
+  //   return; 
+  // }
+
+  int tid_list_size = 0; 
+  int weight = 0; 
+  int num_to_exclude = 0; 
+  set_t element_count(tt.max_element+1, 0);
+  for(int i = partition.first; i <= partition.second; i++){
+    const Transaction &current_trans = tt[occurrences[i]]; 
+    tid_list_size += current_trans.tids.size();
+    weight += current_trans.weight; 
+    for(set_t::const_iterator trans_it = current_trans.begin(); 
+	trans_it != current_trans.end(); ++trans_it)
+      element_count[*trans_it]++; 
+  }
+
+  representative->weight = weight; 
+  int trans_size = 0;
+
+  /* Precompute transaction size. */
+  for(int i = 0; i < tt.max_element+1; i++){
+    if(element_count[i] == num_trans)
+      if(!pattern[i])
+	trans_size ++;
+  }
+  
+  if(trans_size <= 0) 
+    return; 
+
+  /* Build the representative transaction. */
+  representative->reserve(trans_size); 
+  for(int i = 0; i < tt.max_element+1; i++){
+    if(element_count[i] == num_trans)
+      if(!pattern[i]){
+	representative->push_back(i); 
+	*max_element = i; 
+      }
+  }
+
+#ifdef TRACK_TIDS
+  /* Aggregate tids within the representative transaction */
+  representative->tids.resize(tid_list_size);
+  for(int i = partition.first; i <= partition.second; i++){
+    const Transaction &current_trans = tt[occurrences[i]]; 
+    copy(current_trans.tids.begin(), current_trans.tids.end(), representative->tids.end());
+  }
+#endif
 }

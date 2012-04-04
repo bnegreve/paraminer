@@ -34,12 +34,15 @@ add_executable(clogen_cgraph ${CLOGEN_SOURCE} clogen_local_cgraph.cpp)
 add_executable(clogen_graduals ${CLOGEN_SOURCE} clogen_local_graduals.cpp BinaryMatrix.cpp CException.cpp TransactionSequence.cpp)
 add_executable(clogen_periodic ${CLOGEN_SOURCE} clogen_local_periodic.cpp)
 
+add_executable(test_frame utils.cpp database.cpp test_frame.cpp)
+
 #add_executable(clogen_dag ${CLOGEN_SOURCE} clogen_local_dag.cpp)
 #SET_TARGET_PROPERTIES(clogen_itemsets PROPERTIES LINK_FLAGS -pg)
 target_link_libraries(clogen_itemsets pthread melinda)
 target_link_libraries(clogen_cgraph pthread melinda)
 target_link_libraries(clogen_graduals pthread melinda)
 target_link_libraries(clogen_periodic pthread melinda)
+target_link_libraries(test_frame pthread melinda)
 #target_link_libraries(clogen_dag pthread melinda)
 
 enable_testing()

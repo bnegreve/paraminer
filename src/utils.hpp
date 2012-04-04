@@ -46,12 +46,12 @@ bool set_equal(const set_t &s1, const set_t &s2);
 bool set_equal_limited(const set_t &s1, int l1, const set_t &s2, int l2); 
 
 /** \brief returns true if the two sets are equals ignoring element in excluded*/
-bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2, std::vector<bool> &excluded); 
+bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2, const std::vector<bool> &excluded); 
 
 /** \brief returns wether the first set is smaller than the other
     prioritizing elements that are not exlcuded. */
 bool set_compare_with_excluded_elements(const set_t &s1, const set_t &s2,
-					std::vector<bool> &excluded); 
+					const std::vector<bool> &excluded); 
 
 
 int set_lexical_compare(const set_t &t1, const set_t &t2); 
@@ -141,4 +141,44 @@ void trace_init(int nb_threads);
  */
 void trace_exit(); 
 
+/** 
+ * \brief Build the bit representation of a set.
+ *
+ * after the call 
+ * e in \set <=> \(*set_bit)[e] = true; 
+ * 
+ * @param set 
+ * @param max_element maximum value in \set. 
+ * @param set_bit out parameter, the bit representation of \set. 
+ */
+void set_to_bit_representation(const set_t &set, element_t max_element, 
+			       std::vector<bool> *set_bit);
+
+/** 
+ * \brief Returns true if s1 is strictly smaller that s2 w.r.t <pl.
+ *
+ * let s1' be a set such that s1'[i] = s1[permuted[i]] and s2' defined
+ * similarly w.r.t. s2.  This function returns true if s1' < s2'
+ * (w.r.t. the lexicographical order) considering only the elements
+ * strictly below \limit.
+ *
+ * s1 <lp s2 <=>
+ * s1' \ {e >= limit} is lexigraphically smaller that s2' \ {e >=
+ * limit}
+ * 
+ * @param s1 first set to compare.
+ * @param s2 second set to compare. 
+ * @param permutations
+ * @param limit 
+ * 
+ * @return true if s1 <pl s2
+ */
+bool set_permuted_limited_compare(const set_t &s1, const set_t &s2, 
+				  const set_t &permutations, element_t limit);
+
+
+/** 
+ * \brief Sort transaction, non el element first. 
+ */
+void elsort_transaction(Transaction *t, int max_element, const set_t &el); 
 #endif 	    /* !_UTILS_H_ */

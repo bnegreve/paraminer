@@ -205,10 +205,21 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
 			  
 
     TransactionTable *new_tt = new TransactionTable;
-    cerr<<"preparing to reduce for "<<pattern_augmentation<<endl; 
+    TransactionTable *new_tt2 = new TransactionTable;
+    // cout<<endl<<"preparing to reduce for ";set_print(c);cout<<endl; 
+    // cout<<"exclusion list : "; set_print(*exclusion_list);cout<<endl; 
+    // cout<<endl<<"PREVIOUS"<<endl; 
+    // print_transaction_table(tt);
+    //    database_build_reduced(new_tt2, tt, occs, support, *exclusion_list, depth, true);
+    // cout<<endl<<"REDUCE"<<endl;
+    // print_transaction_table(*new_tt2);
+    database_build_reduced2(new_tt, tt, occs, closed_pattern, exclusion_list, depth, true);
+    // cout<<endl<<"REDUCE2"<<endl;
+    // print_transaction_table(*new_tt);
+    //    assert(new_tt->max_element == new_tt2->max_element); 
+    //    new_tt->max_element = new_tt2->max_element; 
+    //    new_tt = new_tt2; 
 
-    database_build_reduced2(new_tt, tt, occs, support, exclusion_list, depth, augmentations.size()>3); 
-    database_build_reduced(new_tt, tt, occs, support, exclusion_list, depth, augmentations.size()>3); 
 
     if(depth == 0){
       trace_timestamp_print("DBR", EVENT_END);

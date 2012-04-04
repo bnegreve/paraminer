@@ -29,17 +29,22 @@ add_test(graduals_neq_test1@50 compare_outputs.sh expected_output/clogen_grad_ne
 #this test is to be validated 
 
 
+# if (NOT TARGET melinda)
+
+# set(MELINDA_DIR_ ../../../melinda)
+# include_directories(${MELINDA_DIR_})
+#   add_library(melinda STATIC IMPORTED)
+# endif() 
+# set_property(TARGET melinda PROPERTY IMPORTED_LOCATION ${MELINDA_DIR_}/libmelinda.a)
+
+# add_executable(set_compare_with_excluded_elements  ../utils.cpp ../database.cpp set_compare_with_excluded_elements.cpp)
+# target_link_libraries(set_compare_with_excluded_elements pthread melinda)
+# add_test(set_compare_with_excluded_elements set_compare_with_excluded_elements)
 
 
-
-set(MELINDA_DIR ../../../melinda)
-include_directories(${MELINDA_DIR})
-add_library(melinda STATIC IMPORTED)
-set_property(TARGET melinda PROPERTY IMPORTED_LOCATION ${MELINDA_DIR}/libmelinda.a)
-
-target_link_libraries(set_compare_with_excluded_elements pthread melinda)
-add_executable(set_compare_with_excluded_elements  ../utils.cpp ../database.cpp set_compare_with_excluded_elements.cpp)
-add_test(set_compare_with_excluded_elements set_compare_with_excluded_elements)
+# add_executable(database_elsort  ../utils.cpp ../database.cpp database_elsort.cpp)
+# target_link_libraries(database_elsort pthread melinda)
+# add_test(database_elsort database_elsort)
 
 #add_test(transpose transpose)
 

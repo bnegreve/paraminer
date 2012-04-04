@@ -51,13 +51,19 @@ void print_compare(const set_t &a, const set_t &b, const set_t &el,  bool expect
   if(set_compare_with_excluded_elements(a, b, el_bit) != expected){
     cout<<"ERROR: Result ";
     if(expected)
-      cout<<"a >= b returned whereas a<b expected";
+      cout<<"a >= b returned whereas a < b expected";
     else
       cout<<"a < b returned whereas a >= b expected";
 
     cout<<" at line "<<line<<endl; 
     exit (EXIT_FAILURE); 
   }
+  else 
+    if(expected)
+      cout<<"a < b returned -> ok "<<endl;
+    else
+      cout<<"a >= b returned -> ok"<<endl;
+  
 }
 
 int main(){
@@ -168,6 +174,45 @@ int main(){
   b.push_back(3); 
   print_compare(a, b, el, true, __LINE__); 
   print_compare(b, a, el, false, __LINE__); 
+
+  el.clear(); 
+  a.clear(); 
+  b.clear(); 
+  /* a < b, different size, mixed elements */
+  el.push_back(0); 
+  el.push_back(1); 
+  el.push_back(2); 
+  el.push_back(4); 
+  a.push_back(1); /* (1, 4, 5) */
+  a.push_back(4); 
+  a.push_back(5);
+  b.push_back(2); /* (2, 3, 4, 5) b < a because (3,5) < (5) */ 
+  b.push_back(3); 
+  b.push_back(4); 
+  b.push_back(5); 
+  print_compare(b, a, el, true, __LINE__); 
+  print_compare(a, b, el, false, __LINE__); 
+
+  b.clear(); 
+  /* a < b, different size, mixed elements */
+  b.push_back(1); 
+  b.push_back(2); 
+  b.push_back(3);
+  b.push_back(4);
+
+  print_compare(b, a, el, true, __LINE__); 
+  print_compare(a, b, el, false, __LINE__); 
+
+
+  a.clear(); 
+  /* a < b, different size, mixed elements */
+  a.push_back(1); /* (1, 4, 5) */
+  a.push_back(4); 
+  a.push_back(5);
+
+  print_compare(b, a, el, true, __LINE__); 
+  print_compare(a, b, el, false, __LINE__); 
+
 
   return EXIT_SUCCESS; 
 

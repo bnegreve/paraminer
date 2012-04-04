@@ -101,9 +101,7 @@ bool set_equal_limited(const set_t &s1, int l1, const set_t &s2, int l2){
 
 /** \brief returns true if the two sets are equals ignoring element in excluded*/
 bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2,
- std::vector<bool> &excluded){
-
-
+				      const std::vector<bool> &excluded){
     
   set_t::const_iterator end1 = s1.end();
   set_t::const_iterator end2 = s2.end(); 
@@ -121,11 +119,11 @@ bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2,
     ++it1; ++it2;
   }
   
-  for(;it1 != s1.end();++it1)
+  for(;it1 != end1;++it1)
     if(!excluded[*it1])
       return false; 
   
-  for(;it2 != s2.end();++it2)
+  for(;it2 != end2;++it2)
     if(!excluded[*it2])
       return false; 
 
@@ -133,10 +131,16 @@ bool set_equal_with_excluded_elements(const set_t &s1, const set_t &s2,
 }
 
 /** \brief returns wether the first set is smaller than the other
-    prioritizing elements that are not exlcuded. */
-bool set_compare_with_excluded_elements(const set_t &s1, const set_t &s2,
- std::vector<bool> &excluded){
+    prioritizing elements that are not exlcuded. 
+    
+    \warning Elements in transactions must be sorted in each category
+    (el and non-el). 
+*/
 
+bool set_compare_with_excluded_elements(const set_t &s1, const set_t &s2,
+					const std::vector<bool> &excluded){
+
+  assert(false); 
   /* First compare non-el elements */
   set_t::const_iterator end1 = s1.end();
   set_t::const_iterator end2 = s2.end(); 
@@ -437,3 +441,73 @@ void trace_exit(){
 #endif //TIMING 
 }
 
+void set_to_bit_representation(const set_t &set, element_t max_element, 
+			       std::vector<bool> *set_bit){
+  set_bit->resize(max_element+1,  false); 
+  //  for(int i = 0; i < set.size(); i++)
+  for(set_t::const_iterator it = set.begin(); it != set.end(); ++it)
+    (*set_bit)[*it] = true; 
+}
+
+
+bool set_permuted_limited_compare(const set_t &s1, const set_t &s2, 
+				  const set_t &permutations, element_t limit){
+
+    
+  set_t::const_iterator end1 = s1.end();
+  set_t::const_iterator end2 = s2.end(); 
+
+  set_t::const_iterator it1 = s1.begin(), it2 = s2.begin();
+  while(it1 != end1 && it2 != end2){
+    element_t v1 = permutations[*it1]; 
+    element_t v2 = permutations[*it2]; 
+    if(v1 >= limit)
+      {++it1; continue;}
+
+    if(v2 >= limit)
+      {++it2; continue;}
+
+    if(v1 > v2)
+      return false; 
+
+    if(v1 < v2)
+      return true;
+    
+    ++it1;++it2; 
+  }
+  
+  for(;it1 != end1; ++it1)
+    if(permutations[*it1] < limit)
+      return false; /* s1 is larger */
+
+  for(;it2 != end2; ++it2)
+    if(permutations[*it2] < limit)
+      return true; /* s2 is larger */
+
+  return false; /* both are equal */
+}
+
+
+void elsort_transaction(Transaction *t, int max_element, const set_t &el){
+  /* only for debug purposes, very inefficient */ 
+  vector<bool> el_bit(max_element, false);
+  for(set_t::const_iterator it = el.begin(); it != el.end(); ++it)
+    el_bit[*it] = true; 
+
+  Transaction::iterator last = t->end(); 
+  Transaction::iterator it = t->begin(); 
+  if(last == it) 
+    return;
+  last--; 
+  while (it <= last){
+    if(el_bit[*it]){
+      iter_swap(it, last); 
+      --last; 
+    }
+    else
+      ++it; 
+  }
+  t->limit = t->size() - (t->end() - last)+1; 
+  std::sort(t->begin(), t->begin()+t->limit); 
+  std::sort(t->begin()+t->limit, t->end()); 
+}
