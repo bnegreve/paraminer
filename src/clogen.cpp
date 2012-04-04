@@ -71,69 +71,6 @@ struct support_sort_cmp_t{
   }
 };
   
-/* Return the maximum element e so set \ {e} is in F */
-/* assumes set is ordered */
-element_t get_tail(const set_t &set, const TransactionTable &tt,
-		   const Transaction &occurences){
-  assert(false);
-  #if 0
-  element_t max = element_null; 
-  
-  set_const_rit it_end = set.rend(); 
-  int i = set.size() - 1; 
-  for(set_const_rit s_it = set.rbegin(); s_it != it_end; ++s_it, i--) {
-    /* Generate a set without element set[i] */
-    set_t s; 
-    for(int j = 0; j < set.size(); j++){
-      if(i != j)
-	s.push_back(set[j]);
-    }
-    if(membership_oracle(s))
-      return set[i];
-      //      if(max == element_null || element_compare_ge(set[i], max))
-      //	max=set[i];
-    
-  }
-  assert(false); 
-  return max; 
-#endif 
-}
-
- struct element_cmp {
-   /* return true if e1 < e2 */
-   bool operator()(const element_t &e1, const element_t &e2) const{
-     return !element_compare_ge(e1, e2);
-   }
- };
-
-std::pair<set_t, element_t> get_first_parent(const set_t &set, const TransactionTable &tt,
-					     const Transaction &occurences){
-  assert(false); 
-  #if 0
-  assert(set.size() >= 0);
-  assert(is_sorted(set));
-  set_t z(set); 
-  while(z.size() != 0){
-    element_t e = get_tail(z, tt, occurences); 
-    set_t x;
-    for(int i = 0 ; i < z.size(); i++)
-      if(z[i] != e)
-	x.push_back(z[i]); 
-    /* x = z  \ {e} */
-    //    assert(clo(z) == set);
-    /*If the closure of z \ {e} is not z itself it's his parent.*/
-    set_t xx(clo(x)); 
-    if( xx != set ){ //BUG DANS LE PAPIER DE UNO ?
-      std::sort(xx.begin(), xx.end(), element_cmp()); 
-      return make_pair(canonical_form(xx, &e), e);
-    }
-    z = x; 
-  }
-  /* Bottom !*/
-  return make_pair(set_t(0), get_tail(set, tt, occurences));
-  #endif
-}
-
 void expand_async(TransactionTable &tt,const TransactionTable &ot,
 		  const set_t &parent_pattern, element_t pattern_augmentation, 
 		  int depth, const set_t &exclusion_list, int membership_retval){
@@ -177,21 +114,6 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       support[*it] = 0; //By doing this we remove from db the elements that already blong to the set.
   }
 
-  /* First parent test */ 
-  /* We check here if the closed set \c has set \s as first parent. If
-     not the call terminates because this same closed set will be
-     generated from another branch */
-
-  /* There are various way to to this, depending of the set system
-     properties */
-  //#define GET_FIRST_PARENT
-#ifdef GET_FIRST_PARENT
-  std::pair<set_t, element_t> first_parent = get_first_parent(c, tt, occs);       
-  if(!(first_parent.first == s && first_parent.second == pattern_augmentation))
-    /* No need to explore this branch it will be explored from another recursive call */
-    return 0;
-#else
-    
   assert(is_sorted(closed_pattern));
   assert(is_sorted(*exclusion_list)); 
   /* Check if one element from closed set belong to the exclusion list */ 
@@ -220,9 +142,6 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
     }
   }
   
-#endif
-
-
 #ifdef TRACK_TIDS
   // Get original tids
   set_t orig_tids;
