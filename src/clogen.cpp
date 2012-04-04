@@ -151,7 +151,7 @@ void expand_async(TransactionTable &tt,const TransactionTable &ot,
 
 size_t expand(TransactionTable &tt,const TransactionTable &ot,
 	      const set_t &parent_pattern, element_t pattern_augmentation, 
-	      int depth, set_t *exclusion_list, int sup){
+	      int depth, set_t *exclusion_list, int membership_retval){
 
   set_t pattern(parent_pattern); 
   element_t max_element = tt.max_element;
@@ -234,10 +234,10 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
     std::sort(orig_tids.begin(), orig_tids.end());
   }
 
-  pattern_print(closed_pattern,sup, orig_tids); 
+  pattern_print(closed_pattern,membership_retval, orig_tids); 
 #else
   set_t *orig_tids; //dummy set, won't be read
-  pattern_print(closed_pattern,sup, *orig_tids); 
+  pattern_print(closed_pattern,membership_retval, *orig_tids); 
 #endif //TRACK_TIDS
   size_t num_pattern = 1; 
  
@@ -249,10 +249,10 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
   //  database_occuring_elements(&cooccuring_elements, tt, occs);  
 
   int nb_candidates = 0; 
-  set_t extensions; 
+  set_t augmentations; 
 
   /* store the value returned by membership foreach element */
-  set_t u_data(support.size()); 
+  set_t augmentations_membership_retval(support.size()); 
 
   set_t::const_iterator it_co_end = cooccuring_elements.end(); 
   for(set_t::const_iterator it_co = cooccuring_elements.begin(); it_co != it_co_end; ++it_co){
@@ -261,18 +261,18 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
     membership_data_t m_data = {tt, occs, ot[current], support};    
 
     if(!set_member(*exclusion_list, current))
-      if( (u_data[current] = membership_oracle(closed_pattern, current, m_data))){
-	extensions.push_back(current);
+      if( (augmentations_membership_retval[current] = membership_oracle(closed_pattern, current, m_data))){
+	augmentations.push_back(current);
       }
   }
   
-  if(extensions.size() > 0){
+  if(augmentations.size() > 0){
 
     if(depth == 0)
       trace_timestamp_print("DBR", EVENT_START ); 
 			  
     TransactionTable *new_tt = new TransactionTable; 
-    database_build_reduced(new_tt, tt, occs, support, *exclusion_list, depth, extensions.size()>3); 
+    database_build_reduced(new_tt, tt, occs, support, *exclusion_list, depth, augmentations.size()>3); 
 
     if(depth == 0){
       trace_timestamp_print("DBR", EVENT_END);
@@ -286,7 +286,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       trace_timestamp_print("TRANSPOSE", EVENT_END);
 
     support_sort_cmp_t support_sort = {*new_ot};      
-    std::sort(extensions.begin(), extensions.end(), support_sort); 
+    std::sort(augmentations.begin(), augmentations.end(), support_sort); 
 
     /* free thread-shared memory */
     if(depth <= depth_tuple_cutoff){
@@ -297,22 +297,22 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
     }
 
     if(depth < depth_tuple_cutoff){
-      set_nb_refs(new_tt, extensions.size()); 
-      set_t::const_iterator c_it_end = extensions.end(); 
-      for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){
+      set_nb_refs(new_tt, augmentations.size()); 
+      set_t::const_iterator c_it_end = augmentations.end(); 
+      for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
 	assert(!(set_member(*exclusion_list, *c_it)));
-	expand_async(*new_tt, *new_ot, closed_pattern, *c_it, depth+1, *exclusion_list, u_data[*c_it]);
+	expand_async(*new_tt, *new_ot, closed_pattern, *c_it, depth+1, *exclusion_list, augmentations_membership_retval[*c_it]);
 	set_insert_sorted(exclusion_list, *c_it); 
       }
     }
     else{
 
       
-      set_t::const_iterator c_it_end = extensions.end(); 
-      for(set_t::const_iterator c_it = extensions.begin(); c_it != c_it_end; ++c_it){     
+      set_t::const_iterator c_it_end = augmentations.end(); 
+      for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){     
 	set_t new_exclusion_list(*exclusion_list);
-	num_pattern += expand(*new_tt, *new_ot, closed_pattern, *c_it, depth+1, &new_exclusion_list, u_data[*c_it]);
-	/* insert the current extension into the exclusion list for the next calls.*/
+	num_pattern += expand(*new_tt, *new_ot, closed_pattern, *c_it, depth+1, &new_exclusion_list, augmentations_membership_retval[*c_it]);
+	/* insert the current augmentation into the exclusion list for the next calls.*/
 	set_insert_sorted(exclusion_list, *c_it); 
       }
 
@@ -448,34 +448,34 @@ int clogen(set_t initial_pattern){
   SupportTable support(tt.max_element+1, 0);  
   compute_element_support(&support, tt, all_tids);
 
-  set_t extensions; 
-  extensions.reserve(tt.max_element+1); 
-  set_t extensions_support(tt.max_element+1); 
+  set_t augmentations; 
+  augmentations.reserve(tt.max_element+1); 
+  set_t augmentations_membership_retvals(tt.max_element+1); 
 
   for(element_t  current = element_first(); 
       current != element_null; current = element_next(current)){
     membership_data_t m_data = {tt,all_tids,ot[current],support};
-    int sup; 
-    if( (sup = membership_oracle(empty_set,current, m_data)) ){
-      extensions.push_back(current); 
-      extensions_support[current] = sup; 
+    int new_membership_retval; 
+    if( (new_membership_retval = membership_oracle(empty_set,current, m_data)) ){
+      augmentations.push_back(current); 
+      augmentations_membership_retvals[current] = new_membership_retval; 
     }
   }
 
-  set_nb_refs(&tt, extensions.size()); 
-  for(set_t::const_iterator extension = extensions.begin();
-      extension != extensions.end(); ++extension){
+  set_nb_refs(&tt, augmentations.size()); 
+  for(set_t::const_iterator augmentation = augmentations.begin();
+      augmentation != augmentations.end(); ++augmentation){
       tuple_t tuple;
       tuple.tt = &tt; 
       tuple.ot = &ot; 
       tuple.s = new set_t(empty_set); 
-      tuple.e = *extension;
+      tuple.e = *augmentation;
       tuple.depth = 0;
       tuple.exclusion_list = new set_t(exclusion_list);
-      tuple.u_data = extensions_support[*extension]; 
+      tuple.u_data = augmentations_membership_retvals[*augmentation]; 
       m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
       
-      set_insert_sorted(&exclusion_list, *extension); 
+      set_insert_sorted(&exclusion_list, *augmentation); 
   }
   
 
