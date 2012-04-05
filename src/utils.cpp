@@ -295,6 +295,14 @@ bool set_member_sorted(const set_t &sorted_set, const element_t &e){
   return false; 
 }
 
+void set_truncate_above(set_t *s, element_t v){
+  assert(is_sorted(*s)); 
+  int idx = s->size() - 1; 
+  while(idx >= 0 && (*s)[idx] > v)
+    idx--; 
+  s->resize(idx+1);
+}
+
 int set_is_frequent(const set_t &set, const TransactionTable &tt, int min_sup){
   int freq = count_inclusion_2d(tt, set);
   if(freq >= min_sup)
@@ -442,10 +450,10 @@ void trace_exit(){
 
 void set_to_bit_representation(const set_t &set, element_t max_element, 
 			       std::vector<bool> *set_bit){
-  set_bit->resize(max_element+1,  false); 
-  //  for(int i = 0; i < set.size(); i++)
+  set_bit->resize(max_element+1,  false);
   for(set_t::const_iterator it = set.begin(); it != set.end(); ++it)
-    (*set_bit)[*it] = true; 
+    if(*it <= max_element)
+      (*set_bit)[*it] = true; 
 }
 
 

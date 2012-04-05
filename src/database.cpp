@@ -576,7 +576,12 @@ void database_sort_permuted_limited(const TransactionTable &tt,
 void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const set_t &pattern, 
 			    const set_t &exclusion_list, int depth, bool merge){
- 
+
+#ifndef NDEBUG 
+  for(int i = 0; i < exclusion_list.size(); i++){
+    assert(exclusion_list[i] <= tt.max_element);
+  }
+#endif 
 
   /* Sort the list of tids w.r.t to the lexicographical order of the transactions */ 
   Transaction occs(occurence);

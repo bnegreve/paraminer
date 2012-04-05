@@ -77,6 +77,9 @@ bool is_sorted(const std::vector<T> &v){
   return true; 
 }
 
+/** \brief Removes every element strictly greater than v
+    \warning assumes that s is sorted. */
+void set_truncate_above(set_t *s, element_t v); 
 
 /** 
  * \brief Returns 1 if occures \min_sup times or more in \tt, 0 otherwise. 
