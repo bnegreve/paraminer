@@ -636,7 +636,6 @@ void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &t
     reduce_partition(tt, occs, all_partitions[i], pattern_bit, 
 		     pattern.size(), new_trans, &partition_max_element); 
     new_tt->max_element = max(new_tt->max_element, partition_max_element);
-    cerr<<partition_max_element<<" "<<endl;
     // TODO REMOVE
     //    elsort_transaction (&new_tt->back(), tt.max_element, exclusion_list); 
   }
