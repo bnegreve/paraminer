@@ -11,6 +11,7 @@
 #include <map>
 #include <cstdio>
 #include <cctype>
+#include <cmath>
 #include <pthread.h> 
 #include <unistd.h>
 
@@ -101,7 +102,8 @@ bool parent_pattern_is_first_parent(const set_t &pattern, const set_t &exclusion
 
 void expand_async(TransactionTable &tt,const TransactionTable &ot,
 		  const set_t &parent_pattern, element_t pattern_augmentation, 
-		  int depth, const set_t &exclusion_list, int membership_retval){
+		  int depth, const set_t &exclusion_list, const set_t &exclusion_list_tail, 
+		  int membership_retval){
   tuple_t tuple;
   tuple.tt = &tt; 
   tuple.ot = &ot; 
@@ -109,6 +111,7 @@ void expand_async(TransactionTable &tt,const TransactionTable &ot,
   tuple.e = pattern_augmentation; 
   tuple.depth = depth; 
   tuple.exclusion_list = new set_t(exclusion_list); 
+  tuple.exclusion_list_tail = new set_t(exclusion_list_tail); 
   tuple.u_data = membership_retval; 
   m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
 }
@@ -116,8 +119,16 @@ void expand_async(TransactionTable &tt,const TransactionTable &ot,
 
 size_t expand(TransactionTable &tt,const TransactionTable &ot,
 	      const set_t &parent_pattern, element_t pattern_augmentation, 
-	      int depth, const set_t &exclusion_list, int membership_retval){
+	      int depth, const set_t &parent_el, const set_t &el_tail,
+	      int membership_retval){
 
+  
+  set_t exclusion_list(parent_el.size()+el_tail.size()); 
+  copy(parent_el.begin(), parent_el.end(), exclusion_list.begin()); 
+  copy(el_tail.begin(), el_tail.end(), exclusion_list.begin()+parent_el.size()); 
+  assert(is_sorted(parent_el)); 
+  sort(exclusion_list.begin(), exclusion_list.end()); //TODO Very inefficient
+  
   set_t pattern(parent_pattern); 
   element_t max_element = tt.max_element;
   /* occurences of e is occs of s u {e} since tt is restricted to occs(s) */
@@ -229,19 +240,18 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       }
     }
 
-    set_t new_exclusion_list(exclusion_list);
-
-
+    set_t new_excluded_elements;
+    new_excluded_elements.reserve(augmentations.size()); 
     if(depth < depth_tuple_cutoff){
       /* Asynchronous call to expand. */
       set_nb_refs(new_tt, augmentations.size()); 
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
-	assert(!(set_member(new_exclusion_list, *c_it)));
+	assert(!(set_member(exclusion_list, *c_it)));
 	expand_async(*new_tt, *new_ot, closed_pattern,
-		     *c_it, depth+1, new_exclusion_list,
+		     *c_it, depth+1, exclusion_list, new_excluded_elements,
 		     augmentations_membership_retval[*c_it]);
-	set_insert_sorted(&new_exclusion_list, *c_it); 
+	new_excluded_elements.push_back(*c_it); 
       }
     }
     else{
@@ -249,10 +259,10 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){     
 	num_pattern += expand(*new_tt, *new_ot, closed_pattern, 
-			      *c_it, depth+1, new_exclusion_list, 
+			      *c_it, depth+1, exclusion_list, new_excluded_elements, 
 			      augmentations_membership_retval[*c_it]);
 	/* insert the current augmentation into the exclusion list for the next calls.*/
-	set_insert_sorted(&new_exclusion_list, *c_it); 
+	new_excluded_elements.push_back(*c_it); 
       }
       delete new_tt;
       delete new_ot;
@@ -285,10 +295,12 @@ void *process_tuple(void *){
       break; 
 
     num_patterns += expand(*tuple.tt, *tuple.ot, *tuple.s, tuple.e, 
-			   tuple.depth, *tuple.exclusion_list, tuple.u_data);
+			   tuple.depth, *tuple.exclusion_list, 
+			   *tuple.exclusion_list_tail, tuple.u_data);
     //    num_patterns += x; 
     delete tuple.s;
     delete tuple.exclusion_list; 
+    delete tuple.exclusion_list_tail;
   }
   return reinterpret_cast<void*>(num_patterns); 
 }
@@ -375,6 +387,7 @@ int clogen(set_t initial_pattern){
 
   set_t empty_set;
   set_t exclusion_list;
+  set_t exclusion_list_tail;
 
   Occurence all_tids(tt.size()); 
   for(int i = 0; i < tt.size(); i++)
@@ -406,10 +419,11 @@ int clogen(set_t initial_pattern){
       tuple.e = *augmentation;
       tuple.depth = 0;
       tuple.exclusion_list = new set_t(exclusion_list);
+      tuple.exclusion_list_tail = new set_t(exclusion_list_tail);
       tuple.u_data = augmentations_membership_retvals[*augmentation]; 
       m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
       
-      set_insert_sorted(&exclusion_list, *augmentation); 
+      set_insert_sorted(&exclusion_list_tail, *augmentation); 
   }
   
 

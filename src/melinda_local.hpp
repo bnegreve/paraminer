@@ -23,6 +23,7 @@ typedef struct{
   element_t e; 
   int depth; 
   set_t *exclusion_list;
+  set_t *exclusion_list_tail;
   int u_data; 
 }tuple_t; 
 
