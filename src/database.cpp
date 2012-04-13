@@ -575,7 +575,7 @@ void database_sort_permuted_limited(const TransactionTable &tt,
 
 void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const set_t &pattern, 
-			    const set_t &exclusion_list, int depth, bool merge){
+			    const set_t &exclusion_list, int depth, bool el_reduce){
 
 #ifndef NDEBUG 
   for(int i = 0; i < exclusion_list.size(); i++){
@@ -583,66 +583,54 @@ void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &t
   }
 #endif 
 
-  /* Sort the list of tids w.r.t to the lexicographical order of the transactions */ 
-  Transaction occs(occurence);
-  
-  //  print_transaction_table(tt);
-  
-  vector<bool> el_bit;
-  set_to_bit_representation(exclusion_list, tt.max_element, &el_bit); 
 
-  element_t first_el;
-  set_t permutations;
-
-  /* build a permutation array so that lower elements have smaller
-     values. This step is required to group the transactions with the same set of
-     not-in-el elements. (next step.) */
-  database_build_el_permutations(el_bit, exclusion_list.size(), tt.max_element, &first_el, &permutations);
-
-  /* group the transactions that have the same set of elements not in
-     el. (Only tids array is modified, the database remains unmodified.) */
-  database_sort_permuted_limited(tt, permutations, first_el, &occs);
+  if(el_reduce){
+    /* Perform the el-based reduction */
     
-   // cerr<<"ORDER"<<endl; 
-   // set_print(occs); 
-
-  // cerr<<"ORDERED SUPPORT SET"<<endl; 
-  // for(int i = 0; i < occs.size(); i++){
-  //   cout<<i<<" "<<occs[i]<<" ";
-  //   Transaction t(tt[occs[i]]);
-  //   elsort_transaction(&t, tt.max_element, exclusion_list); 
-  //   print_transaction(t); 
-  // }
-
-  /* Parition the tids in groups of equivalent transactions */
-  vector<pair<int,int> > all_partitions; 
-  find_partitions(tt, occs, el_bit, &all_partitions); 
-
-  // cerr<<"EXCLUSION LIST :";
-  // set_print_raw(exclusion_list);
-  // cerr<<"tids :";
-  // set_print_raw(occs); 
-  // for(int i = 0; i < all_partitions.size(); i++){
-  //   cerr<<"("<<all_partitions[i].first<<", "<<all_partitions[i].second<<")"<<endl;
-  // }
-
+    /* Sort the list of tids w.r.t to the lexicographical order of the transactions */ 
+    Transaction occs(occurence);
   
-  set_bit_t pattern_bit;
-  set_to_bit_representation(pattern, tt.max_element, &pattern_bit); 
+    vector<bool> el_bit;
+    set_to_bit_representation(exclusion_list, tt.max_element, &el_bit); 
 
+    element_t first_el;
+    set_t permutations;
+
+    /* build a permutation array so that lower elements have smaller
+       values. This step is required to group the transactions with the same set of
+       not-in-el elements. (next step.) */
+    database_build_el_permutations(el_bit, exclusion_list.size(), 
+				   tt.max_element, &first_el, &permutations);
+
+    /* group the transactions that have the same set of elements not in
+       el. (Only tids array is modified, the database remains unmodified.) */
+    database_sort_permuted_limited(tt, permutations, first_el, &occs);
+
+    /* Parition the tids in groups of equivalent transactions */
+    vector<pair<int,int> > all_partitions; 
+    find_partitions(tt, occs, el_bit, &all_partitions); 
   
-  /* For each transaction build the representative transaction and
-     push it in the new dataset*/
-  new_tt->max_element = 0; 
-  for(int i = 0; i < all_partitions.size(); i++){
-    element_t partition_max_element; 
-    new_tt->push_back(Transaction());
-    Transaction *new_trans = &new_tt->back(); 
-    reduce_partition(tt, occs, all_partitions[i], pattern_bit, 
-		     pattern.size(), new_trans, &partition_max_element); 
-    new_tt->max_element = max(new_tt->max_element, partition_max_element);
-    // TODO REMOVE
-    //    elsort_transaction (&new_tt->back(), tt.max_element, exclusion_list); 
+    set_bit_t pattern_bit;
+    set_to_bit_representation(pattern, tt.max_element, &pattern_bit); 
+
+    /* For each transaction build the representative transaction and
+       push it in the new dataset*/
+    new_tt->max_element = 0; 
+    for(int i = 0; i < all_partitions.size(); i++){
+      element_t partition_max_element; 
+      new_tt->push_back(Transaction());
+      Transaction *new_trans = &new_tt->back(); 
+      reduce_partition(tt, occs, all_partitions[i], pattern_bit, 
+		       pattern.size(), new_trans, &partition_max_element); 
+      new_tt->max_element = max(new_tt->max_element, partition_max_element);
+    }
+  }
+  else{
+    /* The new dataset is the complete  set of transactions in occurence (no el-reduction) */
+    for(set_t::const_iterator it = occurence.begin(); it != occurence.end(); ++it){
+      new_tt->push_back(tt[*it]);
+    }
+    new_tt->max_element = tt.max_element;
   }
 }
 

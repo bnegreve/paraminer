@@ -82,7 +82,7 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 
 void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const set_t &pattern, 
-			    const set_t &exclusion_list, int depth, bool merge=true); 
+			    const set_t &exclusion_list, int depth, bool el_reduce=true); 
 
 void suffix_intersection(TransactionTable *tt, 
 			 std::vector<tid_t> *input,

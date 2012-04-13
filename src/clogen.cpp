@@ -216,7 +216,11 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
 			  
 
     TransactionTable *new_tt = new TransactionTable;
-    database_build_reduced2(new_tt, tt, occs, closed_pattern, exclusion_list, depth, true);
+    /* The less bad heuristic I could find ... */
+    /* el-reduction performs better when el_tail is large and when the
+       number of elements not in el is small */
+    bool el_reduce = (el_tail.size() / tt.max_element+1-exclusion_list.size() >= 1); 
+    database_build_reduced2(new_tt, tt, occs, closed_pattern, exclusion_list, depth, el_reduce);
 
     if(depth == 0){
       trace_timestamp_print("DBR", EVENT_END);
