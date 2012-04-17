@@ -49,6 +49,23 @@ void transpose(const TransactionTable &tt, TransactionTable *ot);
 
 
 /** 
+ * \brief Build the transposed (i.e. vertical) representation of the TransactionTable \tt.
+ * 
+ * Given a transaction table and a set of tids, build the transposed
+ * transaction table \ot that contains for each elements i the set of
+ * transactions in which it occurs in tt. 
+ * \warning Only the tids contained in \tids are regarded.
+ *
+ * After a call to transpose_tids, 
+ * (*ot)[e] contains i iff i is a tid in \tids such that tt[i] contains e. 
+ * 
+ * @param tt The input transaction table. 
+ * @param tids Set of tids of the transactions in tt that must be considered.
+ * @param ot The output, transposed transaction table. 
+ */
+void transpose_tids(const TransactionTable &tt, const Transaction &tids, TransactionTable *ot); 
+
+/** 
  * \brief Sort the tids occording to the lexical order of the
  * corresponding transactions in tt
  * 

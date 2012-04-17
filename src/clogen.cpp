@@ -55,16 +55,28 @@ void set_nb_refs(TransactionTable *p, int nb_refs){
   pthread_mutex_unlock(&mutex); 
 }
 
+void increase_nb_refs(TransactionTable *p, int nb_refs){
+  pthread_mutex_lock(&mutex);
+  nb_refs_map[p] += nb_refs;
+  pthread_mutex_unlock(&mutex); 
+}
+
 int decrease_nb_refs(TransactionTable *p){
   int tmp; 
   pthread_mutex_lock(&mutex);
-  assert(nb_refs_map[p] > 0); 
+  assert(nb_refs_map[p] > 0);
   tmp = (nb_refs_map[p]-=1);
   assert(nb_refs_map[p] >= 0); 
   pthread_mutex_unlock(&mutex);
   return tmp; 
 }
 
+void release_shared_memory(TransactionTable *tt, TransactionTable *ot){
+  if(decrease_nb_refs(tt) == 0){
+    delete tt;
+    delete ot;
+  }
+}
 
 struct support_sort_cmp_t{
   const TransactionTable &ot;
@@ -100,10 +112,10 @@ bool parent_pattern_is_first_parent(const set_t &pattern, const set_t &exclusion
 }
 
 
-void expand_async(TransactionTable &tt,const TransactionTable &ot, const Transaction &occs, 
+void expand_async(TransactionTable &tt, TransactionTable &ot, const Transaction &occs, 
 		  const set_t &parent_pattern, element_t pattern_augmentation, 
 		  int depth, const set_t &exclusion_list, const set_t &exclusion_list_tail, 
-		  int membership_retval){
+		  int membership_retval, bool shared_tt){
   tuple_t tuple;
   tuple.tt = &tt; 
   tuple.ot = &ot; 
@@ -114,14 +126,15 @@ void expand_async(TransactionTable &tt,const TransactionTable &ot, const Transac
   tuple.exclusion_list = new set_t(exclusion_list); 
   tuple.exclusion_list_tail = new set_t(exclusion_list_tail); 
   tuple.u_data = membership_retval; 
+  tuple.shared_tt = shared_tt; 
   m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
 }
 
 
-size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction &occs,  
+size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occs,  
 	      const set_t &parent_pattern, element_t pattern_augmentation, 
 	      int depth, const set_t &parent_el, const set_t &el_tail,
-	      int membership_retval){
+	      int membership_retval, bool shared_tt){
 
   
   set_t exclusion_list(parent_el.size()+el_tail.size()); 
@@ -134,7 +147,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
   element_t max_element = tt.max_element;
   
   SupportTable support(max_element+1, 0);  
-  compute_element_support(&support, tt, ot[pattern_augmentation]); 
+  compute_element_support(&support, tt, occs); 
   pattern.push_back(pattern_augmentation);
   int set_support=support[pattern_augmentation];
   for(set_t::const_iterator it = pattern.begin(); it != pattern.end(); ++it){
@@ -142,7 +155,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
       support[*it] = 0; 
   }
 
-  closure_data_t c_data = {tt, ot[pattern_augmentation], support, set_support};
+  closure_data_t c_data = {tt, occs, support, set_support};
   set_t closed_pattern = clo(pattern, c_data);
   sort(closed_pattern.begin(), closed_pattern.end()); 
   //TODO could be improved, 
@@ -154,12 +167,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
   /* Test wether parent_pattern is the first parent of closed_pattern. */ 
   if(!parent_pattern_is_first_parent(closed_pattern, exclusion_list)){
     /* If it isn't release the memory and abort the current branch exploration. */
-    if(depth <= depth_tuple_cutoff){
-      if(decrease_nb_refs(&tt) == 0){
-	delete &tt;
-	delete &ot;
-      }
-    }
+    if(shared_tt) release_shared_memory(&tt, &ot); 
     return 0; 
   }
       
@@ -200,6 +208,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
     element_t current = *it_co; 
 
     membership_data_t m_data = {tt, occs, ot[current], support};    
+    // TODO Release OT here
 
     if(!set_member(exclusion_list, current))
       if( (augmentations_membership_retval[current] = membership_oracle(closed_pattern, current, m_data))){
@@ -212,25 +221,59 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
     if(depth == 0)
       trace_timestamp_print("DBR", EVENT_START ); 
 			  
-
-    TransactionTable *new_tt = new TransactionTable;
+    set_t new_exclusion_list;
+    set_t new_el_tail;
+    TransactionTable *new_tt;
+    TransactionTable *new_ot = new TransactionTable;
+    bool new_shared_tt; 
+    
     /* The less bad heuristic I could find ... */
     /* el-reduction performs better when el_tail is large and when the
        number of elements not in el is small */
     bool el_reduce = (el_tail.size() / tt.max_element+1-exclusion_list.size() >= 1); 
 
-
-    database_build_reduced2(new_tt, tt, occs, closed_pattern, exclusion_list, depth, el_reduce);
-    
-    set_t new_exclusion_list;
-    set_t new_el_tail;
     new_el_tail.reserve(el_tail.size() +  augmentations.size());
     
     if(el_reduce){
+      /********************************/
+      /* Creates new reduced dataset. */
+      /********************************/
+      new_tt = new TransactionTable;
+      database_build_reduced2(new_tt, tt, occs, 
+			      closed_pattern, exclusion_list, depth, el_reduce);
+     
+    /* Deal with memory management (parent tt). */
+    if(shared_tt)	/* If the parent tt was shared, release it if necessary */ 
+      release_shared_memory(&tt, &ot); 
+
+    transpose(*new_tt, new_ot);
+
+      /* Deal with memory management (new tt). */
+      if(depth < depth_tuple_cutoff){
+	/* If we are going to proceed to an async call to expand, the
+	   dataset will be thread-shared. */
+	new_shared_tt = true; 
+	set_nb_refs(new_tt, augmentations.size()); 
+      }
+      else{
+	/* Otherwise (recursive call to expand) the dataset won't be shared. */
+	new_shared_tt = false;
+      }
+
       new_exclusion_list = exclusion_list;
-      /* new_el_tail is emtpy */
     }
     else{
+      /**************************/
+      /* Reuses parent dataset. */
+      /**************************/
+      new_tt = &tt;
+
+      /* Deal with memory management (new tt = parent tt). */
+      new_shared_tt = shared_tt; /* shared iff parent is shared. */
+      if(new_shared_tt)	increase_nb_refs(&tt, augmentations.size()-1);
+
+      /* Re-compute the new tids (this can be improved) */
+      transpose_tids(tt, occs, new_ot); /* occurence deliver .. sort of */
       new_exclusion_list = parent_el; 
       new_el_tail = el_tail; 
     }
@@ -238,10 +281,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
     if(depth == 0){
       trace_timestamp_print("DBR", EVENT_END);
       trace_timestamp_print("TRANSPOSE", EVENT_START);
-    }
-    
-    TransactionTable *new_ot = new TransactionTable; 
-    transpose(*new_tt, new_ot); /* occurence deliver .. sort of */
+    }   
 
     if(depth == 0)
       trace_timestamp_print("TRANSPOSE", EVENT_END);
@@ -249,49 +289,43 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
     support_sort_cmp_t support_sort = {*new_ot};      
     std::sort(augmentations.begin(), augmentations.end(), support_sort); 
 
-    /* free thread-shared memory */
-    if(depth <= depth_tuple_cutoff){
-      if(decrease_nb_refs(&tt) == 0){
-	delete &tt;
-	delete &ot;
-      }
-    }
-
     if(depth < depth_tuple_cutoff){
+      /********************************/
       /* Asynchronous call to expand. */
-      set_nb_refs(new_tt, augmentations.size()); 
+      /********************************/
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
 	assert(!(set_member(exclusion_list, *c_it)));
 	expand_async(*new_tt, *new_ot, (*new_ot)[*c_it], closed_pattern,
 		     *c_it, depth+1, new_exclusion_list, new_el_tail,
-		     augmentations_membership_retval[*c_it]);
+		     augmentations_membership_retval[*c_it], new_shared_tt);
 	new_el_tail.push_back(*c_it); 
       }
     }
     else{
-      /* Standard recursive call to expand. */
+      /*****************************/
+      /* Recursive call to expand. */
+      /*****************************/
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){     
 	num_pattern += expand(*new_tt, *new_ot,  (*new_ot)[*c_it], closed_pattern, 
 			      *c_it, depth+1, new_exclusion_list, new_el_tail, 
-			      augmentations_membership_retval[*c_it]);
+			      augmentations_membership_retval[*c_it], new_shared_tt);
 	/* insert the current augmentation into the exclusion list for the next calls.*/
 	new_el_tail.push_back(*c_it); 
       }
-      delete new_tt;
-      delete new_ot;
-    }
-  }
 
-  else{
-    /* this is a tail call, free thread-shared memory */
-    if(depth <= depth_tuple_cutoff){
-      if(decrease_nb_refs(&tt) == 0){
-	delete &tt;
-	delete &ot;
+      if(!new_shared_tt){
+	/* if parent dataset wasn't shared, release it.*/
+	delete new_tt;
+	delete new_ot;
       }
     }
+  }
+  
+  else{
+    /* this is a tail call, free thread-shared memory */
+    if(shared_tt) release_shared_memory(&tt, &ot); 
   }
 
   return num_pattern; 
@@ -311,7 +345,7 @@ void *process_tuple(void *){
 
     num_patterns += expand(*tuple.tt, *tuple.ot, *tuple.occs, *tuple.s, tuple.e, 
 			   tuple.depth, *tuple.exclusion_list, 
-			   *tuple.exclusion_list_tail, tuple.u_data);
+			   *tuple.exclusion_list_tail, tuple.u_data, tuple.shared_tt);
     //    num_patterns += x; 
     delete tuple.s;
     delete tuple.occs; 
@@ -431,7 +465,7 @@ int clogen(set_t initial_pattern){
     expand_async(tt, ot, ot[*augmentation], empty_set, 
 		 *augmentation, 0, exclusion_list,
 		 exclusion_list_tail, 
-		 augmentations_membership_retvals[*augmentation]); 
+		 augmentations_membership_retvals[*augmentation], true); 
     set_insert_sorted(&exclusion_list_tail, *augmentation); 
   }
   

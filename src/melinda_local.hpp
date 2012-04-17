@@ -18,7 +18,7 @@ extern "C" {
 
 typedef struct{
   TransactionTable *tt; 
-  const TransactionTable *ot;
+  TransactionTable *ot;
   Transaction *occs; 
   set_t *s; 
   element_t e; 
@@ -26,6 +26,7 @@ typedef struct{
   set_t *exclusion_list;
   set_t *exclusion_list_tail;
   int u_data; 
+  bool shared_tt; 
 }tuple_t; 
 
 #define STRAT_STANDARD

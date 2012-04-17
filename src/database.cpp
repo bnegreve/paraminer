@@ -82,6 +82,19 @@ void transpose(const TransactionTable &tt, TransactionTable *ot){
     }
 }
 
+void transpose_tids(const TransactionTable &tt, const Transaction &tids, TransactionTable *ot){
+  //TODO precompute SIZE
+  assert(!ot->size());
+  ot->resize(tt.max_element+1);
+  for(Transaction::const_iterator tid = tids.begin(); tid != tids.end(); ++tid){
+    for(int j = 0; j < tt[*tid].size(); j++){
+      int v = tt[*tid][j]; 
+      (*ot)[v].push_back(*tid); 
+    }
+  }
+
+}
+
 void data_base_shrink(TransactionTable *tt){
   
 }
