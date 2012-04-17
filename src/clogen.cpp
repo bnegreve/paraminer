@@ -218,8 +218,23 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
     /* el-reduction performs better when el_tail is large and when the
        number of elements not in el is small */
     bool el_reduce = (el_tail.size() / tt.max_element+1-exclusion_list.size() >= 1); 
-    database_build_reduced2(new_tt, tt, occs, closed_pattern, exclusion_list, depth, el_reduce);
 
+
+    database_build_reduced2(new_tt, tt, occs, closed_pattern, exclusion_list, depth, el_reduce);
+    
+    set_t new_exclusion_list;
+    set_t new_el_tail;
+    new_el_tail.reserve(el_tail.size() +  augmentations.size());
+    
+    if(el_reduce){
+      new_exclusion_list = exclusion_list;
+      /* new_el_tail is emtpy */
+    }
+    else{
+      new_exclusion_list = parent_el; 
+      new_el_tail = el_tail; 
+    }
+    
     if(depth == 0){
       trace_timestamp_print("DBR", EVENT_END);
       trace_timestamp_print("TRANSPOSE", EVENT_START);
@@ -242,8 +257,6 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
       }
     }
 
-    set_t new_excluded_elements;
-    new_excluded_elements.reserve(augmentations.size()); 
     if(depth < depth_tuple_cutoff){
       /* Asynchronous call to expand. */
       set_nb_refs(new_tt, augmentations.size()); 
@@ -251,9 +264,9 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
 	assert(!(set_member(exclusion_list, *c_it)));
 	expand_async(*new_tt, *new_ot, (*new_ot)[*c_it], closed_pattern,
-		     *c_it, depth+1, exclusion_list, new_excluded_elements,
+		     *c_it, depth+1, new_exclusion_list, new_el_tail,
 		     augmentations_membership_retval[*c_it]);
-	new_excluded_elements.push_back(*c_it); 
+	new_el_tail.push_back(*c_it); 
       }
     }
     else{
@@ -261,10 +274,10 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){     
 	num_pattern += expand(*new_tt, *new_ot,  (*new_ot)[*c_it], closed_pattern, 
-			      *c_it, depth+1, exclusion_list, new_excluded_elements, 
+			      *c_it, depth+1, new_exclusion_list, new_el_tail, 
 			      augmentations_membership_retval[*c_it]);
 	/* insert the current augmentation into the exclusion list for the next calls.*/
-	new_excluded_elements.push_back(*c_it); 
+	new_el_tail.push_back(*c_it); 
       }
       delete new_tt;
       delete new_ot;
