@@ -18,7 +18,8 @@ extern "C" {
 
 typedef struct{
   TransactionTable *tt; 
-  const TransactionTable *ot; 
+  const TransactionTable *ot;
+  Transaction *occs; 
   set_t *s; 
   element_t e; 
   int depth; 

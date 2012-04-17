@@ -100,13 +100,14 @@ bool parent_pattern_is_first_parent(const set_t &pattern, const set_t &exclusion
 }
 
 
-void expand_async(TransactionTable &tt,const TransactionTable &ot,
+void expand_async(TransactionTable &tt,const TransactionTable &ot, const Transaction &occs, 
 		  const set_t &parent_pattern, element_t pattern_augmentation, 
 		  int depth, const set_t &exclusion_list, const set_t &exclusion_list_tail, 
 		  int membership_retval){
   tuple_t tuple;
   tuple.tt = &tt; 
   tuple.ot = &ot; 
+  tuple.occs = new Transaction(occs); 
   tuple.s = new set_t(parent_pattern); 
   tuple.e = pattern_augmentation; 
   tuple.depth = depth; 
@@ -117,7 +118,7 @@ void expand_async(TransactionTable &tt,const TransactionTable &ot,
 }
 
 
-size_t expand(TransactionTable &tt,const TransactionTable &ot,
+size_t expand(TransactionTable &tt,const TransactionTable &ot, const Transaction &occs,  
 	      const set_t &parent_pattern, element_t pattern_augmentation, 
 	      int depth, const set_t &parent_el, const set_t &el_tail,
 	      int membership_retval){
@@ -131,9 +132,6 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
   
   set_t pattern(parent_pattern); 
   element_t max_element = tt.max_element;
-  /* occurences of e is occs of s u {e} since tt is restricted to occs(s) */
-  Transaction occs = ot[pattern_augmentation]; 
-  
   
   SupportTable support(max_element+1, 0);  
   compute_element_support(&support, tt, ot[pattern_augmentation]); 
@@ -252,7 +250,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
 	assert(!(set_member(exclusion_list, *c_it)));
-	expand_async(*new_tt, *new_ot, closed_pattern,
+	expand_async(*new_tt, *new_ot, (*new_ot)[*c_it], closed_pattern,
 		     *c_it, depth+1, exclusion_list, new_excluded_elements,
 		     augmentations_membership_retval[*c_it]);
 	new_excluded_elements.push_back(*c_it); 
@@ -262,7 +260,7 @@ size_t expand(TransactionTable &tt,const TransactionTable &ot,
       /* Standard recursive call to expand. */
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){     
-	num_pattern += expand(*new_tt, *new_ot, closed_pattern, 
+	num_pattern += expand(*new_tt, *new_ot,  (*new_ot)[*c_it], closed_pattern, 
 			      *c_it, depth+1, exclusion_list, new_excluded_elements, 
 			      augmentations_membership_retval[*c_it]);
 	/* insert the current augmentation into the exclusion list for the next calls.*/
@@ -298,11 +296,12 @@ void *process_tuple(void *){
     if(r == TUPLESPACE_CLOSED)
       break; 
 
-    num_patterns += expand(*tuple.tt, *tuple.ot, *tuple.s, tuple.e, 
+    num_patterns += expand(*tuple.tt, *tuple.ot, *tuple.occs, *tuple.s, tuple.e, 
 			   tuple.depth, *tuple.exclusion_list, 
 			   *tuple.exclusion_list_tail, tuple.u_data);
     //    num_patterns += x; 
     delete tuple.s;
+    delete tuple.occs; 
     delete tuple.exclusion_list; 
     delete tuple.exclusion_list_tail;
   }
@@ -416,7 +415,7 @@ int clogen(set_t initial_pattern){
   set_nb_refs(&tt, augmentations.size());
   for(set_t::const_iterator augmentation = augmentations.begin();
       augmentation != augmentations.end(); ++augmentation){
-    expand_async(tt, ot, empty_set, 
+    expand_async(tt, ot, ot[*augmentation], empty_set, 
 		 *augmentation, 0, exclusion_list,
 		 exclusion_list_tail, 
 		 augmentations_membership_retvals[*augmentation]); 
