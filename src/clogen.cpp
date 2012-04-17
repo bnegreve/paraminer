@@ -413,21 +413,14 @@ int clogen(set_t initial_pattern){
     }
   }
 
-  set_nb_refs(&tt, augmentations.size()); 
+  set_nb_refs(&tt, augmentations.size());
   for(set_t::const_iterator augmentation = augmentations.begin();
       augmentation != augmentations.end(); ++augmentation){
-      tuple_t tuple;
-      tuple.tt = &tt; 
-      tuple.ot = &ot; 
-      tuple.s = new set_t(empty_set); 
-      tuple.e = *augmentation;
-      tuple.depth = 0;
-      tuple.exclusion_list = new set_t(exclusion_list);
-      tuple.exclusion_list_tail = new set_t(exclusion_list_tail);
-      tuple.u_data = augmentations_membership_retvals[*augmentation]; 
-      m_tuplespace_put(&ts, (opaque_tuple_t*)&tuple, 1);
-      
-      set_insert_sorted(&exclusion_list_tail, *augmentation); 
+    expand_async(tt, ot, empty_set, 
+		 *augmentation, 0, exclusion_list,
+		 exclusion_list_tail, 
+		 augmentations_membership_retvals[*augmentation]); 
+    set_insert_sorted(&exclusion_list_tail, *augmentation); 
   }
   
 
