@@ -1,4 +1,4 @@
-../clogen_graduals ../grad/DATA/test1.data 50
+../src/clogen_graduals ../data/graduals/test1.data 50
 running with 1 thread(s).
 nb_attributes 10
 99
