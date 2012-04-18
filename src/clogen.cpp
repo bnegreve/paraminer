@@ -241,6 +241,7 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       new_tt = new TransactionTable;
       database_build_reduced2(new_tt, tt, occs, 
 			      closed_pattern, exclusion_list, depth, el_reduce);
+      set_truncate_above(&exclusion_list, new_tt->max_element); 
      
     /* Deal with memory management (parent tt). */
     if(shared_tt)	/* If the parent tt was shared, release it if necessary */ 
