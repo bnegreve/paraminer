@@ -223,7 +223,7 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
   }
   
   if(augmentations.size() > 0){
-
+    
     if(depth == 0)
       trace_timestamp_print("DBR", EVENT_START ); 
 			  
@@ -232,7 +232,7 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     TransactionTable *new_tt;
     TransactionTable *new_ot;
     bool new_shared_tt; 
-    
+    bool async_call = depth < depth_tuple_cutoff;
     /* The less bad heuristic I could find ... */
     /* el-reduction performs better when el_tail is large and when the
        number of elements not in el is small */
@@ -258,7 +258,7 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       transpose(*new_tt, new_ot);
 
       /* Deal with memory management (new tt). */
-      if(depth < depth_tuple_cutoff){
+      if(async_call){
 	/* If we are going to proceed to an async call to expand, the
 	   dataset will be thread-shared. */
 	new_shared_tt = true; 
@@ -286,19 +286,11 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       new_exclusion_list = parent_el; 
       new_el_tail = el_tail; 
     }
-    
-    if(depth == 0){
-      trace_timestamp_print("DBR", EVENT_END);
-      trace_timestamp_print("TRANSPOSE", EVENT_START);
-    }   
-
-    if(depth == 0)
-      trace_timestamp_print("TRANSPOSE", EVENT_END);
 
     support_sort_cmp_t support_sort = {*new_ot};      
     std::sort(augmentations.begin(), augmentations.end(), support_sort); 
 
-    if(depth < depth_tuple_cutoff){
+    if(async_call){
       /********************************/
       /* Asynchronous call to expand. */
       /********************************/
