@@ -250,7 +250,7 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       database_build_reduced2(new_tt, tt, occs, 
 			      closed_pattern, exclusion_list, depth, el_reduce);
       set_truncate_above(&exclusion_list, new_tt->max_element); 
-     
+      
       /* Deal with memory management (parent tt). */
       if(shared_tt)	/* If the parent tt was shared, release it if necessary */ 
 	release_shared_memory(&tt, &ot); 
@@ -297,8 +297,11 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
 	assert(!(set_member(exclusion_list, *c_it)));
-	Transaction new_occs; 
-	set_intersect(&new_occs, occs, (*new_ot)[*c_it]);
+	Transaction new_occs;
+	if(!el_reduce)
+	  set_intersect(&new_occs, occs, (*new_ot)[*c_it]);
+	else
+	  new_occs = (*new_ot)[*c_it];
 	expand_async(*new_tt, *new_ot, new_occs, closed_pattern,
 		     *c_it, depth+1, new_exclusion_list, new_el_tail,
 		     augmentations_membership_retval[*c_it], new_shared_tt);
@@ -312,7 +315,10 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
 	Transaction new_occs; 
-	set_intersect(&new_occs, occs, (*new_ot)[*c_it]);
+	if(!el_reduce)
+	  set_intersect(&new_occs, occs, (*new_ot)[*c_it]);
+	else
+	  new_occs = (*new_ot)[*c_it];
 	num_pattern += expand(*new_tt, *new_ot, new_occs, closed_pattern, 
 			      *c_it, depth+1, new_exclusion_list, new_el_tail, 
 			      augmentations_membership_retval[*c_it], new_shared_tt);
