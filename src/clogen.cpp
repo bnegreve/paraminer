@@ -136,7 +136,7 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
 	      int depth, const set_t &parent_el, const set_t &el_tail,
 	      int membership_retval, bool shared_tt){
 
-  
+
   set_t exclusion_list(parent_el.size()+el_tail.size()); 
   copy(parent_el.begin(), parent_el.end(), exclusion_list.begin()); 
   copy(el_tail.begin(), el_tail.end(), exclusion_list.begin()+parent_el.size()); 
@@ -155,6 +155,9 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       support[*it] = 0; 
   }
 
+  /***************************/
+  /* Compute pattern closure */
+  /***************************/
   closure_data_t c_data = {tt, occs, support, set_support};
   set_t closed_pattern = clo(pattern, c_data);
   sort(closed_pattern.begin(), closed_pattern.end()); 
