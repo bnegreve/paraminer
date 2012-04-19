@@ -316,8 +316,8 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
 	new_el_tail.push_back(*c_it); 
       }
 
-      if(!new_shared_tt){
-	/* if parent dataset wasn't shared, release it.*/
+      if(el_reduce && !new_shared_tt){
+	/* if this recursive call created a dataset that is not thread-shared.*/
 	delete new_tt;
 	delete new_ot;
       }
