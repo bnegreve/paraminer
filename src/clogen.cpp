@@ -35,6 +35,7 @@ extern "C" {
 tuplespace_t ts;
 
 int depth_tuple_cutoff = 2;
+float el_reduce_threshold = 1.0; 
 #endif //PARALLEL_PROCESS
 
 using std::cout; 
@@ -236,7 +237,8 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     /* The less bad heuristic I could find ... */
     /* el-reduction performs better when el_tail is large and when the
        number of elements not in el is small */
-    bool el_reduce = ((float)(el_tail.size() / (tt.max_element+1-exclusion_list.size())) >= 1); 
+    bool el_reduce = ((float)(el_tail.size() / (tt.max_element+1-exclusion_list.size())) >= 
+		      el_reduce_threshold); 
 
     new_el_tail.reserve(el_tail.size() +  augmentations.size());
     if(el_reduce){
@@ -369,7 +371,7 @@ void *process_tuple(void *){
 #endif //PARALLEL_PROCESS
 
 void clogen_usage(char *bin_name){
-  cerr<<bin_name<<" [-t numthreads=1] [-c tuplecutoff=2] \
+  cerr<<bin_name<<" [-t numthreads=1] [-c tuplecutoff=2] [elreducethreshold=1.0] \
  [-l display tidlist (default is off)] \
 [<problem specific arg 1> .. <problem specific arg n>]"<<endl;
   exit(EXIT_FAILURE); 
@@ -379,7 +381,7 @@ int parse_clogen_arguments(int *argc, char **argv){
   char opt_char=0;
   opterr = 0; 
   int local_options = 0; 
-  while ((opt_char = getopt(*argc, argv, "c:t:l")) != -1)
+  while ((opt_char = getopt(*argc, argv, "c:r:t:l")) != -1)
     {
       switch(opt_char)
 	{
@@ -387,8 +389,13 @@ int parse_clogen_arguments(int *argc, char **argv){
 	  //	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0]);
 	  depth_tuple_cutoff = atoi(optarg);
 	  *optarg = '\0';
-	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<endl;
+	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<"."<<endl;
 	  break ;
+	case 'r':
+	  el_reduce_threshold = atof(optarg);
+	  cout<<"el reduce threshold set to "<<el_reduce_threshold<<"."<<endl;
+	  *optarg = '\0';
+	  break; 
 	case 't':
 	  //	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0]);
 	  num_threads = atoi(optarg);
@@ -408,6 +415,9 @@ int parse_clogen_arguments(int *argc, char **argv){
       *(argv[i]) = '\0'; 
     }
     else if (!strncmp(argv[i], "-c",2)){
+      *(argv[i]) = '\0'; 
+    }
+    else if (!strncmp(argv[i], "-r",2)){
       *(argv[i]) = '\0'; 
     }
     else if (!strncmp(argv[i], "-l",2)){
