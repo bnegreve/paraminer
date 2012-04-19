@@ -227,7 +227,7 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     set_t new_exclusion_list;
     set_t new_el_tail;
     TransactionTable *new_tt;
-    TransactionTable *new_ot = new TransactionTable;
+    TransactionTable *new_ot;
     bool new_shared_tt; 
     
     /* The less bad heuristic I could find ... */
@@ -242,6 +242,8 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       /* Creates new reduced dataset. */
       /********************************/
       new_tt = new TransactionTable;
+      new_ot = new TransactionTable;
+
       database_build_reduced2(new_tt, tt, occs, 
 			      closed_pattern, exclusion_list, depth, el_reduce);
       set_truncate_above(&exclusion_list, new_tt->max_element); 
@@ -271,13 +273,13 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       /* Reuses parent dataset. */
       /**************************/
       new_tt = &tt;
+      new_ot = &ot;
 
       /* Deal with memory management (new tt = parent tt). */
       new_shared_tt = shared_tt; /* shared iff parent is shared. */
       if(new_shared_tt)	increase_nb_refs(&tt, augmentations.size()-1);
 
       /* Re-compute the new tids (this can be improved) */
-      transpose_tids(tt, occs, new_ot); /* occurence deliver .. sort of */
       new_exclusion_list = parent_el; 
       new_el_tail = el_tail; 
     }
@@ -300,7 +302,9 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       set_t::const_iterator c_it_end = augmentations.end(); 
       for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
 	assert(!(set_member(exclusion_list, *c_it)));
-	expand_async(*new_tt, *new_ot, (*new_ot)[*c_it], closed_pattern,
+	Transaction new_occs; 
+	set_intersect(&new_occs, occs, (*new_ot)[*c_it]);
+	expand_async(*new_tt, *new_ot, new_occs, closed_pattern,
 		     *c_it, depth+1, new_exclusion_list, new_el_tail,
 		     augmentations_membership_retval[*c_it], new_shared_tt);
 	new_el_tail.push_back(*c_it); 
@@ -311,8 +315,10 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       /* Recursive call to expand. */
       /*****************************/
       set_t::const_iterator c_it_end = augmentations.end(); 
-      for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){     
-	num_pattern += expand(*new_tt, *new_ot,  (*new_ot)[*c_it], closed_pattern, 
+      for(set_t::const_iterator c_it = augmentations.begin(); c_it != c_it_end; ++c_it){
+	Transaction new_occs; 
+	set_intersect(&new_occs, occs, (*new_ot)[*c_it]);
+	num_pattern += expand(*new_tt, *new_ot, new_occs, closed_pattern, 
 			      *c_it, depth+1, new_exclusion_list, new_el_tail, 
 			      augmentations_membership_retval[*c_it], new_shared_tt);
 	/* insert the current augmentation into the exclusion list for the next calls.*/
