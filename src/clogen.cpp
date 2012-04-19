@@ -164,7 +164,9 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       support[*it] = 0; //By doing this we remove from db the elements that already blong to the set.
   }
 
-  /* Test wether parent_pattern is the first parent of closed_pattern. */ 
+  /******************************************************************/
+  /* Check if parent pattern is the first parent of closed_pattern. */
+  /******************************************************************/
   if(!parent_pattern_is_first_parent(closed_pattern, exclusion_list)){
     /* If it isn't release the memory and abort the current branch exploration. */
     if(shared_tt) release_shared_memory(&tt, &ot); 
@@ -172,6 +174,9 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
   }
       
 
+  /*******************/
+  /* Output pattern. */
+  /*******************/
 #ifdef TRACK_TIDS
   // Get original tids
   set_t orig_tids;
@@ -182,7 +187,6 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     }
     std::sort(orig_tids.begin(), orig_tids.end());
   }
-
   pattern_print(closed_pattern,membership_retval, orig_tids); 
 #else
   set_t *orig_tids; //dummy set, won't be read
@@ -190,30 +194,29 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
 #endif //TRACK_TIDS
   size_t num_pattern = 1; 
  
-  set_t cooccuring_elements; 
-  for(int i = 0; i < support.size(); i++){
-    if(support[i] != 0)
-      cooccuring_elements.push_back(i); 
-  }
-  //  database_occuring_elements(&cooccuring_elements, tt, occs);  
 
-  int nb_candidates = 0; 
-  set_t augmentations; 
 
-  /* store the value returned by membership foreach element */
-  set_t augmentations_membership_retval(support.size()); 
+  /*************************************************/
+  /* Computes current closed pattern augmentations */
+  /*************************************************/
+  set_t augmentations;
 
-  set_t::const_iterator it_co_end = cooccuring_elements.end(); 
-  for(set_t::const_iterator it_co = cooccuring_elements.begin(); it_co != it_co_end; ++it_co){
-    element_t current = *it_co; 
+  /* to store the value returned by membership foreach element. (Will
+     be passed to the rec. call.) */
+  set_t augmentations_membership_retval(max_element+1); 
 
-    membership_data_t m_data = {tt, occs, ot[current], support};    
-    // TODO Release OT here
+  for(int i = 0; i <= max_element; i++){
+    if(support[i] != 0){ /* i occurs in the dataset */
+      membership_data_t m_data = {tt, occs, ot[i], support};    
+      // TODO Release OT here
 
-    if(!set_member(exclusion_list, current))
-      if( (augmentations_membership_retval[current] = membership_oracle(closed_pattern, current, m_data))){
-	augmentations.push_back(current);
-      }
+      if(!set_member(exclusion_list, i))
+	if( (augmentations_membership_retval[i] = 
+	     membership_oracle(closed_pattern, i, m_data))){
+	  /* Closed_pattern U i is a pattern hence i is an augmentation. */
+	  augmentations.push_back(i);
+	}
+    }
   }
   
   if(augmentations.size() > 0){
@@ -243,11 +246,11 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
 			      closed_pattern, exclusion_list, depth, el_reduce);
       set_truncate_above(&exclusion_list, new_tt->max_element); 
      
-    /* Deal with memory management (parent tt). */
-    if(shared_tt)	/* If the parent tt was shared, release it if necessary */ 
-      release_shared_memory(&tt, &ot); 
+      /* Deal with memory management (parent tt). */
+      if(shared_tt)	/* If the parent tt was shared, release it if necessary */ 
+	release_shared_memory(&tt, &ot); 
 
-    transpose(*new_tt, new_ot);
+      transpose(*new_tt, new_ot);
 
       /* Deal with memory management (new tt). */
       if(depth < depth_tuple_cutoff){
