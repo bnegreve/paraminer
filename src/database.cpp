@@ -74,7 +74,19 @@ void print_transaction_table(const TransactionTable &tt){
 
 void transpose(const TransactionTable &tt, TransactionTable *ot){
   assert(!ot->size());
+  set_t occ_sizes(tt.max_element+1); 
   ot->resize(tt.max_element+1);
+  for(TransactionTable::const_iterator it = tt.begin(); it != tt.end(); ++it){
+    for(int j = 0; j < it->size(); j++){
+      int v = (*it)[j]; 
+      occ_sizes[v]++; 
+    }
+  }
+  for(int i = 0; i < occ_sizes.size(); i++){
+    (*ot)[i].reserve(occ_sizes[i]); 
+  }
+
+
   for(int i = 0; i < tt.size(); i++)
     for(int j = 0; j < tt[i].size(); j++){
       int v = tt[i][j]; 
@@ -83,8 +95,8 @@ void transpose(const TransactionTable &tt, TransactionTable *ot){
 }
 
 void transpose_tids(const TransactionTable &tt, const Transaction &tids, TransactionTable *ot){
-  set_t occ_sizes(tt.max_element+1); 
   assert(!ot->size());
+  set_t occ_sizes(tt.max_element+1); 
   ot->resize(tt.max_element+1);
   for(Transaction::const_iterator tid = tids.begin(); tid != tids.end(); ++tid){
     for(int j = 0; j < tt[*tid].size(); j++){
