@@ -236,10 +236,9 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     /* The less bad heuristic I could find ... */
     /* el-reduction performs better when el_tail is large and when the
        number of elements not in el is small */
-    bool el_reduce = (el_tail.size() / tt.max_element+1-exclusion_list.size() >= 1); 
+    bool el_reduce = ((float)(el_tail.size() / (tt.max_element+1-exclusion_list.size())) >= 1); 
 
     new_el_tail.reserve(el_tail.size() +  augmentations.size());
-    
     if(el_reduce){
       /********************************/
       /* Creates new reduced dataset. */
