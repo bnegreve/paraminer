@@ -41,6 +41,7 @@ typedef std::vector<element_t> SupportTable;
 
 element_t read_transaction_table(TransactionTable *tt, const char *filename); 
 
+
 void print_transaction(const Transaction &t); 
 
 void print_transaction_table(const TransactionTable &tt); 
@@ -90,13 +91,19 @@ void merge_identical_transactions(TransactionTable *tt, bool remove_non_closed =
  * Includes in the new table the occurences whose tids are in \occurences
  * Removes the elements that have in null support in \support
  */
-
-
 void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const SupportTable &support, 
 			    const set_t &exclusion_list, int depth, bool merge=true); 
 
-
+/** 
+ * \brief Build a reduced dataset (in place process).
+ *
+ * The inplace reduce is computationaly more intensive but reduces the
+ * memory consumption and preserve cache usage.  On a computing
+ * platform with a sufficient amount of cores, it is worse using this
+ * implementations. 
+ * 
+ */
 void database_build_reduced2(TransactionTable *new_tt, const TransactionTable &tt,
 			    const Transaction &occurence, const set_t &pattern, 
 			    const set_t &exclusion_list, int depth, bool el_reduce=true); 
