@@ -245,6 +245,7 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     bool el_reduce = (el_tail.size() >= el_tail_threshold) || 
       (tt.max_element+1-exclusion_list.size() <= not_el_threshold);
 
+    //    if(el_reduce) cout<<"REDUCE not el thres "<<not_el_threshold<<endl; 
 							       
     new_el_tail.reserve(el_tail.size() +  augmentations.size());
     if(el_reduce){
@@ -392,7 +393,7 @@ int parse_clogen_arguments(int *argc, char **argv){
       switch(opt_char)
 	{
 	case 'c':
-	  //	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0]);
+	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0]);
 	  depth_tuple_cutoff = atoi(optarg);
 	  *optarg = '\0';
 	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<"."<<endl;
@@ -428,7 +429,10 @@ int parse_clogen_arguments(int *argc, char **argv){
     else if (!strncmp(argv[i], "-c",2)){
       *(argv[i]) = '\0'; 
     }
-    else if (!strncmp(argv[i], "-r",2)){
+    else if (!strncmp(argv[i], "-x",2)){
+      *(argv[i]) = '\0'; 
+    }
+    else if (!strncmp(argv[i], "-y",2)){
       *(argv[i]) = '\0'; 
     }
     else if (!strncmp(argv[i], "-l",2)){
