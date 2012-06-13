@@ -35,7 +35,8 @@ extern "C" {
 tuplespace_t ts;
 
 int depth_tuple_cutoff = 2;
-float el_reduce_threshold = 1.0; 
+float el_tail_threshold = 0.; 
+float not_el_threshold = 999999.;
 #endif //PARALLEL_PROCESS
 
 using std::cout; 
@@ -237,9 +238,14 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     /* The less bad heuristic I could find ... */
     /* el-reduction performs better when el_tail is large and when the
        number of elements not in el is small */
-    bool el_reduce = ((float)(el_tail.size() / (tt.max_element+1-exclusion_list.size())) >= 
-		      el_reduce_threshold); 
+    // bool el_reduce = ((float)(el_tail.size() / (tt.max_element+1-exclusion_list.size())) >= 
+    // 		      el_reduce_threshold); 
 
+    /* reduce if el tail is large OR if E \ EL is small */
+    bool el_reduce = (el_tail.size() >= el_tail_threshold) || 
+      (tt.max_element+1-exclusion_list.size() <= not_el_threshold);
+
+							       
     new_el_tail.reserve(el_tail.size() +  augmentations.size());
     if(el_reduce){
       /********************************/
@@ -381,7 +387,7 @@ int parse_clogen_arguments(int *argc, char **argv){
   char opt_char=0;
   opterr = 0; 
   int local_options = 0; 
-  while ((opt_char = getopt(*argc, argv, "c:r:t:l")) != -1)
+  while ((opt_char = getopt(*argc, argv, "c:x:y:t:l")) != -1)
     {
       switch(opt_char)
 	{
@@ -391,9 +397,14 @@ int parse_clogen_arguments(int *argc, char **argv){
 	  *optarg = '\0';
 	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<"."<<endl;
 	  break ;
-	case 'r':
-	  el_reduce_threshold = atof(optarg);
-	  cout<<"el reduce threshold set to "<<el_reduce_threshold<<"."<<endl;
+	case 'y':
+	  el_tail_threshold = atof(optarg);
+	  cout<<"el tail threshold set to "<<el_tail_threshold<<"."<<endl;
+	  *optarg = '\0';
+	  break; 
+	case 'x':
+	  not_el_threshold = atof(optarg);
+	  cout<<"not el  threshold set to "<<not_el_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 't':
