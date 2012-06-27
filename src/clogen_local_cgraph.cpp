@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
-
+#include <unistd.h>
 #include <dirent.h>
 #include "clogen_local.hpp"
 #include "utils.hpp"
