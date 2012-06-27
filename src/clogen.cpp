@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cctype>
 #include <pthread.h> 
+#include <unistd.h>
 
 #include "clogen_local.hpp"
 #include "utils.hpp"
