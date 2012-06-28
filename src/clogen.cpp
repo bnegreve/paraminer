@@ -242,17 +242,27 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     // 		      el_reduce_threshold); 
 
     /* reduce if el tail is large OR if E \ EL is small */
-    int max_reduction_factor = 
-      el_tail.size()>31?(1>>(el_tail.size())):std::numeric_limits<int>::max();
-    int not_el_size = (tt.max_element+1-exclusion_list.size());
-    int min_reduction_factor = not_el_size<31?(occs.size()/(1<<not_el_size)):1;
 
 
-    bool el_reduce = false;
+
+    bool el_reduce; 
+    if(depth <= 0){
+      /* don't reduce unless min reduction factor is large */
+      int not_el_size = (tt.max_element+1-exclusion_list.size());
+      int min_reduction_factor = not_el_size<31?(occs.size()/(1<<not_el_size)):1;
+      el_reduce = min_reduction_factor >= min_reduction_threshold; 
+    }
+    else{
+      /* cut unless reduction factor is too small */
+      int max_reduction_factor = 
+	el_tail.size()>31?(1>>(el_tail.size())):std::numeric_limits<int>::max();
+      el_reduce = max_reduction_factor >= max_reduction_threshold; 
+    }
+
     /* if max reduction factor is too small, don't reduce */ 
-    if(max_reduction_factor < max_reduction_threshold) el_reduce = false;
+
     /* if min reduction factor is large enough, do reduce */
-    if(min_reduction_factor >= min_reduction_threshold) el_reduce = true; 
+
 
 
     //    cout<<"REDUCE "<<"min fact "<<min_reduction_factor<<" max fact "<< max_reduction_factor<<" "<<el_reduce<<endl; 
