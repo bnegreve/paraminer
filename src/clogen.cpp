@@ -251,12 +251,14 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
       int not_el_size = (tt.max_element+1-exclusion_list.size());
       int min_reduction_factor = not_el_size<31?(occs.size()/(1<<not_el_size)):1;
       el_reduce = min_reduction_factor >= min_reduction_threshold; 
+
     }
     else{
       /* cut unless reduction factor is too small */
+
       int max_reduction_factor = 
-	el_tail.size()>31?(1>>(el_tail.size())):std::numeric_limits<int>::max();
-      el_reduce = max_reduction_factor >= max_reduction_threshold; 
+	el_tail.size()>31?(1<<(el_tail.size())):std::numeric_limits<int>::max();
+      el_reduce = max_reduction_factor >= max_reduction_threshold;
     }
 
     /* if max reduction factor is too small, don't reduce */ 
