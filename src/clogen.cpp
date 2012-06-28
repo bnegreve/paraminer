@@ -14,7 +14,7 @@
 #include <cmath>
 #include <pthread.h> 
 #include <unistd.h>
-
+#include <limits>
 #include "clogen_local.hpp"
 #include "utils.hpp"
 #include "element.hpp"
@@ -35,8 +35,8 @@ extern "C" {
 tuplespace_t ts;
 
 int depth_tuple_cutoff = 2;
-float el_tail_threshold = 0.; 
-float not_el_threshold = 999999.;
+float max_reduction_threshold = 9999999; /* default: no reduction. */
+float min_reduction_threshold = 9999999; 
 #endif //PARALLEL_PROCESS
 
 using std::cout; 
@@ -242,10 +242,22 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     // 		      el_reduce_threshold); 
 
     /* reduce if el tail is large OR if E \ EL is small */
-    bool el_reduce = (el_tail.size() >= el_tail_threshold) || 
-      (tt.max_element+1-exclusion_list.size() <= not_el_threshold);
+    int max_reduction_factor = 
+      el_tail.size()>31?(1>>(el_tail.size())):std::numeric_limits<int>::max();
+    int not_el_size = (tt.max_element+1-exclusion_list.size());
+    int min_reduction_factor = not_el_size<31?(occs.size()/(1<<not_el_size)):1;
 
-    //    if(el_reduce) cout<<"REDUCE not el thres "<<not_el_threshold<<endl; 
+
+    bool el_reduce = false;
+    /* if max reduction factor is too small, don't reduce */ 
+    if(max_reduction_factor < max_reduction_threshold) el_reduce = false;
+    /* if min reduction factor is large enough, do reduce */
+    if(min_reduction_factor >= min_reduction_threshold) el_reduce = true; 
+
+
+    //    cout<<"REDUCE "<<"min fact "<<min_reduction_factor<<" max fact "<< max_reduction_factor<<" "<<el_reduce<<endl; 
+
+    //    if(el_reduce) cout<<"REDUCE not el thres "<<min_reduction_threshold<<endl; 
 							       
     new_el_tail.reserve(el_tail.size() +  augmentations.size());
     if(el_reduce){
@@ -399,13 +411,13 @@ int parse_clogen_arguments(int *argc, char **argv){
 	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<"."<<endl;
 	  break ;
 	case 'y':
-	  el_tail_threshold = atof(optarg);
-	  cout<<"el tail threshold set to "<<el_tail_threshold<<"."<<endl;
+	  max_reduction_threshold = atof(optarg);
+	  cout<<"el tail threshold set to "<<max_reduction_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 'x':
-	  not_el_threshold = atof(optarg);
-	  cout<<"not el  threshold set to "<<not_el_threshold<<"."<<endl;
+	  min_reduction_threshold = atof(optarg);
+	  cout<<"not el  threshold set to "<<min_reduction_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 't':
