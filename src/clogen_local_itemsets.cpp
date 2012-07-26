@@ -167,7 +167,9 @@ set_t clo(const set_t &set, const closure_data_t &data){
 
 
 void usage(char *bin_name){
-  cout<<bin_name<<" inputfile minsup [-t numthreads=1] [-c tuplecutoff=2] [-l display tidlist (default is off)]"<<endl;
+  clogen_usage(bin_name);
+  cerr<<"Problem specific command line arguments:"<<endl; 
+  cerr<<bin_name<<" [<clogen_options> (See above.)] <dataset> <minsup>"<<endl;
   exit(EXIT_FAILURE); 
 }
 

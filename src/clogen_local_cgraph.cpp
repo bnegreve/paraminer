@@ -275,7 +275,10 @@ set_t clo(const set_t &set, const closure_data_t &data){
 
 
 void usage(char *bin_name){
-  cerr<<bin_name<<" graphdescription dataset minsup [-t numthreads=1] [-c tuplecutoff=2] [-a mine all closed graphs]"<<endl;
+  clogen_usage(bin_name);
+  cerr<<"Problem specific command line arguments:"<<endl; 
+  cerr<<bin_name<<" [<clogen options> (See above.)] <graph dataset directory> <minsup> <edge threshold> [-a mine all graphs (not only closed ones)]"<<endl;
+  
   exit(EXIT_FAILURE); 
 }
 

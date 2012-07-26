@@ -19,6 +19,14 @@ extern TransactionTable &ot;
 int clogen(set_t initial_pattern);
 
 /** 
+ * \brief Print help for clogen standard parameters. 
+ *
+ * @param bin_name Executable file name.
+ * @param exit If set, clogen_usage will call exit(EXIT_FAILURE). 
+ */
+void clogen_usage(char *bin_name, bool exit=false); 
+
+/** 
  * \brief Parse clogen arguments. 
  * Optional arguments (clogen or not) are moved to the beginning of argv.  
  *

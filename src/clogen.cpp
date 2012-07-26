@@ -407,11 +407,16 @@ void *process_tuple(void *){
 
 #endif //PARALLEL_PROCESS
 
-void clogen_usage(char *bin_name){
-  cerr<<bin_name<<" [-t numthreads=1] [-c tuplecutoff=2] [elreducethreshold=1.0] \
- [-l display tidlist (default is off)] \
-[<problem specific arg 1> .. <problem specific arg n>]"<<endl;
-  exit(EXIT_FAILURE); 
+void clogen_usage(char *bin_name, bool exit){
+  cerr<<"Clogen general usage (valid for every instance of clogen):"<<endl;
+  cerr<<bin_name<<" [-t <numthreads> = 1] [-c <tuplecutoff> = 2] "<<endl
+      <<"[-l (Display tidlist (default is off).)] "<<endl
+      <<"[-y <level 0 reduction factor threshold> = 10 (See code doc for details.)] "<<endl
+      <<"[-x <level 1 and above reduction factor threshold> = 2 (See code doc for details.)] "<<endl
+
+      <<"<problem specific command line arg 1> .. <problem specific command line arg n>"<<endl<<endl;
+  
+  if(exit) std::exit(EXIT_FAILURE); 
 }
 
 int parse_clogen_arguments(int *argc, char **argv){
@@ -423,23 +428,25 @@ int parse_clogen_arguments(int *argc, char **argv){
       switch(opt_char)
 	{
 	case 'c':
-	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0]);
+	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0], true);
 	  depth_tuple_cutoff = atoi(optarg);
 	  *optarg = '\0';
 	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<"."<<endl;
 	  break ;
 	case 'y':
+	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0], true);
 	  max_reduction_threshold = atof(optarg);
 	  cout<<"max reduction factor threshold set to "<<max_reduction_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 'x':
+	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0], true);
 	  min_reduction_threshold = atof(optarg);
 	  cout<<"min reduction factor threshold set to "<<min_reduction_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 't':
-	  //	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0]);
+	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0], true);
 	  num_threads = atoi(optarg);
 	  *optarg = '\0'; 
 	  break;
