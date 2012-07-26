@@ -496,7 +496,6 @@ int parse_clogen_arguments(int *argc, char **argv){
 int clogen(set_t initial_pattern){
 
   int num_pattern = 0; 
-  cerr<<"DATABASE REDUCTION ENABLED"<<endl;
 #ifndef NDEBUG
   cout<<"CLOGEN DEBUG"<<endl;
 #endif
