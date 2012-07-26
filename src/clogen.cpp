@@ -35,8 +35,24 @@ extern "C" {
 tuplespace_t ts;
 
 int depth_tuple_cutoff = 2;
-float max_reduction_threshold = 9999999; /* default: no reduction. */
-float min_reduction_threshold = 9999999; 
+
+float max_reduction_threshold = 10; 	/**< \brief Threshold to
+	 control activation of el-reduction on level 0 calls to
+	 expand. (-y switch.)
+
+	 On level 0 expand calls, el-reduction is activated by
+	 default. The reductions are performed unless the maximum
+	 reduction factor is garanteed to be below
+	 max_reduction_factor_threshold. */
+float min_reduction_threshold = 2; /**< \brief Threshold to control
+	 activationi of el-reduction on level 1 and above. (-x switch.)
+	 
+	 On level 1 and above, el-reduction is deactivated by
+	 default. The el-reductions are activated if the minimum
+	 reduction factor is garanteed to be above
+	 min_reduction_factor_threshold.
+ */
+
 #endif //PARALLEL_PROCESS
 
 using std::cout; 
@@ -233,43 +249,33 @@ size_t expand(TransactionTable &tt, TransactionTable &ot, const Transaction &occ
     set_t new_el_tail;
     TransactionTable *new_tt;
     TransactionTable *new_ot;
-    bool new_shared_tt; 
+    bool new_shared_tt;
+
+    /* Perform an async call ? */ 
     bool async_call = depth < depth_tuple_cutoff;
-    /* The less bad heuristic I could find ... */
-    /* el-reduction performs better when el_tail is large and when the
-       number of elements not in el is small */
-    // bool el_reduce = ((float)(el_tail.size() / (tt.max_element+1-exclusion_list.size())) >= 
-    // 		      el_reduce_threshold); 
 
-    /* reduce if el tail is large OR if E \ EL is small */
-
-
-
+    /* Perform el-reduction ? */ 
     bool el_reduce; 
     if(depth <= 0){
-      /* don't reduce unless min reduction factor is large */
-      int not_el_size = (tt.max_element+1-exclusion_list.size());
-      int min_reduction_factor = not_el_size<31?(occs.size()/(1<<not_el_size)):1;
-      el_reduce = min_reduction_factor >= min_reduction_threshold; 
-
-    }
-    else{
-      /* cut unless reduction factor is too small */
+      /* On level 0 expand calls, el-reduction is activated by
+	 default. The reductions are performed unless the maximum
+	 reduction factor is garanteed to be below
+	 max_reduction_factor_threshold. */
 
       int max_reduction_factor = 
 	el_tail.size()>31?(1<<(el_tail.size())):std::numeric_limits<int>::max();
       el_reduce = max_reduction_factor >= max_reduction_threshold;
     }
+    else{
+      /* On level 1 and above, el-reduction is deactivated by
+	 default. The el-reductions are activated if the minimum
+	 reduction factor is garanteed to be above
+	 min_reduction_factor_threshold. */
 
-    /* if max reduction factor is too small, don't reduce */ 
-
-    /* if min reduction factor is large enough, do reduce */
-
-
-
-    //    cout<<"REDUCE "<<"min fact "<<min_reduction_factor<<" max fact "<< max_reduction_factor<<" "<<el_reduce<<endl; 
-
-    //    if(el_reduce) cout<<"REDUCE not el thres "<<min_reduction_threshold<<endl; 
+      int not_el_size = (tt.max_element+1-exclusion_list.size());
+      int min_reduction_factor = not_el_size<31?(occs.size()/(1<<not_el_size)):1;
+      el_reduce = min_reduction_factor >= min_reduction_threshold; 
+    }
 							       
     new_el_tail.reserve(el_tail.size() +  augmentations.size());
     if(el_reduce){
@@ -424,12 +430,12 @@ int parse_clogen_arguments(int *argc, char **argv){
 	  break ;
 	case 'y':
 	  max_reduction_threshold = atof(optarg);
-	  cout<<"el tail threshold set to "<<max_reduction_threshold<<"."<<endl;
+	  cout<<"max reduction factor threshold set to "<<max_reduction_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 'x':
 	  min_reduction_threshold = atof(optarg);
-	  cout<<"not el  threshold set to "<<min_reduction_threshold<<"."<<endl;
+	  cout<<"min reduction factor threshold set to "<<min_reduction_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 't':
