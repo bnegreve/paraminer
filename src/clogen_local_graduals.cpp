@@ -11,6 +11,7 @@
 #include <set>
 #include <stdint.h>
 #include <cmath>
+#include <limits>
 
 #define TRACK_TIDS
 
@@ -82,13 +83,19 @@ void read_transaction_table_vtrans(TransactionTable *tt, const char *filename){
     string line; 
     stringstream ss; 
     Transaction t;
-    float item; 
+    double item; 
     ss<<skipws; 
     getline(ifs, line); 
     ss<<line; 
     ss>>item;
     t.reserve(nb_attributes);
     while(ss.good()){
+      if(item >= (numeric_limits<int>::max())/1000){
+	cerr<<"No value larger than "<<numeric_limits<int>::max()/1000<<" allowed in input file (See. "
+	    <<__FILE__<<":"<<__LINE__<<")."<<endl;
+	abort();
+      }
+      /* The item*1000 is a simple hack to it also works with float input values, remove if needed. (here and bellow) */
       t.push_back((int)(item*1000)); 
       ++nb_items;
       ss>>item;
