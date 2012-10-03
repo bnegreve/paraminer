@@ -1,7 +1,9 @@
  ParaMiner : a generic, parallel algorithm for closed pattern mining.
  ====================================================================
 
-Author: bengreve <bengreve@confiance.imag.fr>
+Author: Benjamin Negrevergne
+License: GPLv3 See LICENSE file.
+
 Date: 2011-10-18 20:55:25 CEST
 
 
