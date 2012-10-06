@@ -1,23 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<title>ParaMiner : a generic, parallel algorithm for closed pattern mining.</title>
+<title>ParaMiner: a generic, parallel algorithm for closed pattern mining.</title>
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="title" content="ParaMiner: a generic, parallel algorithm for closed pattern mining."/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2011-10-18 20:55:29 CEST"/>
-<meta name="author" content="bengreve"/>
+<meta name="generated" content="2012-10-06 11:49:11 CEST"/>
+<meta name="author" content="Benjamin Negrevergne"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
 <style type="text/css">
  <!--/*--><![CDATA[/*><!--*/
   html { font-family: Times, serif; font-size: 12pt; }
   .title  { text-align: center; }
   .todo   { color: red; }
   .done   { color: green; }
-  .tag    { background-color:lightblue; font-weight:normal }
+  .tag    { background-color: #add8e6; font-weight:normal }
   .target { }
-  .timestamp { color: grey }
-  .timestamp-kwd { color: CadetBlue }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+  .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+  .center {margin-left:auto; margin-right:auto; text-align:center;}
   p.verse { margin-left: 3% }
   pre {
 	border: 1pt solid #AEBDCC;
@@ -28,10 +34,23 @@ lang="en" xml:lang="en">
         overflow:auto;
   }
   table { border-collapse: collapse; }
-  td, th { vertical-align: top; }
+  td, th { vertical-align: top;  }
+  th.right  { text-align:center;  }
+  th.left   { text-align:center;   }
+  th.center { text-align:center; }
+  td.right  { text-align:right;  }
+  td.left   { text-align:left;   }
+  td.center { text-align:center; }
   dt { font-weight: bold; }
   div.figure { padding: 0.5em; }
   div.figure p { text-align: center; }
+  div.inlinetask {
+    padding:10px;
+    border:2px solid gray;
+    margin:10px;
+    background: #ffffcc;
+  }
+  textarea { overflow-x: auto; }
   .linenr { font-size:smaller }
   .code-highlighted {background-color:#ffff00;}
   .org-info-js_info-navigation { border-style:none; }
@@ -62,135 +81,139 @@ lang="en" xml:lang="en">
    if(elem.cacheClassTarget)
      target.className = elem.cacheClassTarget;
  }
-/*]]>*/-->
+/*]]>*///-->
 </script>
-</head><body>
-<h1 class="title">ParaMiner : a generic, parallel algorithm for closed pattern mining.</h1>
 
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">ParaMiner: a generic, parallel algorithm for closed pattern mining.</h1>
+
+<p>License: GPLv3 See LICENSE file.
+</p>
+<p>
+This software was designed at: Grenoble University / LIG.  Relevant
+publication: 
+Benjamin Negrevergne. A Generic and
+Parallel Pattern Mining Algorithm for Multi-Core Architectures. PhD
+thesis,  Grenoble University, 2011.
+url: <a href="http://membres-liglab.imag.fr/negrevergne/documents/negrevergne_phd.pdf">http://membres-liglab.imag.fr/negrevergne/documents/negrevergne_phd.pdf</a>
+</p>
 
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1 Quick start </a></li>
-<li><a href="#sec-2">2 Compilation </a>
+<li><a href="#sec-1">1 Quick start</a></li>
+<li><a href="#sec-2">2 Compilation</a>
 <ul>
 <li>
 <ul>
-<li><a href="#sec-2.1">2.1 Switching build modes </a></li>
+<li><a href="#sec-2-1">2.1 Switching build modes</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-3">3 Running an instance of ParaMiner </a>
+<li><a href="#sec-3">3 Running an instance of ParaMiner</a>
 <ul>
-<li><a href="#sec-3.1">3.1 Closed frequent itemset mining (FIM) with ParaMiner </a>
+<li><a href="#sec-3-1">3.1 Closed frequent itemset mining (FIM) with ParaMiner</a>
 <ul>
-<li><a href="#sec-3.1.1">3.1.1 Input file format </a></li>
-<li><a href="#sec-3.1.2">3.1.2 Running the FIM instance of ParaMiner </a></li>
-<li><a href="#sec-3.1.3">3.1.3 Output format </a></li>
+<li><a href="#sec-3-1-1">3.1.1 Input file format</a></li>
+<li><a href="#sec-3-1-2">3.1.2 Running the FIM instance of ParaMiner</a></li>
+<li><a href="#sec-3-1-3">3.1.3 Output format</a></li>
 </ul>
 </li>
-<li><a href="#sec-3.2">3.2 Other built-in instances of ParaMiner </a>
+<li><a href="#sec-3-2">3.2 Other built-in instances of ParaMiner</a>
 <ul>
-<li><a href="#sec-3.2.1">3.2.1 Closed frequent relational graphs </a></li>
-<li><a href="#sec-3.2.2">3.2.2 Closed graudal itemsets </a></li>
-<li><a href="#sec-3.2.3">3.2.3 Closed periodic patterns </a></li>
+<li><a href="#sec-3-2-1">3.2.1 Closed frequent relational graphs</a></li>
+<li><a href="#sec-3-2-2">3.2.2 Closed graudal itemsets</a></li>
+<li><a href="#sec-3-2-3">3.2.3 Closed periodic patterns</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-4">4 Creating your own instance of ParaMiner </a>
+<li><a href="#sec-4">4 Creating your own instance of ParaMiner</a>
 <ul>
-<li><a href="#sec-4.1">4.1 A selection criterion </a></li>
-<li><a href="#sec-4.2">4.2 A closure operator </a></li>
-<li><a href="#sec-4.3">4.3 A main function </a>
+<li><a href="#sec-4-1">4.1 A selection criterion</a></li>
+<li><a href="#sec-4-2">4.2 A closure operator</a></li>
+<li><a href="#sec-4-3">4.3 A main function</a>
 <ul>
-<li><a href="#sec-4.3.1">4.3.1 Parsing the command line arguments </a></li>
-<li><a href="#sec-4.3.2">4.3.2 Loading the dataset </a></li>
-<li><a href="#sec-4.3.3">4.3.3 Invoking the search space </a></li>
+<li><a href="#sec-4-3-1">4.3.1 Parsing the command line arguments</a></li>
+<li><a href="#sec-4-3-2">4.3.2 Loading the dataset</a></li>
+<li><a href="#sec-4-3-3">4.3.3 Invoking the search space</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-5">5 Bugs </a></li>
+<li><a href="#sec-5">5 Bugs</a></li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-1" class="outline-2">
-<h2 id="sec-1">1 Quick start </h2>
-<div id="text-1">
+<h2 id="sec-1"><span class="section-number-2">1</span> Quick start</h2>
+<div class="outline-text-2" id="text-1">
 
 
-<ol>
-<li>
-Download the complete archive ParaMiner+Melinda here: <a href="http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz">http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz</a>
-
-</li>
-<li>
-Extract with 
-<pre class="example">
+<p>
+1 Download the complete archive ParaMiner+Melinda here: <a href="http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz">http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz</a>
+</p>
+<p>
+2 Extract with 
+</p><pre class="example">
 tar xzvf paraminermelinda.tgz
 </pre>
-and move into the directory with 
-<pre class="example">
+
+<p>    and move into the directory with 
+</p><pre class="example">
 cd paraminermelinda
 </pre>
 
-</li>
-<li>
-Compile Melinda
+
+<p>
+3 Compile Melinda
+</p>
 
 
-
-<pre class="example">
-cd melinda
+<pre class="example">cd melinda
 cmake . 
 make
 cd ../
 </pre>
 
 
+<p>
+4 Compile ParaMiner
+</p>
 
 
-</li>
-<li>
-Compile ParaMiner
-
-
-
-<pre class="example">
-cd paraminer
+<pre class="example">cd paraminer
 cmake . 
 make
 </pre>
 
 
+<p>
+5 Run the closed frequent itemset mining (FIM) instance of ParaMiner on the test.dat dataset an absolute frequency threshold of 2 (and 4 threads).
+</p>
 
 
-</li>
-<li>
-Run the closed frequent itemset mining (FIM) instance of ParaMiner on the test.dat dataset an absolute frequency threshold of 2 (and 4 threads).
-
-
-
-<pre class="example">
-./clogen_itemsets test.dat 2 -t 4
+<pre class="example">./clogen_itemsets test.dat 2 -t 4
 </pre>
 
 
-
-
-</li>
-</ol>
-
-<p>It will output the closed frequent itemset occurring in test.dat with an absolute frequency threshold of at least 2. 
+<p>
+It will output the closed frequent itemset occurring in test.dat with an absolute frequency threshold of at least 2. 
 </p>
 </div>
 
 </div>
 
 <div id="outline-container-2" class="outline-2">
-<h2 id="sec-2">2 Compilation </h2>
-<div id="text-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Compilation</h2>
+<div class="outline-text-2" id="text-2">
 
 
 <p>
@@ -207,12 +230,9 @@ Edit the src/CMakeLists.txt and change the MELINDA_DIR file to the correct melin
 
 
 
-<pre class="example">
-cmake . 
+<pre class="example">cmake . 
 make
 </pre>
-
-
 
 
 <p>
@@ -221,14 +241,14 @@ clogen_&lt;problem_name&gt; file for each clogen_local_&lt;problem_name&gt; in t
 directory.
 </p>
 <p>
-For example clogen_itemsets is built. See section <a href="#sec-3.1">instance fim</a>.
+For example clogen_itemsets is built. See section <a href="#sec-3-1">instance fim</a>.
 </p>
 
 </div>
 
-<div id="outline-container-2.1" class="outline-4">
-<h4 id="sec-2.1">2.1 Switching build modes </h4>
-<div id="text-2.1">
+<div id="outline-container-2-1" class="outline-4">
+<h4 id="sec-2-1"><span class="section-number-4">2.1</span> Switching build modes</h4>
+<div class="outline-text-4" id="text-2-1">
 
 
 <p>
@@ -236,12 +256,9 @@ You can compile ParaMiner in debug mode (useful if you want to implement your ow
 </p>
 
 
-<pre class="example">
-cmake -DCMAKE_BUILD_TYPE=Debug
+<pre class="example">cmake -DCMAKE_BUILD_TYPE=Debug
 make
 </pre>
-
-
 
 
 <p>
@@ -252,12 +269,9 @@ Use:
 </p>
 
 
-<pre class="example">
-cmake -DCMAKE_BUILD_TYPE=Release
+<pre class="example">cmake -DCMAKE_BUILD_TYPE=Release
 make
 </pre>
-
-
 
 <p>
 to switch back de Release mode.
@@ -268,23 +282,23 @@ to switch back de Release mode.
 </div>
 
 <div id="outline-container-3" class="outline-2">
-<h2 id="sec-3">3 Running an instance of ParaMiner </h2>
-<div id="text-3">
+<h2 id="sec-3"><span class="section-number-2">3</span> Running an instance of ParaMiner</h2>
+<div class="outline-text-2" id="text-3">
 
 
 <p>
 In order to solve a pattern mining problem, you need the adequate instance of
 ParaMiner.  You can see how to use the built-in
-instance of ParaMiner to mine closed frequent itemset in <a href="#sec-3.1">instance fim</a>.
+instance of ParaMiner to mine closed frequent itemset in <a href="#sec-3-1">instance fim</a>.
 Or you can learn how to create your own instance of ParaMiner in
 <a href="#sec-4">creating your own instance</a>.
 </p>
 
 </div>
 
-<div id="outline-container-3.1" class="outline-3">
-<h3 id="sec-3.1"><a name="instance==fim" id="instance==fim"></a>3.1 Closed frequent itemset mining (FIM) with ParaMiner </h3>
-<div id="text-3.1">
+<div id="outline-container-3-1" class="outline-3">
+<h3 id="sec-3-1"><a name="instance-fim" id="instance-fim"></a><span class="section-number-3">3.1</span> Closed frequent itemset mining (FIM) with ParaMiner</h3>
+<div class="outline-text-3" id="text-3-1">
 
 
 <p>
@@ -298,43 +312,37 @@ from a transactional dataset.
 
 </div>
 
-<div id="outline-container-3.1.1" class="outline-4">
-<h4 id="sec-3.1.1"><a name="fim==input==file==format" id="fim==input==file==format"></a>3.1.1 Input file format </h4>
-<div id="text-3.1.1">
+<div id="outline-container-3-1-1" class="outline-4">
+<h4 id="sec-3-1-1"><a name="fim-input-file-format" id="fim-input-file-format"></a><span class="section-number-4">3.1.1</span> Input file format</h4>
+<div class="outline-text-4" id="text-3-1-1">
 
 
-<p>
+<p>    
 Dataset stored within a single ASCII file.
 </p>
 <ul>
-<li>
-Each line is a transaction;
+<li>Each line is a transaction;
 </li>
-<li>
-each transaction contains distincts items;
+<li>each transaction contains distincts items;
 </li>
-<li>
-transactions must be ordered;
+<li>transactions must be ordered;
 </li>
-<li>
-last line must be empty.
-
+<li>last line must be empty.
 </li>
 </ul>
 
-<p>eg.
+
+<p>
+eg.
 </p>
 
 
-<pre class="example">
---- file test.dat ---
+<pre class="example">--- file test.dat ---
 1 2 4 6
 1 2 3 5 7
 2 3
 
 </pre>
-
-
 
 
 <p>
@@ -344,9 +352,9 @@ is a valid dataset.
 
 </div>
 
-<div id="outline-container-3.1.2" class="outline-4">
-<h4 id="sec-3.1.2">3.1.2 Running the FIM instance of ParaMiner </h4>
-<div id="text-3.1.2">
+<div id="outline-container-3-1-2" class="outline-4">
+<h4 id="sec-3-1-2"><span class="section-number-4">3.1.2</span> Running the FIM instance of ParaMiner</h4>
+<div class="outline-text-4" id="text-3-1-2">
 
 
 <p>
@@ -355,6 +363,7 @@ You can mine closed frequent itemsets occurring in this dataset by executing the
 ./clogen_itemsets test.dat 2 
 </pre>
 
+
 <p>
 Alternatively, if you have a multi-core/parallel computer with 8
 cores, you can exploit them by executing the following command: 
@@ -362,43 +371,41 @@ cores, you can exploit them by executing the following command:
 ./clogen_itemsets test.dat 2 -t 8
 </pre>
 
-</div>
 
 </div>
 
-<div id="outline-container-3.1.3" class="outline-4">
-<h4 id="sec-3.1.3">3.1.3 Output format </h4>
-<div id="text-3.1.3">
+</div>
+
+<div id="outline-container-3-1-3" class="outline-4">
+<h4 id="sec-3-1-3"><span class="section-number-4">3.1.3</span> Output format</h4>
+<div class="outline-text-4" id="text-3-1-3">
 
 
 <p>
 The FIM implementation of ParaMiner has the following format: 
 </p><ul>
-<li>
-each line is a frequent closed itemset;
+<li>each line is a frequent closed itemset;
 </li>
-<li>
-frequency is stored at the end of the line into brackets.
-
+<li>frequency is stored at the end of the line into brackets.
 </li>
 </ul>
 
-<p>eg.
+
+<p>
+eg.
 </p><pre class="example">
 ./clogen_itemsets test.dat 2 
 </pre>
-will generate the following output on the standard output:
+
+<p>will generate the following output on the standard output:
+</p>
 
 
 
-
-<pre class="example">
-2 (3)
+<pre class="example">2 (3)
 1 2 (2)
 3 2 (2)
 </pre>
-
-
 
 
 <p>
@@ -407,40 +414,41 @@ The results can be stored by redirecting the standard output into a file:
 ./clogen_itemsets test.dat 2 -t 1 &gt; results.out
 </pre>
 
-</div>
-</div>
 
 </div>
-
-<div id="outline-container-3.2" class="outline-3">
-<h3 id="sec-3.2">3.2 Other built-in instances of ParaMiner </h3>
-<div id="text-3.2">
-
-
-
-</div>
-
-<div id="outline-container-3.2.1" class="outline-4">
-<h4 id="sec-3.2.1">3.2.1 Closed frequent relational graphs </h4>
-<div id="text-3.2.1">
-
-
 </div>
 
 </div>
 
-<div id="outline-container-3.2.2" class="outline-4">
-<h4 id="sec-3.2.2">3.2.2 Closed graudal itemsets </h4>
-<div id="text-3.2.2">
+<div id="outline-container-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Other built-in instances of ParaMiner</h3>
+<div class="outline-text-3" id="text-3-2">
+
+
+
+</div>
+
+<div id="outline-container-3-2-1" class="outline-4">
+<h4 id="sec-3-2-1"><span class="section-number-4">3.2.1</span> Closed frequent relational graphs</h4>
+<div class="outline-text-4" id="text-3-2-1">
 
 
 </div>
 
 </div>
 
-<div id="outline-container-3.2.3" class="outline-4">
-<h4 id="sec-3.2.3">3.2.3 Closed periodic patterns </h4>
-<div id="text-3.2.3">
+<div id="outline-container-3-2-2" class="outline-4">
+<h4 id="sec-3-2-2"><span class="section-number-4">3.2.2</span> Closed graudal itemsets</h4>
+<div class="outline-text-4" id="text-3-2-2">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3-2-3" class="outline-4">
+<h4 id="sec-3-2-3"><span class="section-number-4">3.2.3</span> Closed periodic patterns</h4>
+<div class="outline-text-4" id="text-3-2-3">
 
 
 </div>
@@ -450,8 +458,8 @@ The results can be stored by redirecting the standard output into a file:
 </div>
 
 <div id="outline-container-4" class="outline-2">
-<h2 id="sec-4"><a name="creating==your==own==instance" id="creating==your==own==instance"></a>4 Creating your own instance of ParaMiner </h2>
-<div id="text-4">
+<h2 id="sec-4"><a name="creating-your-own-instance" id="creating-your-own-instance"></a><span class="section-number-2">4</span> Creating your own instance of ParaMiner</h2>
+<div class="outline-text-2" id="text-4">
 
 
 <p>
@@ -461,9 +469,9 @@ type of patterns (say dark patters), you to write a clogen<sub>local</sub><sub>d
 
 </div>
 
-<div id="outline-container-4.1" class="outline-3">
-<h3 id="sec-4.1">4.1 A selection criterion </h3>
-<div id="text-4.1">
+<div id="outline-container-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> A selection criterion</h3>
+<div class="outline-text-3" id="text-4-1">
 
 <p>In a function called membership_oracle(). 
 The selection criterion to distingish candidate patterns from patterns.
@@ -480,22 +488,19 @@ simple as:
 
 
 
-<pre class="example">
-bool membership_oracle(P, e){
+<pre class="example">bool membership_oracle(P, e){
   return is_a_dark_pattern(P U {e}); 
 }
 </pre>
 
 
-
-
 </div>
 
 </div>
 
-<div id="outline-container-4.2" class="outline-3">
-<h3 id="sec-4.2">4.2 A closure operator </h3>
-<div id="text-4.2">
+<div id="outline-container-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> A closure operator</h3>
+<div class="outline-text-3" id="text-4-2">
 
 <p>In a function called clo()
 </p>
@@ -515,47 +520,42 @@ therefore we are only going to use the identity.
 
 
 
-<pre class="example">
-clo(P){
+<pre class="example">clo(P){
   return P;
 }
 </pre>
 
 
-
-
 </div>
 
 </div>
 
-<div id="outline-container-4.3" class="outline-3">
-<h3 id="sec-4.3">4.3 A main function </h3>
-<div id="text-4.3">
+<div id="outline-container-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> A main function</h3>
+<div class="outline-text-3" id="text-4-3">
 
 
 <p>
 The main function is here to achieves three goals:
 </p><ol>
-<li>
-Parse the command line arguments
+<li>Parse the command line arguments
 </li>
-<li>
-Load and pre-process the dataset 
+<li>Load and pre-process the dataset 
 </li>
-<li>
-Invoque the clogen() routine to start the exploration. 
-
+<li>Invoque the clogen() routine to start the exploration. 
 </li>
 </ol>
 
+
+
 </div>
 
-<div id="outline-container-4.3.1" class="outline-4">
-<h4 id="sec-4.3.1">4.3.1 Parsing the command line arguments </h4>
-<div id="text-4.3.1">
+<div id="outline-container-4-3-1" class="outline-4">
+<h4 id="sec-4-3-1"><span class="section-number-4">4.3.1</span> Parsing the command line arguments</h4>
+<div class="outline-text-4" id="text-4-3-1">
 
 
-<p>
+<p>    
 You must start your main function by calling the
 parse<sub>clogen</sub><sub>arguments</sub>(argc, argv) function.  It will capture the
 arguments used by ParaMiner remove them from argv and decrease argc.
@@ -564,16 +564,16 @@ arguments used by ParaMiner remove them from argv and decrease argc.
 
 </div>
 
-<div id="outline-container-4.3.2" class="outline-4">
-<h4 id="sec-4.3.2">4.3.2 Loading the dataset </h4>
-<div id="text-4.3.2">
+<div id="outline-container-4-3-2" class="outline-4">
+<h4 id="sec-4-3-2"><span class="section-number-4">4.3.2</span> Loading the dataset</h4>
+<div class="outline-text-4" id="text-4-3-2">
 
 
 <p>
 The dataset must be loaded into a table called tt which is of type TransactionTable. 
 </p>
 <p>
-If your dataset is stored as described in <a href="#sec-3.1.1">fim input file format</a>, you
+If your dataset is stored as described in <a href="#sec-3-1-1">fim input file format</a>, you
 can use the built-in function read<sub>transaction</sub><sub>table</sub>() It takes two
 argument, the filename and the transaction table.
 </p>
@@ -583,8 +583,7 @@ So far our clogen<sub>local</sub><sub>dark</sub>.cpp file looks like this:
 
 
 
-<pre class="example">
-int main(int argc, char **argv){
+<pre class="example">int main(int argc, char **argv){
 
 load_transaction_table (&amp;tt, argv[1])
 
@@ -594,15 +593,13 @@ load_transaction_table (&amp;tt, argv[1])
 </pre>
 
 
-
-
 </div>
 
 </div>
 
-<div id="outline-container-4.3.3" class="outline-4">
-<h4 id="sec-4.3.3">4.3.3 Invoking the search space </h4>
-<div id="text-4.3.3">
+<div id="outline-container-4-3-3" class="outline-4">
+<h4 id="sec-4-3-3"><span class="section-number-4">4.3.3</span> Invoking the search space</h4>
+<div class="outline-text-4" id="text-4-3-3">
 
 
 <p>
@@ -616,8 +613,8 @@ as an argument if you want to start the exploration from the emptyset.
 </div>
 
 <div id="outline-container-5" class="outline-2">
-<h2 id="sec-5">5 Bugs </h2>
-<div id="text-5">
+<h2 id="sec-5"><span class="section-number-2">5</span> Bugs</h2>
+<div class="outline-text-2" id="text-5">
 
 
 <p>
@@ -629,10 +626,14 @@ My FirstName is Benjamin
 My LastName is Negrevergne
 </p></div>
 </div>
-<div id="postamble"><p class="author"> Author: bengreve
-<a href="mailto:bengreve@confiance.imag.fr">&lt;bengreve@confiance.imag.fr&gt;</a>
-</p>
-<p class="date"> Date: 2011-10-18 20:55:29 CEST</p>
-<p>HTML generated by org-mode 6.21b in emacs 23</p>
-</div></body>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-10-06 11:49:11 CEST</p>
+<p class="author">Author: Benjamin Negrevergne</p>
+<p class="creator">Org version 7.8.11 with Emacs version 23</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
 </html>
