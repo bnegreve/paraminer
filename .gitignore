@@ -1,0 +1,10 @@
+*~
+*.o
+TRACE*
+CMakeFiles
+CMakeCache.txt
+#*
+a.out
+out_*
+tmp*
+core
