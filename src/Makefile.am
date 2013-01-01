@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I../melinda/
+AM_CPPFLAGS = -I$(srcdir)/../melinda/
 AM_CFLAGS = -std=c99
 
 if DEBUG

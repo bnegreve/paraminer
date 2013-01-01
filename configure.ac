@@ -8,7 +8,7 @@ AC_CONFIG_FILES([
  Makefile
  src/Makefile
 ])
-AC_CONFIG_SUBDIRS([melinda])
+
 AC_ARG_ENABLE(debug,
 AS_HELP_STRING([--enable-debug],
                [enable debugging, default: no]),
@@ -20,4 +20,5 @@ esac],
 [debug=false])
 AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
 
+AC_CONFIG_SUBDIRS([melinda])
 AC_OUTPUT
