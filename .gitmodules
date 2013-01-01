@@ -1,0 +1,3 @@
+[submodule "melinda"]
+	path = melinda
+	url = git://github.com/bnegreve/melinda.git
