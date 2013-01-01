@@ -1,4 +1,12 @@
 AM_CPPFLAGS = -I../melinda/
+AM_CFLAGS = -std=c99
+
+if DEBUG
+AM_CPPFLAGS +=  
+else 
+AM_CPPFLAGS += -DNDEBUG
+endif 
+
 COMMON = clogen.cpp element.cpp database.cpp pattern.cpp utils.cpp\
 	 BinaryMatrix.h CException.h clogen.hpp clogen_local.hpp \
 	 database.hpp element.hpp itemset_specific.hpp melinda_local.hpp\
