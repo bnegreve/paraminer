@@ -7,4 +7,5 @@ crgdatadir = $(datasetdir)/crg/
 dist_crgdata_DATA = crg/test.dag
 
 gridatadir = $(datasetdir)/gri/
-dist_gridata_DATA = gri/test1.dat
+dist_gridata_DATA = gri/test.dat
+
