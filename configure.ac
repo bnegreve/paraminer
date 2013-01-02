@@ -3,11 +3,6 @@ AC_INIT([ParaMiner], [1.0], [Benjamin.Negrevergne@imag.fr])
 : ${CXXFLAGS=-O3}
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_CXX
-AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([
- Makefile
- src/Makefile
-])
 
 AC_ARG_ENABLE(debug,
 AS_HELP_STRING([--enable-debug],
@@ -19,6 +14,13 @@ AS_HELP_STRING([--enable-debug],
 esac],
 [debug=false])
 AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
+
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_FILES([
+ Makefile
+ src/Makefile
+ data/Makefile
+])
 
 AC_CONFIG_SUBDIRS([melinda])
 AC_OUTPUT

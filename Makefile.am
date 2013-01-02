@@ -1,4 +1,4 @@
-SUBDIRS = melinda src
+SUBDIRS = melinda data src
 
 dist_doc_DATA = README
 
