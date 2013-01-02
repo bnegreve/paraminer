@@ -1,10 +1,10 @@
-datasetdir = $(datadir)/datasets
+datasetdir = $(datadir)/datasets/
+
 fimdatadir = $(datasetdir)/fim/
-fimdata_DATA = itemsets/mushroom.dat
+dist_fimdata_DATA = fim/mushroom.dat
+
 crgdatadir = $(datasetdir)/crg/
-crgdata_DATA = cgraph/Hughes/test.dag
+dist_crgdata_DATA = crg/test.dag
+
 gridatadir = $(datasetdir)/gri/
-gridata_DATA = graduals/test1.dat
-
-
-
+dist_gridata_DATA = gri/test1.dat
