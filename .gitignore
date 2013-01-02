@@ -8,3 +8,10 @@ a.out
 out_*
 tmp*
 core
+Makefile
+Makefile.in
+config.status
+*.in
+*.log
+config.h
+configure
