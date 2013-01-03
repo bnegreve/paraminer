@@ -1,0 +1,13 @@
+#!/bin/sh
+##
+## tests-env.sh
+## 
+## Made by Benjamin Negrevergne
+## Login   <benjamin@neb.dyn.cs.kuleuven.be>
+## 
+## Started on  Thu Jan  3 11:48:32 2013 Benjamin Negrevergne
+## Last update Thu Jan  3 11:48:32 2013 Benjamin Negrevergne
+##
+
+export PATH=@srcdir@/:@srcdir@/../src/:$PATH
+echo  $PATH > /tmp/poulet

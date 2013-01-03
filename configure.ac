@@ -23,6 +23,8 @@ AC_CONFIG_FILES([
  Makefile
  src/Makefile
  data/Makefile
+ tests/Makefile
+ tests/tests-env.sh
 ])
 
 AC_CONFIG_SUBDIRS([melinda])
