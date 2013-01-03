@@ -3,6 +3,9 @@ AC_INIT([ParaMiner], [1.0], [Benjamin.Negrevergne@imag.fr])
 : ${CXXFLAGS=-O3}
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_CXX
+AC_CHECK_LIB([pthread],[pthread_create], [], [
+	  echo "pthread library is required for this program."
+	  exit -1])
 
 AC_ARG_ENABLE(debug,
 AS_HELP_STRING([--enable-debug],
