@@ -36,13 +36,13 @@ $CMD_LINE > /dev/null
 sort_line.pl x < /tmp/lcmout  > /tmp/lcmout2 && sort < /tmp/lcmout2 > /tmp/lcmout
 
 if [ ! -f /tmp/lcmout ]; then \
-    echo "Error: Could not produce LCM output file." 1>&2; fi
+    echo "Error: Could not produce LCM output file." 1>&2; exit 1; fi
 
 CMD_LINE="$PARAMINER_FIM  $DATASET $THRES -t $NUM_THREADS"
 echo "CMD LINE: >$CMD_LINE<"
 $CMD_LINE | sort_line.pl x | sort > /tmp/pmout
 
 if [ ! -f /tmp/pmout ]; then \
-    echo "Error: Could not produce ParaMiner output file." 1>&2; fi
+    echo "Error: Could not produce ParaMiner output file." 1>&2; exit 1; fi
 
 diff /tmp/lcmout /tmp/pmout 
