@@ -12,4 +12,5 @@
 
 # - run two simple instance of fim (mushroom@4000 and mushroom@1500)
 # - compare # of pattern generated with lcm.
-frequent_itemset_basic.sh 4000 1 && frequent_itemset_basic.sh 1500 1
+# $PM_DATASET_PATH/ should be define as the root dataset dir
+fim_compare_nbr.sh $PM_DATASET_PATH/fim/mushroom.dat 4000 1 && fim_compare_nbr.sh $PM_DATASET_PATH/fim/mushroom.dat 1500 1
