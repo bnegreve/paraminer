@@ -37,7 +37,7 @@ echo "Support = $THRES";
 
 cp $DATASET_GS /tmp/gspan_dataset
 CMD_LINE="$GSPAN -f /tmp/gspan_dataset -o -s $THRES"
-echo "CMD : >$CMD_LINE<"
+echo "command line: >$CMD_LINE<"
 
 NB_PAT_GSPAN=$($CMD_LINE > /dev/null;
 gspan_remove_1graphs.pl /tmp/gspan_dataset.fp /dev/null  | cut -d " " -f 1); 

@@ -29,13 +29,13 @@ PARAMINER_FIM="paraminer_itemsets"
 LCM_FIM="lcm25" 
 
 CMD_LINE="$PARAMINER_FIM $DATASET $THRES -t $NUM_THREAD"
-echo "CMD : >$CMD_LINE<"
+echo "command line: >$CMD_LINE<"
 NB_PAT_CLOGEN=$($CMD_LINE |grep "patterns mined"|cut -d " " -f 1)
 
 if [[ ! $NB_PAT_CLOGEN =~ ^[0-9]+$ ]]; then echo "ParaMiner: Cannot parse output." 1>&2; exit 1; fi
 
 CMD_LINE="$LCM_FIM $DATASET $THRES"
-echo "CMD : >$CMD_LINE<"
+echo "command line: >$CMD_LINE<"
 NB_PAT_LCM=$($CMD_LINE | head -n 1)
 
 if [[ ! $NB_PAT_LCM =~ ^[0-9]+$ ]]; then echo "LCM: Cannot parse output." 1>&2; exit 1; fi

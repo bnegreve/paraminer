@@ -30,7 +30,7 @@ if [ $# -eq 2 ]; then \
 
 CMD_LINE="$LCM_FIM $DATASET $THRES /tmp/lcmout"
 
-echo "CMD LINE: >$CMD_LINE<"
+echo "command line: >$CMD_LINE<"
 
 $CMD_LINE > /dev/null
 sort_line.pl x < /tmp/lcmout  > /tmp/lcmout2 && sort < /tmp/lcmout2 > /tmp/lcmout
@@ -39,7 +39,7 @@ if [ ! -f /tmp/lcmout ]; then \
     echo "Error: Could not produce LCM output file." 1>&2; exit 1; fi
 
 CMD_LINE="$PARAMINER_FIM  $DATASET $THRES -t $NUM_THREAD"
-echo "CMD LINE: >$CMD_LINE<"
+echo "command line: >$CMD_LINE<"
 $CMD_LINE | sort_line.pl x | sort > /tmp/pmout
 
 if [ ! -f /tmp/pmout ]; then \

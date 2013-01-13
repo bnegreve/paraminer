@@ -29,14 +29,14 @@ if [ $# -eq 2 ]; then \
  else echo "Number of threads: '$3' is not a integer value." 1>&2; usage; fi; fi
 
 CMD_LINE="$GLCM nor $DATASET $THRES "
-echo "CMD LINE: >$CMD_LINE<"
+echo "command line: >$CMD_LINE<"
 
 $CMD_LINE | sort_line_grads.pl > /tmp/glcm_tmp1
 if [ ! -f /tmp/glcm_tmp1 ]; then \
     echo "Error: Could not produce GLCM output file." 1>&2; exit 1; fi
 
 CMD_LINE="$PARAMINER_GRI $DATASET $THRES -t $NUM_THREAD"
-echo "CMD LINE: >$CMD_LINE<"
+echo "command line: >$CMD_LINE<"
 $CMD_LINE  | sort_line_grads.pl > /tmp/pm_gri_tmp1
 
 if [ ! -f /tmp/pm_gri_tmp1 ]; then \
