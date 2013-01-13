@@ -24,6 +24,7 @@ AC_CONFIG_FILES([
  src/Makefile
  data/Makefile
  tests/Makefile
+ scripts/Makefile
  tests/tests-env.sh
 ])
 

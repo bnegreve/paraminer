@@ -1,4 +1,4 @@
-SUBDIRS = melinda data src . tests
+SUBDIRS = melinda data scripts src . tests
 
 
 dist_doc_DATA = README
