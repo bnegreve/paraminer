@@ -9,5 +9,4 @@
 ## Last update Thu Jan  3 11:48:32 2013 Benjamin Negrevergne
 ##
 
-export PATH=@srcdir@/:@srcdir@/../src/:$PATH
-echo  $PATH > /tmp/poulet
+export PATH=@srcdir@/:@srcdir@/../src/:@srcdir@/external/bin:$PATH
