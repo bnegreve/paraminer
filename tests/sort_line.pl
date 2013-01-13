@@ -7,16 +7,22 @@ $flag = 1;
 if($#ARGV >= 0){
     $flag=0; 
 }
-while (<STDIN>){
-    if( not ($_ =~ /[a-zA-Z]/)){
-	chomp ;
-	@nums = split (/[: ]+/, $_); 
+while ($line = <STDIN>){
+    if( not ($line =~ /[a-zA-Z]/)){
+	chomp $line ;
+	if($line =~ /(.*)(\([0-9]+\))/){
+	    # if frequency is provided.
+	    $line = $1; 
+	    $freq = $2;
+	}
+	
+	@nums = split (/[: ]+/, $line); 
 	@nums = sort{$b <=> $a}  @nums; 
 
 	foreach $n (@nums){
 	    print "$n ";
 	}
-	print "\n";
+	print "$freq \n";
     }
     else{
 	if($flag){

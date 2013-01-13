@@ -9,6 +9,6 @@
 ## Last update Thu Jan  3 11:48:32 2013 Benjamin Negrevergne
 ##
 
-export PATH=@abs_top_srcdir@/src/:@abs_srcdir@/external/bin:$PATH
+export PATH=@abs_top_srcdir@/src/:@abs_srcdir@/external/bin:@abs_top_srcdir@/tests/:$PATH
 export PM_DATASET_PATH=@abs_top_srcdir@/data/
 
