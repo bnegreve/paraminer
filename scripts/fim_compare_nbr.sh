@@ -21,7 +21,7 @@ if [[ $2 =~ ^[0-9]+([.][0-9]+)?$ ]]; then THRES=$2;\
  else echo "Theshold: '$2' is not a numeric value." 1>&2; usage; fi
 if [ $# -eq 2 ]; then \
     NUM_THREAD="1"; else \
-    if [[ $3 =~ ^[0-9]+$ ]]; then NUM_THREADS=$3;\
+    if [[ $3 =~ ^[0-9]+$ ]]; then NUM_THREAD=$3;\
  else echo "Number of threads: '$3' is not a integer value." 1>&2; usage; fi; fi
 
 

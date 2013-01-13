@@ -25,7 +25,7 @@ if [[ $2 =~ ^[0-9]+([.][0-9]+)?$ ]]; then THRES=$2;\
  else echo "Theshold: '$2' is not a numeric value." 1>&2; usage; fi
 if [ $# -eq 2 ]; then \
     NUM_THREAD="1"; else \
-    if [[ $3 =~ ^[0-9]+$ ]]; then NUM_THREADS=$3;\
+    if [[ $3 =~ ^[0-9]+$ ]]; then NUM_THREAD=$3;\
  else echo "Number of threads: '$3' is not a integer value." 1>&2; usage; fi; fi
 
 CMD_LINE="$LCM_FIM $DATASET $THRES /tmp/lcmout"
@@ -38,7 +38,7 @@ sort_line.pl x < /tmp/lcmout  > /tmp/lcmout2 && sort < /tmp/lcmout2 > /tmp/lcmou
 if [ ! -f /tmp/lcmout ]; then \
     echo "Error: Could not produce LCM output file." 1>&2; exit 1; fi
 
-CMD_LINE="$PARAMINER_FIM  $DATASET $THRES -t $NUM_THREADS"
+CMD_LINE="$PARAMINER_FIM  $DATASET $THRES -t $NUM_THREAD"
 echo "CMD LINE: >$CMD_LINE<"
 $CMD_LINE | sort_line.pl x | sort > /tmp/pmout
 
