@@ -16,7 +16,7 @@ echo "Succeed if results are identical" 1>&2
 exit 1
 }
 
-PARAMINER_FIM="clogen_itemsets"
+PARAMINER_FIM="paraminer_itemsets"
 LCM_FIM="lcm25"
 
 if [ $# -lt 2 -o $# -gt 3 ]; then usage; fi
