@@ -1,14 +1,9 @@
-#datasetdir = $(datadir)/datasets/
+datasetdir = $(datadir)/datasets/
 
-fimdir = $(datadir)/fim/
-crgdir = $(datadir)/crg/
-gridir = $(datadir)/gri/
-
-nobase_dist_fim_DATA = fim/mushroom.dat
-
-nobase_dist_gri_DATA = gri/test.dat
-
-nobase_dist_crg_DATA = crg/Hughes-120.gspan \
+nobase_dist_dataset_DATA = \
+fim/mushroom.dat \
+gri/test.dat \
+crg/Hughes-120.gspan \
 crg/Hughes/2007-03-23-01.00001 \
 crg/Hughes/2007-03-23-01.00002 \
 crg/Hughes/2007-03-23-01.00003 \
