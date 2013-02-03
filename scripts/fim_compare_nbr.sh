@@ -40,5 +40,6 @@ NB_PAT_LCM=$($CMD_LINE | head -n 1)
 
 if [[ ! $NB_PAT_LCM =~ ^[0-9]+$ ]]; then echo "LCM: Cannot parse output." 1>&2; exit 1; fi
 
-echo "NUM PAT PARAMINER: $NB_PAT_CLOGEN NUM PAT LCM: $NB_PAT_LCM"
+echo "ParaMiner: $NB_PAT_CLOGEN patterns."
+echo "Lcm: $NB_PAT_LCM patterns."
 test $NB_PAT_CLOGEN -eq $NB_PAT_LCM
