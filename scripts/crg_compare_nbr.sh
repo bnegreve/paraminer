@@ -35,14 +35,20 @@ if [[ $4 =~ ^[0-9]+([.][0-9]+)?$ ]]; then EDGE_THRES=$4;\
 
 echo "Support = $THRES"; 
 
-cp $DATASET_GS /tmp/gspan_dataset
-CMD_LINE="$GSPAN -f /tmp/gspan_dataset -o -s $THRES"
+GS_DATASET_TEMP=`mktemp --suffix=_gSpan_dataset`
+
+cp $DATASET_GS $GS_DATASET_TEMP
+CMD_LINE="$GSPAN -f $GS_DATASET_TEMP -o -s $THRES"
 echo "command line: >$CMD_LINE<"
 
 NB_PAT_GSPAN=$($CMD_LINE > /dev/null;
-gspan_remove_1graphs.pl /tmp/gspan_dataset.fp /dev/null  | cut -d " " -f 1); 
+gspan_remove_1graphs.pl $GS_DATASET_TEMP.fp /dev/null  | cut -d " " -f 1); 
 
-echo "GSPAN: $NB_PAT_GSPAN"; 
+if [ ! -f $GS_DATASET_TEMP.fp ] ; 
+    then echo "gSpan output file '$GS_DATASET_TEMP.fp' does not exist." >&2; exit 1; fi 
+
+
+echo "gSpan: $NB_PAT_GSPAN patterns."; 
 
 if [[ ! $NB_PAT_GSPAN =~ ^[0-9]+$ ]]; then echo "gSpan: Cannot parse output." 1>&2; exit 1; fi
 
@@ -50,9 +56,9 @@ if [[ ! $NB_PAT_GSPAN =~ ^[0-9]+$ ]]; then echo "gSpan: Cannot parse output." 1>
 NB_PAT_CLOGEN=$($PARAMINER $DATASET_PM $THRES $EDGE_THRES -a | tail -n 1 |cut -d " " -f 1)
 
 
-if [[ ! $NB_PAT_CLOGEN =~ ^[0-9]+$ ]]; then echo "ParaMiner: Cannot parse output." 1>&2; exit 1; fi
+if [[ ! $NB_PAT_CLOGEN =~ ^[0-9]+$ ]]; then echo "ParaMiner: Cannot parse output." >&2; exit 1; fi
 
-echo "CLOGEN: $NB_PAT_CLOGEN"; 
+echo "ParaMiner: $NB_PAT_CLOGEN patterns."; 
 
 
 test $NB_PAT_CLOGEN -eq $NB_PAT_GSPAN
