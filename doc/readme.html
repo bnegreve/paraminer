@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>ParaMiner: a generic, parallel algorithm for closed pattern mining.</title>
-<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="ParaMiner: a generic, parallel algorithm for closed pattern mining."/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-10-06 11:49:11 CEST"/>
+<meta name="generated" content="2013-02-04 13:27:44 CET"/>
 <meta name="author" content="Benjamin Negrevergne"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -94,60 +94,71 @@
 <div id="content">
 <h1 class="title">ParaMiner: a generic, parallel algorithm for closed pattern mining.</h1>
 
-<p>License: GPLv3 See LICENSE file.
+<p>License: LGPLv3 See LICENSE file.
 </p>
 <p>
-This software was designed at: Grenoble University / LIG.  Relevant
-publication: 
-Benjamin Negrevergne. A Generic and
-Parallel Pattern Mining Algorithm for Multi-Core Architectures. PhD
-thesis,  Grenoble University, 2011.
-url: <a href="http://membres-liglab.imag.fr/negrevergne/documents/negrevergne_phd.pdf">http://membres-liglab.imag.fr/negrevergne/documents/negrevergne_phd.pdf</a>
+This software was designed at: Grenoble University / LIG. 
 </p>
+
 
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1 Quick start</a></li>
-<li><a href="#sec-2">2 Compilation</a>
+<li><a href="#sec-1">1 Quick start</a>
 <ul>
-<li>
+<li><a href="#sec-1-1">1.1 Download ParaMiner</a></li>
+<li><a href="#sec-1-2">1.2 Extract the archive</a></li>
+<li><a href="#sec-1-3">1.3 Build ParaMiner</a></li>
+<li><a href="#sec-1-4">1.4 Run ParaMiner</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2 Running a built-in instance of ParaMiner</a>
 <ul>
-<li><a href="#sec-2-1">2.1 Switching build modes</a></li>
+<li><a href="#sec-2-1">2.1 Closed frequent itemset mining (FIM) with ParaMiner</a>
+<ul>
+<li><a href="#sec-2-1-1">2.1.1 Input file format</a></li>
+<li><a href="#sec-2-1-2">2.1.2 Running the FIM instance of ParaMiner</a></li>
+<li><a href="#sec-2-1-3">2.1.3 Output format</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-2">2.2 Other built-in instances of ParaMiner</a>
+<ul>
+<li><a href="#sec-2-2-1">2.2.1 Closed frequent relational graphs</a></li>
+<li><a href="#sec-2-2-2">2.2.2 Closed graudal itemsets</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-3">3 Running an instance of ParaMiner</a>
+<li><a href="#sec-3">3 Creating your own instance of ParaMiner</a>
 <ul>
-<li><a href="#sec-3-1">3.1 Closed frequent itemset mining (FIM) with ParaMiner</a>
+<li><a href="#sec-3-1">3.1 A selection criterion</a></li>
+<li><a href="#sec-3-2">3.2 A closure operator</a></li>
+<li><a href="#sec-3-3">3.3 A main function</a>
 <ul>
-<li><a href="#sec-3-1-1">3.1.1 Input file format</a></li>
-<li><a href="#sec-3-1-2">3.1.2 Running the FIM instance of ParaMiner</a></li>
-<li><a href="#sec-3-1-3">3.1.3 Output format</a></li>
-</ul>
-</li>
-<li><a href="#sec-3-2">3.2 Other built-in instances of ParaMiner</a>
-<ul>
-<li><a href="#sec-3-2-1">3.2.1 Closed frequent relational graphs</a></li>
-<li><a href="#sec-3-2-2">3.2.2 Closed graudal itemsets</a></li>
-<li><a href="#sec-3-2-3">3.2.3 Closed periodic patterns</a></li>
+<li><a href="#sec-3-3-1">3.3.1 Parsing the command line arguments</a></li>
+<li><a href="#sec-3-3-2">3.3.2 Loading the dataset</a></li>
+<li><a href="#sec-3-3-3">3.3.3 Invoking the search space exploration</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-4">4 Creating your own instance of ParaMiner</a>
+<li><a href="#sec-4">4 Developper manual</a>
 <ul>
-<li><a href="#sec-4-1">4.1 A selection criterion</a></li>
-<li><a href="#sec-4-2">4.2 A closure operator</a></li>
-<li><a href="#sec-4-3">4.3 A main function</a>
-<ul>
-<li><a href="#sec-4-3-1">4.3.1 Parsing the command line arguments</a></li>
-<li><a href="#sec-4-3-2">4.3.2 Loading the dataset</a></li>
-<li><a href="#sec-4-3-3">4.3.3 Invoking the search space</a></li>
-</ul></li>
+<li><a href="#sec-4-1">4.1 Checkout the source tree</a></li>
+<li><a href="#sec-4-2">4.2 Compile in release mode</a></li>
+<li><a href="#sec-4-3">4.3 Compile in debug mode</a></li>
+<li><a href="#sec-4-4">4.4 Run test suite</a></li>
+<li><a href="#sec-4-5">4.5 Release paraminer</a></li>
+<li><a href="#sec-4-6">4.6 Editing README file</a></li>
 </ul>
 </li>
-<li><a href="#sec-5">5 Bugs</a></li>
+<li><a href="#sec-5">5 Bugs and bug reports</a></li>
+<li><a href="#sec-6">6 Reference publications</a>
+<ul>
+<li><a href="#sec-6-1">6.1 Main publication:</a></li>
+<li><a href="#sec-6-2">6.2 Other important reads</a></li>
+<li><a href="#sec-6-3">6.3 Gradual itemset mining</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -157,154 +168,108 @@ url: <a href="http://membres-liglab.imag.fr/negrevergne/documents/negrevergne_ph
 <div class="outline-text-2" id="text-1">
 
 
-<p>
-1 Download the complete archive ParaMiner+Melinda here: <a href="http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz">http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz</a>
+
+</div>
+
+<div id="outline-container-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Download ParaMiner</h3>
+<div class="outline-text-3" id="text-1-1">
+
+<p>   here: <a href="http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz">http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz</a>
 </p>
-<p>
-2 Extract with 
-</p><pre class="example">
+</div>
+
+</div>
+
+<div id="outline-container-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Extract the archive</h3>
+<div class="outline-text-3" id="text-1-2">
+
+<pre class="example">
 tar xzvf paraminermelinda.tgz
 </pre>
 
-<p>    and move into the directory with 
+
+</div>
+
+</div>
+
+<div id="outline-container-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Build ParaMiner</h3>
+<div class="outline-text-3" id="text-1-3">
+
+<pre class="example">
+cd paraminer
+./configure 
+make
+make install 
+</pre>
+
+
+<p>
+Optionally specify an install directory with 
 </p><pre class="example">
-cd paraminermelinda
+./configure --prefix=&lt;path/to/install_dir&gt;
+</pre>
+
+<p>Default is /usr/local (you need read/write permissions).
+</p>
+<p>
+If you do not wish to install (not recommanded), ParaMiner executable
+files can be found in the bin directory.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-1-4" class="outline-3">
+<h3 id="sec-1-4"><span class="section-number-3">1.4</span> Run ParaMiner</h3>
+<div class="outline-text-3" id="text-1-4">
+
+<p>You can now run a built-in instance to solve a standard problem
+(see. <a href="#sec-2">Running a built-in instance</a>) or start writing your own
+instance (see. <a href="#sec-3">Creating your own instance</a>).  
+</p>
+<p>
+For example: the fim instance can be used to mine closed frequent
+itemset in a transactional dataset.
+</p>
+
+
+
+<pre class="example">paraminer_fim data/fim/mushroom.dat 1500 -t 4
 </pre>
 
 
 <p>
-3 Compile Melinda
+Will output all the closed frequent itemsets occurring in mushroom dataset
+with an absolute frequency of at least 1500.  The -t switch specifies
+the number of threads.  See paraminer<sub>fim</sub> -h for further details.
 </p>
-
-
-<pre class="example">cd melinda
-cmake . 
-make
-cd ../
-</pre>
-
-
-<p>
-4 Compile ParaMiner
-</p>
-
-
-<pre class="example">cd paraminer
-cmake . 
-make
-</pre>
-
-
-<p>
-5 Run the closed frequent itemset mining (FIM) instance of ParaMiner on the test.dat dataset an absolute frequency threshold of 2 (and 4 threads).
-</p>
-
-
-<pre class="example">./clogen_itemsets test.dat 2 -t 4
-</pre>
-
-
-<p>
-It will output the closed frequent itemset occurring in test.dat with an absolute frequency threshold of at least 2. 
-</p>
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> Compilation</h2>
+<h2 id="sec-2"><a name="Running-a-built-in-instance" id="Running-a-built-in-instance"></a><span class="section-number-2">2</span> Running a built-in instance of ParaMiner</h2>
 <div class="outline-text-2" id="text-2">
 
 
 <p>
-ParaMiner is a core algorithm, and it uses the Melinda library as a
-parallelism engine.
-</p>
-<p>
-In order to build paraminer you need the Melinda Library which is available at 
-<a href="http://membres-liglab.imag.fr/negrevergne/software/melinda">http://membres-liglab.imag.fr/negrevergne/software/melinda</a>
-</p>
-<p>
-Edit the src/CMakeLists.txt and change the MELINDA_DIR file to the correct melinda location. 
-</p>
-
-
-
-<pre class="example">cmake . 
-make
-</pre>
-
-
-<p>
-This will create several a binary (executable) files, one for each
-clogen_&lt;problem_name&gt; file for each clogen_local_&lt;problem_name&gt; in the
-directory.
-</p>
-<p>
-For example clogen_itemsets is built. See section <a href="#sec-3-1">instance fim</a>.
+In order to solve a pattern mining problem, you need the adequate
+instance of ParaMiner.  You can see how to use the built-in instance
+of ParaMiner to mine closed frequent itemset in <a href="#sec-2-1">instance fim</a>.  Or you
+can learn how to create your own instance of ParaMiner in <a href="#creating-your-own-instance">creating your own instance</a>.
 </p>
 
 </div>
 
-<div id="outline-container-2-1" class="outline-4">
-<h4 id="sec-2-1"><span class="section-number-4">2.1</span> Switching build modes</h4>
-<div class="outline-text-4" id="text-2-1">
+<div id="outline-container-2-1" class="outline-3">
+<h3 id="sec-2-1"><a name="instance-fim" id="instance-fim"></a><span class="section-number-3">2.1</span> Closed frequent itemset mining (FIM) with ParaMiner</h3>
+<div class="outline-text-3" id="text-2-1">
 
 
-<p>
-You can compile ParaMiner in debug mode (useful if you want to implement your own pattern problem). 
-</p>
-
-
-<pre class="example">cmake -DCMAKE_BUILD_TYPE=Debug
-make
-</pre>
-
-
-<p>
-To set the build system in debug mode
-</p>
-<p>
-Use:
-</p>
-
-
-<pre class="example">cmake -DCMAKE_BUILD_TYPE=Release
-make
-</pre>
-
-<p>
-to switch back de Release mode.
-</p>
-</div>
-</div>
-
-</div>
-
-<div id="outline-container-3" class="outline-2">
-<h2 id="sec-3"><span class="section-number-2">3</span> Running an instance of ParaMiner</h2>
-<div class="outline-text-2" id="text-3">
-
-
-<p>
-In order to solve a pattern mining problem, you need the adequate instance of
-ParaMiner.  You can see how to use the built-in
-instance of ParaMiner to mine closed frequent itemset in <a href="#sec-3-1">instance fim</a>.
-Or you can learn how to create your own instance of ParaMiner in
-<a href="#sec-4">creating your own instance</a>.
-</p>
-
-</div>
-
-<div id="outline-container-3-1" class="outline-3">
-<h3 id="sec-3-1"><a name="instance-fim" id="instance-fim"></a><span class="section-number-3">3.1</span> Closed frequent itemset mining (FIM) with ParaMiner</h3>
-<div class="outline-text-3" id="text-3-1">
-
-
-<p>
-If you correctly compiled ParaMiner, you should have a clogen_itemset
-binary file in the src/ directory.
-</p>
 <p>
 You can use this instance of ParaMiner to mine closed frequent itemset
 from a transactional dataset.
@@ -312,9 +277,9 @@ from a transactional dataset.
 
 </div>
 
-<div id="outline-container-3-1-1" class="outline-4">
-<h4 id="sec-3-1-1"><a name="fim-input-file-format" id="fim-input-file-format"></a><span class="section-number-4">3.1.1</span> Input file format</h4>
-<div class="outline-text-4" id="text-3-1-1">
+<div id="outline-container-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1"><a name="fim-input-file-format" id="fim-input-file-format"></a><span class="section-number-4">2.1.1</span> Input file format</h4>
+<div class="outline-text-4" id="text-2-1-1">
 
 
 <p>    
@@ -333,12 +298,11 @@ Dataset stored within a single ASCII file.
 
 
 <p>
-eg.
+e.g. test.dat
 </p>
 
 
-<pre class="example">--- file test.dat ---
-1 2 4 6
+<pre class="example">1 2 4 6
 1 2 3 5 7
 2 3
 
@@ -352,15 +316,15 @@ is a valid dataset.
 
 </div>
 
-<div id="outline-container-3-1-2" class="outline-4">
-<h4 id="sec-3-1-2"><span class="section-number-4">3.1.2</span> Running the FIM instance of ParaMiner</h4>
-<div class="outline-text-4" id="text-3-1-2">
+<div id="outline-container-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> Running the FIM instance of ParaMiner</h4>
+<div class="outline-text-4" id="text-2-1-2">
 
 
 <p>
 You can mine closed frequent itemsets occurring in this dataset by executing the following command:
 </p><pre class="example">
-./clogen_itemsets test.dat 2 
+paraminer_fim test.dat 2
 </pre>
 
 
@@ -368,7 +332,7 @@ You can mine closed frequent itemsets occurring in this dataset by executing the
 Alternatively, if you have a multi-core/parallel computer with 8
 cores, you can exploit them by executing the following command: 
 </p><pre class="example">
-./clogen_itemsets test.dat 2 -t 8
+paraminer_fim test.dat 2 -t 8
 </pre>
 
 
@@ -376,9 +340,9 @@ cores, you can exploit them by executing the following command:
 
 </div>
 
-<div id="outline-container-3-1-3" class="outline-4">
-<h4 id="sec-3-1-3"><span class="section-number-4">3.1.3</span> Output format</h4>
-<div class="outline-text-4" id="text-3-1-3">
+<div id="outline-container-2-1-3" class="outline-4">
+<h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> Output format</h4>
+<div class="outline-text-4" id="text-2-1-3">
 
 
 <p>
@@ -392,9 +356,9 @@ The FIM implementation of ParaMiner has the following format:
 
 
 <p>
-eg.
+e.g.
 </p><pre class="example">
-./clogen_itemsets test.dat 2 
+./paraminer_itemsets test.dat 2 
 </pre>
 
 <p>will generate the following output on the standard output:
@@ -411,7 +375,7 @@ eg.
 <p>
 The results can be stored by redirecting the standard output into a file:
 </p><pre class="example">
-./clogen_itemsets test.dat 2 -t 1 &gt; results.out
+./paraminer_itemsets test.dat 2 -t 1 &gt; results.out
 </pre>
 
 
@@ -420,58 +384,60 @@ The results can be stored by redirecting the standard output into a file:
 
 </div>
 
-<div id="outline-container-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Other built-in instances of ParaMiner</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Other built-in instances of ParaMiner</h3>
+<div class="outline-text-3" id="text-2-2">
 
 
 
 </div>
 
-<div id="outline-container-3-2-1" class="outline-4">
-<h4 id="sec-3-2-1"><span class="section-number-4">3.2.1</span> Closed frequent relational graphs</h4>
-<div class="outline-text-4" id="text-3-2-1">
+<div id="outline-container-2-2-1" class="outline-4">
+<h4 id="sec-2-2-1"><span class="section-number-4">2.2.1</span> Closed frequent relational graphs</h4>
+<div class="outline-text-4" id="text-2-2-1">
 
-
-</div>
-
-</div>
-
-<div id="outline-container-3-2-2" class="outline-4">
-<h4 id="sec-3-2-2"><span class="section-number-4">3.2.2</span> Closed graudal itemsets</h4>
-<div class="outline-text-4" id="text-3-2-2">
-
+<p>TODO
+</p></div>
 
 </div>
 
-</div>
+<div id="outline-container-2-2-2" class="outline-4">
+<h4 id="sec-2-2-2"><span class="section-number-4">2.2.2</span> Closed graudal itemsets</h4>
+<div class="outline-text-4" id="text-2-2-2">
 
-<div id="outline-container-3-2-3" class="outline-4">
-<h4 id="sec-3-2-3"><span class="section-number-4">3.2.3</span> Closed periodic patterns</h4>
-<div class="outline-text-4" id="text-3-2-3">
-
-
+<p>TODO
+See [ 7 ]
+</p>
 </div>
 </div>
 </div>
 
 </div>
 
-<div id="outline-container-4" class="outline-2">
-<h2 id="sec-4"><a name="creating-your-own-instance" id="creating-your-own-instance"></a><span class="section-number-2">4</span> Creating your own instance of ParaMiner</h2>
-<div class="outline-text-2" id="text-4">
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><a name="Creating-your-own-instance" id="Creating-your-own-instance"></a><span class="section-number-2">3</span> Creating your own instance of ParaMiner</h2>
+<div class="outline-text-2" id="text-3">
 
 
 <p>
-If you want to create your own instance of ParaMiner to mine your own
-type of patterns (say dark patters), you to write a clogen<sub>local</sub><sub>dark</sub>.cpp file which will contain an implementation for the following functions:
+This section describe how to create your own instance of
+ParaMiner. You need to create a new instance if you want to mine a
+type of patterns that is not supported by any ParaMiner built-in instance. 
+</p>
+<p>
+For example let's say we want to mine <i>periodic patterns</i>, which is
+not supported by default in ParaMiner.
+</p>
+<p> 
+First start by creating a paraminer<sub>local</sub><sub>periodic</sub>.cpp file which will
+contain an implementation of the following C++ functions:
 </p>
 
 </div>
 
-<div id="outline-container-4-1" class="outline-3">
-<h3 id="sec-4-1"><span class="section-number-3">4.1</span> A selection criterion</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> A selection criterion</h3>
+<div class="outline-text-3" id="text-3-1">
 
 <p>In a function called membership_oracle(). 
 The selection criterion to distingish candidate patterns from patterns.
@@ -489,7 +455,7 @@ simple as:
 
 
 <pre class="example">bool membership_oracle(P, e){
-  return is_a_dark_pattern(P U {e}); 
+  return is_a_periodic_pattern(P U {e}); 
 }
 </pre>
 
@@ -498,24 +464,19 @@ simple as:
 
 </div>
 
-<div id="outline-container-4-2" class="outline-3">
-<h3 id="sec-4-2"><span class="section-number-3">4.2</span> A closure operator</h3>
-<div class="outline-text-3" id="text-4-2">
+<div id="outline-container-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> A closure operator</h3>
+<div class="outline-text-3" id="text-3-2">
 
 <p>In a function called clo()
 </p>
 <p>
-The closure operator, used to limit the
-redundancy in the resulting patterns. Takes a pattern as an argument,
-and returns a pattern.  This function takes a pattern as a parameter
-and return its corresponding closed pattern (ie. its closure).  If you
-don't need such a thing, the identity is a perfectly valid closure
-operator. However, it does not reduce the redundancy among the set of
-resulting patterns.
+The closure operator can be used to limit the redundancy in the
+resulting set of Patterns. Takes a pattern as an argument, and returns a
+closed pattern. The identity function is a valid closure operator. 
 </p>
 <p>
-So far, we don't have any satisfying definition of closed dark pattern
-therefore we are only going to use the identity.
+This function as to be a valid closure operator
 </p>
 
 
@@ -526,13 +487,21 @@ therefore we are only going to use the identity.
 </pre>
 
 
+<p>
+It is worth noting that ParaMiner's efficiency relies on closed
+pattern. Therefore defining a closure operator according to the
+problem definition is usually a good idea. Many example of closure
+operators have been proposed in [ 2 ]. If your problem satisfies some
+properties a default closure operator (better than the identity) can
+be used.  A section is dedicated to this in [ 1 ].
+</p>
 </div>
 
 </div>
 
-<div id="outline-container-4-3" class="outline-3">
-<h3 id="sec-4-3"><span class="section-number-3">4.3</span> A main function</h3>
-<div class="outline-text-3" id="text-4-3">
+<div id="outline-container-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> A main function</h3>
+<div class="outline-text-3" id="text-3-3">
 
 
 <p>
@@ -550,9 +519,9 @@ The main function is here to achieves three goals:
 
 </div>
 
-<div id="outline-container-4-3-1" class="outline-4">
-<h4 id="sec-4-3-1"><span class="section-number-4">4.3.1</span> Parsing the command line arguments</h4>
-<div class="outline-text-4" id="text-4-3-1">
+<div id="outline-container-3-3-1" class="outline-4">
+<h4 id="sec-3-3-1"><span class="section-number-4">3.3.1</span> Parsing the command line arguments</h4>
+<div class="outline-text-4" id="text-3-3-1">
 
 
 <p>    
@@ -564,16 +533,16 @@ arguments used by ParaMiner remove them from argv and decrease argc.
 
 </div>
 
-<div id="outline-container-4-3-2" class="outline-4">
-<h4 id="sec-4-3-2"><span class="section-number-4">4.3.2</span> Loading the dataset</h4>
-<div class="outline-text-4" id="text-4-3-2">
+<div id="outline-container-3-3-2" class="outline-4">
+<h4 id="sec-3-3-2"><span class="section-number-4">3.3.2</span> Loading the dataset</h4>
+<div class="outline-text-4" id="text-3-3-2">
 
 
 <p>
 The dataset must be loaded into a table called tt which is of type TransactionTable. 
 </p>
 <p>
-If your dataset is stored as described in <a href="#sec-3-1-1">fim input file format</a>, you
+If your dataset is stored as described in <a href="#sec-2-1-1">fim input file format</a>, you
 can use the built-in function read<sub>transaction</sub><sub>table</sub>() It takes two
 argument, the filename and the transaction table.
 </p>
@@ -597,9 +566,9 @@ load_transaction_table (&amp;tt, argv[1])
 
 </div>
 
-<div id="outline-container-4-3-3" class="outline-4">
-<h4 id="sec-4-3-3"><span class="section-number-4">4.3.3</span> Invoking the search space</h4>
-<div class="outline-text-4" id="text-4-3-3">
+<div id="outline-container-3-3-3" class="outline-4">
+<h4 id="sec-3-3-3"><span class="section-number-4">3.3.3</span> Invoking the search space exploration</h4>
+<div class="outline-text-4" id="text-3-3-3">
 
 
 <p>
@@ -612,8 +581,132 @@ as an argument if you want to start the exploration from the emptyset.
 
 </div>
 
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Developper manual</h2>
+<div class="outline-text-2" id="text-4">
+
+
+<p>  
+TODO: complete
+</p>
+
+</div>
+
+<div id="outline-container-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Checkout the source tree</h3>
+<div class="outline-text-3" id="text-4-1">
+
+<pre class="example">
+git clone &lt;gitrepos&gt; paraminer
+cd paraminer
+git submodule init
+git submodule update
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> Compile in release mode</h3>
+<div class="outline-text-3" id="text-4-2">
+
+<pre class="example">
+./autogen.sh
+mkdir -p build/release; cd build/debug
+../../configure --enable-debug
+make
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> Compile in debug mode</h3>
+<div class="outline-text-3" id="text-4-3">
+
+<pre class="example">
+./autogen.sh
+mkdir -p build/debug; cd build/debug
+../../configure --enable-debug
+make
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-4-4" class="outline-3">
+<h3 id="sec-4-4"><span class="section-number-3">4.4</span> Run test suite</h3>
+<div class="outline-text-3" id="text-4-4">
+
+<p>(in build/debug, or build/release)
+</p>
+<pre class="example">
+make check 
+</pre>
+
+
+<p>
+debug test suite:
+</p><pre class="example">
+source tests/tests-env.sh 
+</pre>
+
+<p>will set up the environment variable to have access to all tests scripts and testing software. 
+</p>
+<p>
+Then you can run tests individually from paraminer/tests
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-4-5" class="outline-3">
+<h3 id="sec-4-5"><span class="section-number-3">4.5</span> Release paraminer</h3>
+<div class="outline-text-3" id="text-4-5">
+
+<p>make dist will create an tar.gz archive 
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-4-6" class="outline-3">
+<h3 id="sec-4-6"><span class="section-number-3">4.6</span> Editing README file</h3>
+<div class="outline-text-3" id="text-4-6">
+
+
+<p>
+Please edit doc/readme.org instead of editing the README file located
+in the archive root directory.  The doc/readme.org must then be exported to 
+</p><ul>
+<li>a flat (utf8) README file (stored at: &lt;archive<sub>root</sub><sub>dir&gt</sub>;/README)
+</li>
+<li>a hypertext file (stored at: &lt;archive<sub>root</sub><sub>dir&gt</sub>;/doc/readme.html)
+</li>
+</ul>
+
+
+<p>
+The export is done using emacs org-mode.
+</p>
+<p>
+For convinience, README and doc/readme.html are both tracked in the git repository, and
+therefore they must be updated when they undergo some modifications.
+</p>
+</div>
+</div>
+
+</div>
+
 <div id="outline-container-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> Bugs</h2>
+<h2 id="sec-5"><span class="section-number-2">5</span> Bugs and bug reports</h2>
 <div class="outline-text-2" id="text-5">
 
 
@@ -624,12 +717,92 @@ FirstName.LastName@imag.fr
 <p>
 My FirstName is Benjamin
 My LastName is Negrevergne
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Reference publications</h2>
+<div class="outline-text-2" id="text-6">
+
+
+
+</div>
+
+<div id="outline-container-6-1" class="outline-3">
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> Main publication:</h3>
+<div class="outline-text-3" id="text-6-1">
+
+
+<p>
+(If you use ParaMiner for your your research, please cite this publication.)
+</p>
+<p>
+[ 1 ] ParaMiner: A generic pattern mining algorithm for multi-core architectures [to appear]
+Benjamin Negrevergne · Alexandre Termier · Marie-Christine Rousset and Jean-François Méhaut
+DAMI/DMKD 
+</p>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-2" class="outline-3">
+<h3 id="sec-6-2"><span class="section-number-3">6.2</span> Other important reads</h3>
+<div class="outline-text-3" id="text-6-2">
+
+
+<p>
+[ 2 ] Arimura, H., &amp; Uno, T. (2005). A polynomial space and
+polynomial delay algorithm for enumeration of maximal motifs in a
+sequence. Algorithms and Computation, 724-737.
+</p>
+<p>
+[ 3 ] Boley, M., Horváth, T., Poigné, A., &amp; Wrobel, S. (2010). Listing
+closed sets of strongly accessible set systems with applications to
+data mining. Theoretical computer science, 411(3), 691-700.
+</p>
+<p>
+[ 4 ] Benjamin Negrevergne. A Generic and
+Parallel Pattern Mining Algorithm for Multi-Core Architectures. PhD
+thesis,  Grenoble University, 2011.
+url: <a href="http://membres-liglab.imag.fr/negrevergne/documents/negrevergne_phd.pdf">http://membres-liglab.imag.fr/negrevergne/documents/negrevergne_phd.pdf</a>
+</p>
+<p>
+[ 5 ] Uno, T., Kiyomi, M., &amp; Arimura, H. (2004, November). LCM ver. 2:
+Efficient mining algorithms for frequent/closed/maximal itemsets. In
+Proceedings of the IEEE ICDM Workshop on Frequent Itemset Mining
+Implementations (FIMI 04).
+</p>
+<p>
+[ 6 ] Negrevergne, B., Termier, A., Méhaut, J., &amp; Uno, T. (2010,
+June). Discovering closed frequent itemsets on multicore:
+Parallelizing computations and optimizing memory accesses. In High
+Performance Computing and Simulation (HPCS), 2010 International
+Conference on (pp. 521-528). IEEE.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6-3" class="outline-3">
+<h3 id="sec-6-3"><span class="section-number-3">6.3</span> Gradual itemset mining</h3>
+<div class="outline-text-3" id="text-6-3">
+
+
+<p>
+[ 7 ] Anne Laurent, Benjamin Négrevergne, Nicolas Sicard, and Alexandre
+Termier. Pgp-mc: Towards a multicore parallel approach for mining
+gradual patterns. In DASFAA, pages 78-84, 2010.
 </p></div>
+</div>
 </div>
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-10-06 11:49:11 CEST</p>
+<p class="date">Date: 2013-02-04 13:27:44 CET</p>
 <p class="author">Author: Benjamin Negrevergne</p>
 <p class="creator">Org version 7.8.11 with Emacs version 23</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
