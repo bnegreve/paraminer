@@ -1,7 +1,7 @@
 ParaMiner: a generic, parallel algorithm for closed pattern mining.
 #+STYLE: <link rel="stylesheet" type="text/css" href="stylesheet.css" />
 
-License: GPLv3 See LICENSE file.
+License: LGPLv3 See LICENSE file.
 
 This software was designed at: Grenoble University / LIG.  Relevant
 publication: 
