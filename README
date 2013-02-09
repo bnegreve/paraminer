@@ -2,7 +2,7 @@
  ===================================================================
 
 Author: Benjamin Negrevergne
-Date: 2013-02-04 13:27:26 CET
+Date: 2013-02-09 11:25:08 CET
 
 
 License: LGPLv3 See LICENSE file.
@@ -291,8 +291,8 @@ git submodule update
 4.2 Compile in release mode 
 ============================
 ./autogen.sh
-mkdir -p build/release; cd build/debug
-../../configure --enable-debug
+mkdir -p build/release; cd build/release
+../../configure
 make
    
 

@@ -217,8 +217,8 @@ TODO: complete
 
 ** Compile in release mode
 : ./autogen.sh
-: mkdir -p build/release; cd build/debug
-: ../../configure --enable-debug
+: mkdir -p build/release; cd build/release
+: ../../configure
 : make
    
 ** Compile in debug mode
