@@ -1,6 +1,12 @@
 // clogen_local_itemsets.cpp
 // Made by Benjamin Negrevergne
 // Started on  Tue Oct 19 18:44:38 2010
+//
+// /!\ This is the gradual definition as it is defined in
+// GLCM. (Handle no variations as positive variations.)  For a more
+// advanced definition of graduals, check
+// clogen_local_graduals_gen.cpp
+
 #include <cstdlib>
 #include <algorithm>
 #include <vector>
@@ -185,248 +191,12 @@ void element_print(const element_t element){
   cout<<" "<<(element/2)+1<<(element%2?"-":"+"); 
 }
 
-int get_path_length(int current, vector< pair < trans_t, int> > &t){
-  /* TODO force return when reaching a path length greater than the current minimum */
-  //  cout<<"CALL ON "<< t[current].first.first<<" "<<t[current].first.second<<endl; 
-  /* ((t1, t2), path) */
-  if(t[current].second != 0){
-    //    cout<<"return "<<t[current].second<<endl;
-    return t[current].second; /* return pre-computed value of the longest path from current */ 
-  }
-
-
-  /* recursively computes the longest path */
-  t[current].second = 1; 
-  for(int i = 0; i < t.size(); i++){
-    if(t[i].first.first_ == t[current].first.second_){
-      //      cout <<"YE "<< t[i].first.first<<" "<<t[i].first.second<<endl; 
-      int path_len = 1 + get_path_length(i, t); 
-      if(path_len > t[current].second)
-	t[current].second = path_len; 	
-    }
-    else{
-      //      cout <<"NO "<< t[i].first.first<<" "<<t[i].first.second<<endl; 
-    }
-  }
-
-  //  cout<<"return "<<t[current].second<<endl;
-  return t[current].second ; 
-}
-
-int get_longest_path(const Occurence &occs){
-  
-  if(occs.size() == 0) 
-    return 0; 
-
-  vector< pair< trans_t, int> > t; 
-
-  for(int i = 0; i < occs.size(); i++){
-    t.push_back(pair<trans_t, int>(tid_code_to_original(occs[i]), 0)); 
-  }
-
-  int longest_path = 0; 
-  for(int i = 0; i < occs.size(); i++){
-    int path = get_path_length(i, t) + 1; 
-    if(path > longest_path)
-      longest_path = path;
-  }
-
-  return longest_path;
-}
-
-
-
-
-void binary_matrix_remove_short_cycles(BinaryMatrix *bm, vector<vector<int> > *sibling, int nb_trans){
-  /* Here we build a matrix without cycles by merging transactions
-     that are equal according to pattern (theses transactions are the
-     one responsable of the cycles.  We keep trac of the merged
-     transactions inside siblings. It must be concidered we computing
-     the frequency since when two transactions are equal it is always
-     possible to loop once and include in the supporting path all the
-     equal transactions instead of just one*/
-  sibling->resize(nb_trans);
-  for(int i = 0; i < nb_trans; i++)
-    (*sibling)[i].push_back(i); 
-  for(int i = 0; i < nb_trans; i++){
-    for(int j = 0; j < nb_trans; j++){
-      if(i != j)
-	if(bm->getValue(i, j) == 1){
-	  if(bm->getValue(j, i) == 1){
-	    /* sibling transactions */
-	    /* remove j from bm and use report all conections into i */
-	    for(int jj = 0; jj < nb_trans; jj++)
-	      //TODO remove from here 
-	      // if(bm->getValue(j, jj)){
-	      // 	if( i != jj){
-	      // 	  assert(bm->getValue(i, jj)); /* TODO remove */
-	      // 	  /* repporting connections is useless unless this assert fails */
-	      // 	  bm->setValue(i, jj, 1); 
-	      // 	}
-	      //TO HERE unless the assert fails 
-	      bm->setValue(j, jj, 0);
-		  //	      }
-	  
-	    for(int ii = 0; ii < nb_trans; ii++){
-	      bm->setValue(ii, j, 0);
-	    }
-	    (*sibling)[i].push_back(j);
-	    (*sibling)[j].clear();
-	  }
-	}
-    }
-  }
-}
-
-
-/* function from GLCM */
-void  recursion_Chk_Freq(int trans, BinaryMatrix BM, vector<int> & freMap, 
-			 const set_t &t_weights)
-{
-  	// int BMSize = BM.getSize();
-	// if (BM.checkZero(trans)) freMap[trans] = 1;
-	// 	for(int j = 0; j < BMSize; j++)
-	// 	{
-	// 		if (BM.getValue(j,trans))
-	// 		{
-	// 			//if (BM.checkZero(j)) freMap[trans] = 1;
-	// 			if (freMap[j] == -1) recursion_Chk_Freq(j,BM,freMap);
-	// 			freMap[trans] = (freMap[trans]>freMap[j] + 1)?freMap[trans]:(freMap[j] + 1);
-	// 		}
-	// 	}
-  int BMSize = BM.getSize();
-  if (BM.checkZero(trans)) freMap[trans] = 1;
-  else{
-    for(int j = 0; j < BMSize; j++)
-      {
-  	if (BM.getValue(j,trans))
-  	  {
-	   
-	    //if (BM.checkZero(j)) freMap[trans] = 1;
-	    if (freMap[j] == -1) 
-	      recursion_Chk_Freq(j,BM,freMap, t_weights);
-	  }	
-      }
-    for(int j = 0; j < BMSize; j++){
-      int nb_siblings = t_weights[j]; 
-      if (BM.getValue(j,trans))
-	  freMap[trans] = 
-	    (freMap[trans]>freMap[j] + nb_siblings)?freMap[trans]:(freMap[j] + nb_siblings);
-    }
-  }
-}
-
-void  recursion_find_path(int trans, const BinaryMatrix &BM, 
-			  const vector<vector<int> > &siblings,
-			  vector<int> *path_length,
-			  vector<vector <int> > *path)
-{
-
-  /* TODO use a set instead of a vector, there is no node to keep the correct order */
-  if((*path_length)[trans] != 0)
-    return; 
-  int nb_siblings = siblings[trans].size(); 
-  int BMSize = BM.getSize();
-  if (!BM.checkZero(trans)) {
-
-    for(int j = 0; j < BMSize; j++)
-      {
-  	if (BM.getValue(j,trans))
-  	  {
-	   
-	    //if (BM.checkZero(j)) freMap[trans] = 1;
-	    if ((*path_length)[j] == 0) 
-	      recursion_find_path(j,BM,siblings, path_length, path);
-
-	    int current_path_length = (*path_length)[j] + nb_siblings; 
-
-	    if( current_path_length > (*path_length)[trans]){
-	      (*path_length)[trans] = current_path_length; 
-		/* new path is greater */
-		//	      copy((*path)[j].begin(), (*path)[j].end(), (*path)[trans].end());
-		vector<int> &current_path = (*path)[trans]; 
-		current_path.clear();
-		current_path.insert(current_path.begin(), siblings[trans].begin(), siblings[trans].end()); 
-		current_path.insert(current_path.end(), 
-				    (*path)[j].begin(), (*path)[j].end()); 
-	      
-	    }
-	    else if (current_path_length == (*path_length)[trans]){
-	      /* The to path are the same length. Keep track of all the
-		 node belonging to any potential longuest path*/
-	      vector<int> &current_path = (*path)[trans];
-	      current_path.insert(current_path.begin(), siblings[trans].begin(), siblings[trans].end()); 
-	      current_path.insert(current_path.end(), //TODO pas besoin d'ajouter les fere ils y sont deja
-				  (*path)[j].begin(), (*path)[j].end()); 
-	      
-	    }
-	  }	
-      }
-
-  }
-  
-  else{
-    (*path_length)[trans] = nb_siblings; 
-    (*path)[trans].insert((*path)[trans].begin(), siblings[trans].begin(), siblings[trans].end());
-  
-  }
-  // for(int i = 0; i < nb_siblings; i++){
-  //   (*path)[trans].push_back(siblings[trans][i]); 
-  // }
- 
-}
-
-/* Computes longuest path in a binary matrix */
-void loop_find_longest_paths(const BinaryMatrix &BM,
-			     const vector<vector<int> > &siblings,
-			     vector<int> *path_length,
-			     vector<vector <int> > *path)
-{
-  int psize = path->size();
-  for(int i = 0; i < psize; i++)
-    {
-      recursion_find_path(i,BM, siblings, path_length, path);
-    }
-}
-
 int support_from_path_lengths(const vector<int> &path_lengths){
   int sup = 0; 
   for(int i = 0; i < path_lengths.size(); i++){
     sup = std::max(sup, static_cast<int>(path_lengths[i])); 
   }
   return sup; 
-}
-
-void rec_compute_path_length_siblings(int trans, const BinaryMatrix &BM, 
-			     const vector<vector<int> > &siblings,
-			     vector<int> *path_length){
-
-  if((*path_length)[trans] != 0)
-    return; 
-  int nb_siblings = siblings[trans].size(); 
-  int BMSize = BM.getSize();
-  if (!BM.checkZero(trans)) {
-
-    for(int j = 0; j < BMSize; j++)
-      {
-  	if (BM.getValue(j,trans))
-  	  {
-	   
-	    //if (BM.checkZero(j)) freMap[trans] = 1;
-	    if ((*path_length)[j] == 0) 
-	      rec_compute_path_length_siblings(j,BM,siblings, path_length);
-
-	    int current_path_length = (*path_length)[j] + nb_siblings; 
-
-	    if( current_path_length > (*path_length)[trans]){
-	      (*path_length)[trans] = current_path_length; 	      
-	    }
-	  }	
-      }
-  }
-  else{
-    (*path_length)[trans] = nb_siblings; 
-  }
 }
 
 void rec_compute_path_length(int trans, const BinaryMatrix &BM, 
@@ -459,19 +229,6 @@ void rec_compute_path_length(int trans, const BinaryMatrix &BM,
   }
 }
 
-
-/* Same as loop_find_longuest_paths() but only computes support value (do not store the paths)*/
-int compute_gradual_support_siblings(const BinaryMatrix &BM, const vector<vector<int> > &siblings,
-			     vector<int> *path_length){
-  int psize = path_length->size();
-  for(int i = 0; i < psize; i++)
-    {
-      rec_compute_path_length_siblings(i,BM, siblings, path_length);
-    }
-
-  return support_from_path_lengths(*path_length); 
-}
-
 /* Same as loop_find_longuest_paths() but only computes support value (do not store the paths)*/
 int compute_gradual_support(const BinaryMatrix &BM, vector<int> *path_length){
   int psize = path_length->size();
@@ -481,19 +238,6 @@ int compute_gradual_support(const BinaryMatrix &BM, vector<int> *path_length){
     }
 
   return support_from_path_lengths(*path_length); 
-}
-
-
-
-int frequentCount(vector<int> & freMap)
-{
-  int maxFreq = 0;
-  int freMapSize = freMap.size();
-  for(int i = 0; i < freMapSize; i++)
-    {
-      if (freMap[i] > maxFreq) maxFreq = freMap[i]; 
-    }
-  return maxFreq;
 }
 
 
@@ -528,28 +272,6 @@ pair<int,int> retreive_transaction_pairs_count(const TransactionTable &tt, const
   return pair<int,int>(nb_tids, max_tid); 
 }
 
-
-void retreive_transaction_pairs(const TransactionTable &tt, const Occurence &occurences, id_trans_t *transaction_pairs){
-  
-  for(Occurence::const_iterator it = occurences.begin(); it != occurences.end(); ++it){    
-    //    original_occurences[i++] = data.tt[*it].original_tid;
-    const Transaction &cur = tt[*it]; 
-    for(set_t::const_iterator it2 = cur.tids.begin(); it2 != cur.tids.end(); ++it2){      
-      transaction_pairs->push_back(tid_code_to_original(*it2)); 
-    }
-    //cout<<i-1<<" : "<<transaction_pairs[i-1].first<<"x"<<transaction_pairs[i-1].second<<endl; 
-  }
-}
-
-
-void detect_short_cycles(const BinaryMatrix &bm){
-  for (int i = 0; i < bm.getSize(); i++)
-    for (int j = 0; j < bm.getSize(); j++)
-      if(i != j && bm.getValue(i,j) && bm.getValue(j,i)){
-	cerr<<"SHORT CYCLE DETECTED "<<i<<"x"<<j<<endl; 
-	abort(); 
-      }
-}
 
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
@@ -693,112 +415,6 @@ for(int i = 0; i < s.size()-1; i++){
   return sup>=threshold?sup:0;
 }
 
-
-void reduceBM(BinaryMatrix & BM, int threshold, bool & change)
-{
-  int maxTrans = 0;
-  int maxCount = 0;
-  //if (change) return;
-  maxTrans = BM.getMaxTrans(maxCount);
-  if (maxCount < (threshold-1)) 
-    {
-      BM.setBMtoZero();	
-      return;
-    }
-  BM.reduce_nonSupport_TS(threshold,change);
-  while (change) 
-    {		
-      BM.reduce_nonSupport_TS(threshold,change);
-      //cout << "....." << change << endl;
-    }
-  //reduceBM(BM, threshold,change);
-}
-
-
-set_t calF(BinaryMatrix * BM, const vector<BinaryMatrix> & vBM, int & resFre, vector<vector <int> > &siblings)
-{
-
-  set_t is;
-  is.clear();
-  //TransactionSequence ts;
-  int BMSize = BM->getSize();
-  BinaryMatrix calFBM(BMSize);
-  calFBM = (*BM);
-  vector<int> freMap(BMSize, -1);
-
-  set_t t_weights(nb_vtrans); 
-  for(int i = 0; i < siblings.size(); i++){
-    t_weights[i] = siblings[i].size(); 
-  }
-  //loop_Chk_Freq(calFBM,freMap, t_weights);
-  resFre = frequentCount(freMap);
-  if (resFre < threshold) return is;
-
-  bool change = false;
-  reduceBM(calFBM, resFre, change);
-  //bool bcf = CheckFrequent(BM, _threshold, freType, ts);
-  //if (!bcf) return is;
-
-
-  int G1ItemSize = ELEMENT_RANGE_END; 
-  for (int i = 0; i < G1ItemSize; i++)
-    {
-      //if (vBM[i]->isInclude(BM)) is.addItem(i);
-      BinaryMatrix tBM = vBM[i];
-      tBM &= (*BM);
-      if (tBM == (*BM)) {
-	is.push_back(i); 
-      }
-    }
-  return is;
-}
-
-
-///////////////////////////////////////////////////////////////////
-///////////////// CAL G  //////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-/* Computes the transactions quequences supporting itemset \is */
-// void calG(set_t is, const vector<BinaryMatrix *> & vBM, BinaryMatrix& res)
-// {
-//   int isSize = is.size();
-//   if (isSize == 0)
-//     return;
-
-//   res = *vBM[is[0]];
-
-//   for (int i = 1; i < isSize; i++)
-//     res &= *vBM[is[i]];
-// }
-
-void extract_longuest_path_nodes(vector<int> *nodes, const vector<int> &path_lengths, 
-				 const vector<vector <int> > &paths){
-  /* find longuest path */
-  int max = support_from_path_lengths(path_lengths);
-
-  std::set<int> node_set; 
-  
-  for(int i = 0; i < paths.size(); i++){
-    if(path_lengths[i] == max){
-      node_set.insert(paths[i].begin(), paths[i].end()); 
-    }
-  }
-
-  nodes->reserve(node_set.size());
-  nodes->insert(nodes->end(), node_set.begin(), node_set.end()); 
-  
-  //  copy(nodes->begin(), node_set.begin(), node_set.end()); 
-}
-
-void restrict_binary_matrix(BinaryMatrix *bm, const vector<int> &nodes){
-  vector<int> keep(bm->getSize(), 0); 
-  for(int i = 0; i < nodes.size(); i++){
-    keep[nodes[i]] = 1; 
-  }
-
-  for(int i = 0; i < keep.size(); i++)
-    if(!keep[i])
-      bm->resetIndex(i); 
-}
 
 set_t clo(const set_t &set, const closure_data_t &data){
   set_t c(set);
