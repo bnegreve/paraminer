@@ -1,4 +1,4 @@
-// clogen_local_itemsets.cpp
+// paraminer_local_itemsets.cpp
 // Made by Benjamin Negrevergne
 // Started on  Tue Oct 19 18:44:38 2010
 #include <cstdlib>
@@ -9,11 +9,11 @@
 #include <cmath>
 #include <unistd.h>
 #include <dirent.h>
-#include "clogen_local.hpp"
+#include "paraminer_local.hpp"
 #include "utils.hpp"
 #include "pattern.hpp"
 #include "database.hpp"
-#include "clogen.hpp" 
+#include "paraminer.hpp" 
 
 using std::cout; 
 using std::cerr; 
@@ -275,9 +275,9 @@ set_t clo(const set_t &set, const closure_data_t &data){
 
 
 void usage(char *bin_name){
-  clogen_usage(bin_name);
+  paraminer_usage(bin_name);
   cerr<<"Problem specific command line arguments:"<<endl; 
-  cerr<<bin_name<<" [<clogen options> (See above.)] <graph dataset directory> <minsup> <edge threshold> [-a mine all graphs (not only closed ones)]"<<endl;
+  cerr<<bin_name<<" [<paraminer options> (See above.)] <graph dataset directory> <minsup> <edge threshold> [-a mine all graphs (not only closed ones)]"<<endl;
   
   exit(EXIT_FAILURE); 
 }
@@ -285,7 +285,7 @@ void usage(char *bin_name){
 
 int main(int argc, char **argv){
 
-  parse_clogen_arguments(&argc, argv); 
+  parse_paraminer_arguments(&argc, argv); 
 
   char opt_char = 0; 
 
@@ -373,7 +373,7 @@ float f_threshold = atof(argv[idx+1]);
   // transpose(tt, &ot);
   
   set_t empty_set; 
-  int num_pattern = clogen(empty_set);
+  int num_pattern = paraminer(empty_set);
    cout<<num_pattern<<" patterns mined"<<endl;
 
 }

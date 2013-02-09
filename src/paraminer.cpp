@@ -1,5 +1,5 @@
 /*
-** clogen.cpp
+** paraminer.cpp
 ** 
 ** Made by (Benjamin Negrevergne)
 ** Email   [firstname].[name]@imag.fr
@@ -15,7 +15,7 @@
 #include <pthread.h> 
 #include <unistd.h>
 #include <limits>
-#include "clogen_local.hpp"
+#include "paraminer_local.hpp"
 #include "utils.hpp"
 #include "element.hpp"
 #include "pattern.hpp"
@@ -407,8 +407,8 @@ void *process_tuple(void *){
 
 #endif //PARALLEL_PROCESS
 
-void clogen_usage(char *bin_name, bool exit){
-  cerr<<"Clogen general usage (valid for every instance of clogen):"<<endl;
+void paraminer_usage(char *bin_name, bool exit){
+  cerr<<"ParaMiner general usage (valid for every instance of paraminer):"<<endl;
   cerr<<bin_name<<" [-t <numthreads> = 1] [-c <tuplecutoff> = 2] "<<endl
       <<"[-l (Display tidlist (default is off).)] "<<endl
       <<"[-y <level 0 reduction factor threshold> = 10 (See code doc for details.)] "<<endl
@@ -419,7 +419,7 @@ void clogen_usage(char *bin_name, bool exit){
   if(exit) std::exit(EXIT_FAILURE); 
 }
 
-int parse_clogen_arguments(int *argc, char **argv){
+int parse_paraminer_arguments(int *argc, char **argv){
   char opt_char=0;
   opterr = 0; 
   int local_options = 0; 
@@ -428,25 +428,25 @@ int parse_clogen_arguments(int *argc, char **argv){
       switch(opt_char)
 	{
 	case 'c':
-	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0], true);
+	  if(optarg==NULL || !isdigit(*optarg)) paraminer_usage(argv[0], true);
 	  depth_tuple_cutoff = atoi(optarg);
 	  *optarg = '\0';
 	  cout<<"depth cutoff set to "<<depth_tuple_cutoff<<"."<<endl;
 	  break ;
 	case 'y':
-	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0], true);
+	  if(optarg==NULL || !isdigit(*optarg)) paraminer_usage(argv[0], true);
 	  max_reduction_threshold = atof(optarg);
 	  cout<<"max reduction factor threshold set to "<<max_reduction_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 'x':
-	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0], true);
+	  if(optarg==NULL || !isdigit(*optarg)) paraminer_usage(argv[0], true);
 	  min_reduction_threshold = atof(optarg);
 	  cout<<"min reduction factor threshold set to "<<min_reduction_threshold<<"."<<endl;
 	  *optarg = '\0';
 	  break; 
 	case 't':
-	  if(optarg==NULL || !isdigit(*optarg)) clogen_usage(argv[0], true);
+	  if(optarg==NULL || !isdigit(*optarg)) paraminer_usage(argv[0], true);
 	  num_threads = atoi(optarg);
 	  *optarg = '\0'; 
 	  break;
@@ -493,11 +493,11 @@ int parse_clogen_arguments(int *argc, char **argv){
   return optind;
 }
 
-int clogen(set_t initial_pattern){
+int paraminer(set_t initial_pattern){
 
   int num_pattern = 0; 
 #ifndef NDEBUG
-  cout<<"CLOGEN DEBUG"<<endl;
+  cout<<"PARAMINER DEBUG"<<endl;
 #endif
 
 #ifdef PARALLEL_PROCESS

@@ -1,4 +1,4 @@
-// clogen_local_itemsets.cpp
+// paraminer_local_itemsets.cpp
 // Made by Benjamin Negrevergne
 // Started on  Tue Oct 19 18:44:38 2010
 #include <cstdlib>
@@ -6,11 +6,11 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
-#include "clogen_local.hpp"
+#include "paraminer_local.hpp"
 #include "utils.hpp"
 #include "pattern.hpp"
 #include "database.hpp"
-#include "clogen.hpp" 
+#include "paraminer.hpp" 
 
 using namespace std; 
  int ELEMENT_RANGE_START = 1; 
@@ -204,7 +204,7 @@ void usage(char *bin_name){
 
 int main(int argc, char **argv){
 
-  int idx = parse_clogen_arguments(&argc, argv); 
+  int idx = parse_paraminer_arguments(&argc, argv); 
   if(argc-idx != 3){
     usage(argv[0]); 
     exit(EXIT_FAILURE); 
@@ -226,7 +226,7 @@ int main(int argc, char **argv){
   ot.resize(ELEMENT_RANGE_END); 
 
   set_t empty_set; 
-  int num_pattern = clogen(empty_set);
+  int num_pattern = paraminer(empty_set);
   cout<<num_pattern<<" patterns mined"<<endl;
 
 }

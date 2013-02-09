@@ -1,11 +1,11 @@
-// clogen_local_itemsets.cpp
+// paraminer_local_itemsets.cpp
 // Made by Benjamin Negrevergne
 // Started on  Tue Oct 19 18:44:38 2010
 //
 // /!\ This is the gradual definition as it is defined in
 // GLCM. (Handle no variations as positive variations.)  For a more
 // advanced definition of graduals, check
-// clogen_local_graduals_gen.cpp
+// paraminer_local_graduals_gen.cpp
 //
 
 
@@ -23,11 +23,11 @@
 
 #define TRACK_TIDS
 
-#include "clogen_local.hpp"
+#include "paraminer_local.hpp"
 
 #include "pattern.hpp"
 #include "database.hpp"
-#include "clogen.hpp" 
+#include "paraminer.hpp" 
 #include "utils.hpp"
 #include "bool_matrix.hpp"
 
@@ -404,7 +404,7 @@ for(int i = 0; i < s.size()-1; i++){
 
 
 
-    //bm.fill_bool_matrixClogen(transaction_pairs, nb_vtrans);
+    //bm.fill_bool_matrixParaMiner(transaction_pairs, nb_vtrans);
   //  vector<int> path_length(nb_vtrans, 0);
 
   vector<int> path_length(nb_max_tids.first, 0);
@@ -525,16 +525,16 @@ set_t clo(const set_t &set, const closure_data_t &data){
 
 
 void usage(char *bin_name){
-  clogen_usage(bin_name);
+  paraminer_usage(bin_name);
   cerr<<"Problem specific command line arguments:"<<endl; 
-  cerr<<bin_name<<" [<clogen options> (See above.)] <dataset> <minsup>"<<endl;
+  cerr<<bin_name<<" [<paraminer options> (See above.)] <dataset> <minsup>"<<endl;
   exit(EXIT_FAILURE); 
 }
 
 
 int main(int argc, char **argv){
 
-  int idx = parse_clogen_arguments(&argc, argv); 
+  int idx = parse_paraminer_arguments(&argc, argv); 
   if(argc-idx != 3){
     usage(argv[0]); 
   }
@@ -576,7 +576,7 @@ int main(int argc, char **argv){
   //   t_weights[i] = siblings[i].size(); 
   // }
 
-  //   fill_bool_matrixClogen(trans);
+  //   fill_bool_matrixParaMiner(trans);
   //cout<<endl; 
     //     bm.PrintInfo();
     all_bms.push_back(bm); 
@@ -594,7 +594,7 @@ int main(int argc, char **argv){
   cerr<<"THRESHOLD = "<<f_threshold<<" ["<<threshold<<" / "<<nb_vtrans<<"]"<<endl;
 
   set_t empty_set; 
-  int num_pattern = clogen(empty_set);
+  int num_pattern = paraminer(empty_set);
   cout<<num_pattern<<" patterns mined"<<endl;
 
 };

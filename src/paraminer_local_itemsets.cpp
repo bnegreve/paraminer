@@ -1,4 +1,4 @@
-// clogen_local_itemsets.cpp
+// paraminer_local_itemsets.cpp
 // Made by Benjamin Negrevergne
 // Started on  Tue Oct 19 18:44:38 2010
 #include <cstdlib>
@@ -7,11 +7,11 @@
 #include <sstream>
 #include <fstream>
 
-#include "clogen_local.hpp"
+#include "paraminer_local.hpp"
 
 #include "pattern.hpp"
 #include "database.hpp"
-#include "clogen.hpp" 
+#include "paraminer.hpp" 
 #include "utils.hpp"
 
 using std::cout; 
@@ -167,16 +167,16 @@ set_t clo(const set_t &set, const closure_data_t &data){
 
 
 void usage(char *bin_name){
-  clogen_usage(bin_name);
+  paraminer_usage(bin_name);
   cerr<<"Problem specific command line arguments:"<<endl; 
-  cerr<<bin_name<<" [<clogen_options> (See above.)] <dataset> <minsup>"<<endl;
+  cerr<<bin_name<<" [<paraminer_options> (See above.)] <dataset> <minsup>"<<endl;
   exit(EXIT_FAILURE); 
 }
 
 
 int main(int argc, char **argv){
 
-  parse_clogen_arguments(&argc, argv); 
+  parse_paraminer_arguments(&argc, argv); 
   if(argc != 3){
     usage(argv[0]); 
   }
@@ -212,7 +212,7 @@ int main(int argc, char **argv){
   trace_init(num_threads);
   
   set_t empty_set; 
-  int num_pattern = clogen(empty_set);
+  int num_pattern = paraminer(empty_set);
   cout<<num_pattern<<" patterns mined"<<endl;
 
 }

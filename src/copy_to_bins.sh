@@ -3,6 +3,6 @@
 make -j 32
 
 
-cp clogen_itemsets bins/clogen_itemsets_`git branch | grep '\*' | cut -d ' ' -f 2`
-cp clogen_cgraph bins/clogen_cgraph_`git branch | grep '\*' | cut -d ' ' -f 2`
-cp clogen_graduals bins/clogen_graduals_`git branch | grep '\*' | cut -d ' ' -f 2`
+cp paraminer_itemsets bins/paraminer_itemsets_`git branch | grep '\*' | cut -d ' ' -f 2`
+cp paraminer_cgraph bins/paraminer_cgraph_`git branch | grep '\*' | cut -d ' ' -f 2`
+cp paraminer_graduals bins/paraminer_graduals_`git branch | grep '\*' | cut -d ' ' -f 2`

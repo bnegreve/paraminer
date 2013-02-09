@@ -1,5 +1,5 @@
 /*
-** clogen_local.hpp
+** paraminer_local.hpp
 ** 
 ** Made by Benjamin Negrevergne
 ** Email   [firstname].[name]@imag.fr
@@ -7,8 +7,8 @@
 ** Started on  Tue Oct 19 17:59:52 2010 Benjamin Negrevergne
 */
 
-#ifndef   	_CLOGEN_LOCAL_HPP_
-#define   	_CLOGEN_LOCAL_HPP_
+#ifndef   	_PARAMINER_LOCAL_HPP_
+#define   	_PARAMINER_LOCAL_HPP_
 #include "database.hpp"
 #include "pattern.hpp"
 #include "element.hpp" 
@@ -27,7 +27,7 @@ typedef struct{
      of each transactions containing e. */
 }membership_data_t; 
 
-/* must be defined in clogen_local_*.cpp*/
+/* must be defined in paraminer_local_*.cpp*/
 extern element_t ELEMENT_RANGE_START; 
 extern element_t ELEMENT_RANGE_END; 
 
@@ -90,4 +90,4 @@ int main(int argc, char **argv);
 
 extern int num_threads;
 
-#endif	    /* _CLOGEN_LOCAL_HPP_ */
+#endif	    /* _PARAMINER_LOCAL_HPP_ */

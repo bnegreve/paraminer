@@ -6,7 +6,7 @@
 #include <algorithm>
 
 
-#include "clogen.hpp"
+#include "paraminer.hpp"
 #include "utils.hpp"
 #include "pattern.hpp"
 #include "database.hpp"
