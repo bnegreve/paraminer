@@ -6,6 +6,8 @@
 // GLCM. (Handle no variations as positive variations.)  For a more
 // advanced definition of graduals, check
 // clogen_local_graduals_gen.cpp
+//
+
 
 #include <cstdlib>
 #include <algorithm>
@@ -27,8 +29,10 @@
 #include "database.hpp"
 #include "clogen.hpp" 
 #include "utils.hpp"
+#include "bool_matrix.hpp"
 
-#include "BinaryMatrix.h"
+//x//#include "BinaryMatrix.h"
+
 
 //#define DETECT_NULL_VARIATION 1
 
@@ -37,16 +41,27 @@ using std::cout;
 using std::cerr; 
 using std::endl; 
 using namespace std; 
-using namespace nsPattern; 
+//x//using namespace nsPattern; 
 
 int ELEMENT_RANGE_END; 
 
 
 extern int threshold; 
 
+/* Hack to efficiently compute the original pairs of tids */
+typedef union{  
+  uint16_t i16s[2]; 
+  uint32_t i32; 
+}two_short_t; 
+#define first_ i16s[0] 
+#define second_ i16s[1] 
 
-typedef two_short_t trans_t;
+typedef two_short_t trans_t;	/**< Virtual transaction descriptor
+ type (virtual transactions are created for each pair of original
+ transaction. This types holds the tids of the original transactions. */
+
 typedef vector<trans_t> id_trans_t; 
+
 typedef std::map<trans_t, id_trans_t> trans_id_t; 
 
 
@@ -57,12 +72,39 @@ trans_id_t trans_id;
 vector<int> vtrans_t;
 int nb_vtrans = 0; 
 
-std::vector<trans_t> tid_code_to_original_array;
+std::vector<trans_t> tid_code_to_original_array; /**< Foreach virtual
+ transaction id, holds the trans_t that contains the tid of the
+ original transactions. */
 
-std::vector<BinaryMatrix> all_bms; 
-
+std::vector<BoolMatrix> all_bms; /**< BoolMatrix are used to represent
+ the variations between original transactions of each individual
+ attribute.  Larger patterns can be built by performing AND operations
+ between attribute matrix.
+ */
 
 trans_t tid_code_to_original(int code); 
+
+/** 
+ * \brief Fill the boolean matrix \bm from a set of \nb_trans
+ * transaction pairs.
+ *
+ * Boolean variable bm[i, j] is set to one, when the variation
+ *   between i and j supports the current pattern. 
+ * @param bm The boolean matrix to fill. 
+ * @param transaction pairs of original transactions (records). 
+ * @param nb_trans number of original transactions (records). 
+ */
+void fill_bool_matrix(BoolMatrix *bm, const id_trans_t &transaction, int nb_trans)
+{
+  assert(nb_trans == bm->get_size()); 
+  int col, row;
+  for(int i = 0; i < transaction.size(); i++){
+    /* if transaction in in thransction means t1 < t2 according to the item */
+    col = transaction[i].first_; 
+    row = transaction[i].second_;
+    bm->set_value(col, row, 1); /* therefore we set BM[t2][t1] to 1*/
+  }
+}
 
 
 void print_grad_transaction(const Transaction &t){
@@ -176,7 +218,12 @@ int tt_to_grad_items(TransactionTable *output, const TransactionTable &input){
   return 0; 
 }
 
-/* convert a tid code and return the original pair of transactions */ 
+
+/** 
+ * \brief Convert the tid of a vtrans into a pair of original transaction tids. 
+ * @param code the tid of the vtrans. 
+ * @return The pair of original transaction tids. 
+ */
 trans_t tid_code_to_original(int code){
   return tid_code_to_original_array[code]; 
   trans_t t; 
@@ -199,17 +246,17 @@ int support_from_path_lengths(const vector<int> &path_lengths){
   return sup; 
 }
 
-void rec_compute_path_length(int trans, const BinaryMatrix &BM, 
+void rec_compute_path_length(int trans, const BoolMatrix &BM, 
 			     vector<int> *path_length){
 
   if((*path_length)[trans] != 0)
     return; 
-  int BMSize = BM.getSize();
-  if (!BM.checkZero(trans)) {
+  int BMSize = BM.get_size();
+  if (!BM.null_row_p(trans)) {
 
     for(int j = 0; j < BMSize; j++)
       {
-  	if (BM.getValue(j,trans))
+  	if (BM.get_value(trans,j))
   	  {
 	   
 	    //if (BM.checkZero(j)) freMap[trans] = 1;
@@ -230,7 +277,7 @@ void rec_compute_path_length(int trans, const BinaryMatrix &BM,
 }
 
 /* Same as loop_find_longuest_paths() but only computes support value (do not store the paths)*/
-int compute_gradual_support(const BinaryMatrix &BM, vector<int> *path_length){
+int compute_gradual_support(const BoolMatrix &BM, vector<int> *path_length){
   int psize = path_length->size();
   for(int i = 0; i < psize; i++)
     {
@@ -272,6 +319,14 @@ pair<int,int> retreive_transaction_pairs_count(const TransactionTable &tt, const
   return pair<int,int>(nb_tids, max_tid); 
 }
 
+void detect_short_cycles(const BoolMatrix &bm){
+  for (int i = 0; i < bm.get_size(); i++)
+    for (int j = 0; j < bm.get_size(); j++)
+      if(i != j && bm.get_value(i,j) && bm.get_value(j,i)){
+	cerr<<"SHORT CYCLE DETECTED "<<i<<"x"<<j<<endl; 
+	abort(); 
+      }
+}
 
 int membership_oracle(const set_t &base_set, const element_t extension, 
 		      const membership_data_t &data){
@@ -319,7 +374,7 @@ for(int i = 0; i < s.size()-1; i++){
   //   cout<<transaction_pairs[i].first_<<"x"<<transaction_pairs[i].second_<<endl; 
   // }
   
-  BinaryMatrix bm(nb_max_tids.first);
+  BoolMatrix bm(nb_max_tids.first);
 
   /* Rename tids in the range [0, max_tids] */
   vector<int16_t> back_perms(nb_max_tids.second+1,-1);
@@ -335,7 +390,7 @@ for(int i = 0; i < s.size()-1; i++){
 
     //    cout<<back_perms[it->first_]<<"->"<<t1<<endl; 
     //    cout<<back_perms[it->second_]<<"->"<<t2<<endl; 
-    bm.setValue(t1,t2, true); 
+    bm.set_value(t2,t1, true); 
   }
 
 
@@ -349,7 +404,7 @@ for(int i = 0; i < s.size()-1; i++){
 
 
 
-    //bm.constructBinaryMatrixClogen(transaction_pairs, nb_vtrans);
+    //bm.fill_bool_matrixClogen(transaction_pairs, nb_vtrans);
   //  vector<int> path_length(nb_vtrans, 0);
 
   vector<int> path_length(nb_max_tids.first, 0);
@@ -422,39 +477,20 @@ set_t clo(const set_t &set, const closure_data_t &data){
   const Occurence &occs = data.occurences; 
   id_trans_t transaction_pairs(occs.size());
   
+
+  
+  /* Retreive original transaction ids from vtrans ids. */
   int i=0; 
   for(Occurence::const_iterator it = occs.begin(); it != occs.end(); ++it){    
-    //    original_occs[i++] = data.tt[*it].original_tid; 
     transaction_pairs[i++] = tid_code_to_original(data.tt[*it].tids[0]); 
   }
-  //  sort(transaction_pairs.begin(), transaction_pairs.end()); 
 
-  BinaryMatrix bm(nb_vtrans);
-
-  
-  bm.constructBinaryMatrixClogen(transaction_pairs, nb_vtrans);
+  /* Fill a bool matrix: [i, j] is set to one, when the variation
+     between i and j supports the current pattern. */
+  BoolMatrix bm(nb_vtrans);
+  fill_bool_matrix(&bm, transaction_pairs, nb_vtrans);
   
   bool change = true; 
-
-  /* TODO REDUCTION FROM DOT, REMOVE.*/
-  //  reduceBM(bm, threshold, change); 
-
-  /* TODO Retreive paths from membership computation */
-  //  binary_matrix_remove_short_cycles(&bm_no_cycles, &siblings, nb_vtrans); 
-
-  //  cout<<"BINARY MATRIX FOR : "<<endl;
-  //  set_print(s); 
-  //  bm.PrintInfo(); 
-
-
-  //  vector<vector< int > > paths(nb_vtrans, vector<int>());
-  //  vector<int> path_lengths(nb_vtrans, 0); 
-  //  loop_find_longest_paths(bm_no_cycles, siblings, &path_lengths, &paths);
-
-  //  vector<int> longuest_path_nodes; 
-  //  extract_longuest_path_nodes(&longuest_path_nodes, path_lengths, paths); 
-  //restrict_binary_matrix(&bm, longuest_path_nodes);
-
 
   bool first_positive_flag = false;
   bool discard_next = false; 
@@ -473,9 +509,9 @@ set_t clo(const set_t &set, const closure_data_t &data){
 	if(!first_positive_flag)
 	  continue;    
       
-      BinaryMatrix bme(all_bms[i]); 
+      BoolMatrix bme(all_bms[i]); 
       //    restrict_binary_matrix(&bme, longuest_path_nodes); 
-      bme &= bm; 
+      bme.bitwise_and(bm); 
       if(bme == bm){
 	c.push_back(i); 
 	if(i%2==0)
@@ -484,14 +520,6 @@ set_t clo(const set_t &set, const closure_data_t &data){
     }
   }
 
-  // if(set != c){
-
-  //   cout<<"FERMETURE DE "<<endl; 
-  //   set_print(set); 
-  //   cout<<" EST : "<<endl; 
-  //   set_print(c); 
-  //   cout<<"FIN"<<endl; 
-  // }
   return c; 
 }
 
@@ -532,7 +560,7 @@ int main(int argc, char **argv){
 
   all_bms.reserve(ELEMENT_RANGE_END); 
   for(int i = 0; i < ELEMENT_RANGE_END; i++){
-    BinaryMatrix bm(nb_vtrans);
+    BoolMatrix bm(nb_vtrans);
     id_trans_t trans; 
     for(int j = 0; j < ot[i].size(); j++){
       trans.push_back(tid_code_to_original(ot[i][j]));
@@ -540,7 +568,7 @@ int main(int argc, char **argv){
 
 
    vector<vector<int> > siblings; 
-  bm.constructBinaryMatrixClogen(trans,nb_vtrans); 
+   fill_bool_matrix(&bm, trans,nb_vtrans); 
   
   // vector<int> freMap(nb_vtrans, -1); 
   // set_t t_weights(nb_vtrans); 
@@ -548,7 +576,7 @@ int main(int argc, char **argv){
   //   t_weights[i] = siblings[i].size(); 
   // }
 
-  //   bm.constructBinaryMatrixClogen(trans);
+  //   fill_bool_matrixClogen(trans);
   //cout<<endl; 
     //     bm.PrintInfo();
     all_bms.push_back(bm); 
@@ -569,4 +597,4 @@ int main(int argc, char **argv){
   int num_pattern = clogen(empty_set);
   cout<<num_pattern<<" patterns mined"<<endl;
 
-}
+};
