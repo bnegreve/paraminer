@@ -13,10 +13,10 @@ AM_CPPFLAGS += -pg --coverage
 AM_LDFLAGS += -pg --coverage
 endif 
 
-COMMON = clogen.cpp element.cpp database.cpp pattern.cpp utils.cpp\
-	 BinaryMatrix.h CException.h clogen.hpp clogen_local.hpp \
-	 database.hpp element.hpp itemset_specific.hpp melinda_local.hpp\
-	 pattern.hpp Sort.h TransactionSequence.h utils.hpp
+COMMON = clogen.cpp element.cpp database.cpp pattern.cpp utils.cpp	\
+	  clogen.hpp clogen_local.hpp database.hpp element.hpp		\
+	  itemset_specific.hpp melinda_local.hpp pattern.hpp		\
+	  utils.hpp
 
 bin_PROGRAMS = \
 	paraminer_itemsets \
@@ -29,6 +29,5 @@ AM_DEFAULT_SOURCE_EXT = .cpp
 
 paraminer_itemsets_SOURCES = clogen_local_itemsets.cpp $(COMMON)
 paraminer_cgraphs_SOURCES = clogen_local_cgraphs.cpp $(COMMON)
-paraminer_graduals_SOURCES = clogen_local_graduals.cpp BinaryMatrix.cpp \
-	 CException.cpp TransactionSequence.cpp $(COMMON)
+paraminer_graduals_SOURCES = clogen_local_graduals.cpp $(COMMON)
 
