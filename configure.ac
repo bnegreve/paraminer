@@ -18,6 +18,17 @@ esac],
 [debug=false])
 AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
 
+AC_ARG_ENABLE(prof,
+AS_HELP_STRING([--enable-prof],
+               [enable profiling, default: no]),
+[case "${enableval}" in
+             yes) prof=true ;;
+             no)  prof=false ;;
+             *)   AC_MSG_ERROR([bad value ${enableval} for --enable-prof]) ;;
+esac],
+[prof=false])
+AM_CONDITIONAL(PROF, test x"$prof" = x"true")
+
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
  Makefile

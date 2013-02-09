@@ -1,10 +1,16 @@
 AM_CPPFLAGS = -I$(srcdir)/../melinda/
 AM_CFLAGS = -std=c99
+AM_LDFLAGS = 
 
 if DEBUG
 AM_CPPFLAGS +=  
 else 
 AM_CPPFLAGS += -DNDEBUG
+endif 
+
+if PROF
+AM_CPPFLAGS += -pg --coverage
+AM_LDFLAGS += -pg --coverage
 endif 
 
 COMMON = clogen.cpp element.cpp database.cpp pattern.cpp utils.cpp\
