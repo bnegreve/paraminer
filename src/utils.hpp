@@ -1,12 +1,10 @@
-/*
-** utils.h
-** 
-** Made by Benjamin Negrevergne
-** Email   [firstname].[name]@imag.fr
-** 
-** Started on  Thu Sep  2 13:14:01 2010 Benjamin Negrevergne
-*/
-
+/**
+ * @file   utils.hpp
+ * @author Benjamin Negrevergne <benjamin@neb.dyn.cs.kuleuven.be>
+ * @date  Thu Sep  2 13:14:01 2010
+ * 
+ * @brief Convinience functions for various usages in ParaMiner. 
+ */
 #ifndef   	_UTILS_H_
 #define   	_UTILS_H_
 

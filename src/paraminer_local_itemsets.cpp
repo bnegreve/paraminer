@@ -1,6 +1,11 @@
-// paraminer_local_itemsets.cpp
-// Made by Benjamin Negrevergne
-// Started on  Tue Oct 19 18:44:38 2010
+/**
+ * @file   paraminer_local_cgraphs.cpp
+ * @author Benjamin Negrevergne <benjamin@neb.dyn.cs.kuleuven.be>
+ * @date   Tue Oct 19 18:44:38 2010
+ * 
+ * @brief ParaMiner instance for mining closed frequent itemsets (fim)
+ * 
+ */
 #include <cstdlib>
 #include <algorithm>
 #include <vector>

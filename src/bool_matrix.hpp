@@ -1,6 +1,16 @@
+/**
+ * @file   bool_matrix.hpp
+ * @author Benjamin Negrevergne <benjamin@neb.dyn.cs.kuleuven.be>
+ * @date   Sat Feb  9 15:31:10 2013
+ * 
+ * @brief  Convinience boolean matrix class for gradual itemset mining.
+ * 
+ * 
+ */
+
 // bool_matrix.hpp
 // Made by Benjamin Negrevergne
-// Started on  Sat Feb  9 15:31:10 2013
+// Started on  
 
 #ifndef   	_BOOL_MATRIX_HPP_
 #define   	_BOOL_MATRIX_HPP_
@@ -11,6 +21,16 @@
    elements, this should be replaced by a bitwise implementation for more efficiency*/
 
 /* Square Bool Matrix */
+
+
+/** 
+ * @class BoolMatrix
+ *
+ * @brief Convinience boolean matrix class for gradual itemset mining.
+ * 
+ * Boolean Square Matrix. 
+ * 
+ */
 class BoolMatrix : public std::vector<bool> {
 
 private: 
@@ -95,7 +115,3 @@ public:
   
 
 #endif	    /* _BOOL_MATRIX_HPP_ */
-
-
-
-

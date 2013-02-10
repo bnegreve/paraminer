@@ -1,12 +1,12 @@
-/*
-** paraminer_local.hpp
-** 
-** Made by Benjamin Negrevergne
-** Email   [firstname].[name]@imag.fr
-** 
-** Started on  Tue Oct 19 17:59:52 2010 Benjamin Negrevergne
-*/
-
+/**
+ * @file   paraminer_local.hpp
+ * @author Benjamin Negrevergne <benjamin@neb.dyn.cs.kuleuven.be>
+ * @date   Tue Oct 19 17:59:52 2010 
+ * 
+ * @brief  Public header for ParaMiner instance source code.
+ * 
+ * 
+ */
 #ifndef   	_PARAMINER_LOCAL_HPP_
 #define   	_PARAMINER_LOCAL_HPP_
 #include "database.hpp"

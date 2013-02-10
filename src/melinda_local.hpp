@@ -1,11 +1,11 @@
-//
-// melinda_local.hpp
-// 
-// Made by Benjamin Negrevergne
-// Email   <@[firstname].[name]@@@imag.fr@>
-// 
-// Started on  Thu Sep  9 16:42:23 2010 Benjamin Negrevergne
-//
+/**
+ * @file   melinda_local.hpp
+ * @author Benjamin Negrevergne <benjamin@neb.dyn.cs.kuleuven.be>
+ * @date   Thu Sep  9 16:42:23 2010 
+ * 
+ * @brief  Melinda config file for ParaMiner. 
+ * 
+ */
 
 #ifndef   	_MELINDA_LOCAL_HPP_
 #define   	_MELINDA_LOCAL_HPP_

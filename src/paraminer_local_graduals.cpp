@@ -1,14 +1,16 @@
-// paraminer_local_itemsets.cpp
-// Made by Benjamin Negrevergne
-// Started on  Tue Oct 19 18:44:38 2010
-//
-// /!\ This is the gradual definition as it is defined in
-// GLCM. (Handle no variations as positive variations.)  For a more
-// advanced definition of graduals, check
-// paraminer_local_graduals_gen.cpp
-//
-
-
+/**
+ * @file   paraminer_local_cgraphs.cpp
+ * @author Benjamin Negrevergne <benjamin@neb.dyn.cs.kuleuven.be>
+ * @date   Tue Oct 19 18:44:38 2010
+ * 
+ * @brief ParaMiner instance for mining closed frequent gradual itemsets (gri).
+ * 
+ * /!\ This is the gradual definition as it is defined in
+ * GLCM. (Handle no variations as positive variations.)  For a more
+ * advanced definition of graduals, check 
+ * paraminer_local_graduals_gen.cpp
+ * 
+ */
 #include <cstdlib>
 #include <algorithm>
 #include <vector>

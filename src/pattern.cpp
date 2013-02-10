@@ -10,7 +10,6 @@
 #include "utils.hpp"
 #include "pattern.hpp"
 #include "database.hpp"
-#include "itemset_specific.hpp" 
 
 using namespace std; 
 

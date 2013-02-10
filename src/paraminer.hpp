@@ -1,12 +1,11 @@
-//
-// paraminer.hpp
-// 
-// Made by Benjamin Negrevergne
-// Email   <@[firstname].[name]@@@imag.fr@>
-// 
-// Started on  Fri Sep  3 14:44:21 2010 Benjamin Negrevergne
-//
-
+/**
+ * @file   paraminer.hpp
+ * @author Benjamin Negrevergne <benjamin@neb.dyn.cs.kuleuven.be>
+ * @date   Fri Sep  3 14:44:21 2010
+ * 
+ * @brief  ParaMiner main file. 
+ * 
+ */
 #ifndef   	_PARAMINER_HPP_
 #define   	_PARAMINER_HPP_
 
