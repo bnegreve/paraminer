@@ -14,9 +14,8 @@ AM_LDFLAGS += -pg --coverage
 endif 
 
 COMMON = paraminer.cpp element.cpp database.cpp pattern.cpp utils.cpp	\
-	  paraminer.hpp paraminer_local.hpp database.hpp element.hpp		\
-	  itemset_specific.hpp melinda_local.hpp pattern.hpp		\
-	  utils.hpp
+	 paraminer.hpp paraminer_local.hpp database.hpp element.hpp		\
+	 melinda_local.hpp pattern.hpp utils.hpp 
 
 bin_PROGRAMS = \
 	paraminer_itemsets \
