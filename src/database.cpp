@@ -454,80 +454,9 @@ void database_occuring_elements(set_t *elements,
   }
 }
 
-int get_set_presence_1d(const Transaction &t, const set_t &set){
-  return is_included_1d(t, set); 
-}
-
-int is_included_1d(const Transaction &t, const set_t &set){
-  assert(is_sorted(t)); 
-  if(set.size()==0)
-    return 1; 
-  if(t.size() == 0)
-    return 0; 
-    
-  //  assert(is_sorted(t));
-  // if(!is_sorted(set))
-  //   set_print(set); 
-  assert(is_sorted(set)); 
-  Transaction::const_iterator it = t.begin(); 
-  set_t::const_iterator set_it = set.begin(); 
-
-  do{
-    if(*set_it == *it)
-      if(++set_it == set.end())
-	return 1;
-    ++it; 
-  }while(it != t.end());
- 
-  return 0; 
-}
-
-int count_inclusion_1d();
-
-int count_inclusion_2d(const TransactionTable &tt, const set_t &set){
-  int count  = 0; 
-  for(TransactionTable::const_iterator it = tt.begin(); it != tt.end(); ++it){
-    if(is_included_1d(*it, set))
-      count++; 
-  }
-  return count; 
-}
-
-int count_inclusion_2d(const TransactionTable &tt, const Transaction &occs, const set_t &set){
-  int count  = 0; 
-  for(int i = 0; i < occs.size(); i++)
-    if(is_included_1d(tt[occs[i]], set))
-      count++; 
-
-  return count; 
-}
-
-
-void get_occurences_2d(const TransactionTable &tt, const set_t &set, Occurence *oc){
-  int i = 0;
-  for(TransactionTable::const_iterator it = tt.begin(); it != tt.end(); ++it, ++i){
-    if(get_set_presence_1d(*it, set))
-      oc->push_back(i); 
-  }
-}
-
-
-set_t canonical_form(set_t set){
-  return set; 
-}
-
-element_t canonical_transform_element(const set_t &set, element_t &element){
-  return element; 
-}
-
-set_t canonical_form(set_t set, element_t *element){
-  return set; 
-}
-
 
 void compute_element_support(SupportTable *support, const TransactionTable &tt,
 			     const Occurence &occs){
-
   Transaction::const_iterator o_it_end = occs.end(); 
   for(Transaction::const_iterator o_it = occs.begin(); o_it != o_it_end; ++o_it){
     int t_weight = tt[*o_it].weight; 
@@ -539,15 +468,6 @@ void compute_element_support(SupportTable *support, const TransactionTable &tt,
     }
   }
 } 
-
-
-
-void all_occurences(Transaction *occs, const TransactionTable &tt){
-  occs->resize(tt.size()); 
-  for(int i = 0; i < tt.size(); i++){
-    (*occs)[i] = i; 
-  }
-}
 
 void print_tt_info(const TransactionTable &tt){
   cerr<<"nb distinct elements\t:\t"<<tt.max_element+1<<endl;

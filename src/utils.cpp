@@ -303,17 +303,6 @@ void set_truncate_above(set_t *s, element_t v){
   s->resize(idx+1);
 }
 
-int set_is_frequent(const set_t &set, const TransactionTable &tt, int min_sup){
-  int freq = count_inclusion_2d(tt, set);
-  if(freq >= min_sup)
-    return 1; 
-  return 0; 
-}
-
-int set_is_frequent_in_occurences(const set_t &set, const TransactionTable &tt,
-				  const Transaction &occurences, int min_sup){
-  return count_inclusion_2d(tt, occurences, set) >= min_sup;
-}
 
 // set_t support_based_closure(TransactionTable &tt, const set_t &s){
 

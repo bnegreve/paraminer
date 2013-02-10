@@ -1,53 +1,125 @@
-//
-// itemset_specific.hpp
-// 
-// Made by Benjamin Negrevergne
-// Email   <@[firstname].[name]@@@imag.fr@>
-// 
-// Started on  Fri Sep  3 13:59:43 2010 Benjamin Negrevergne
-//
-
-#ifndef   	_ITEMSET_SPECIFIC_HPP_
-#define   	_ITEMSET_SPECIFIC_HPP_
+/**
+ * @file   database.hpp
+ * @author Benjamin Negrevergne <benjamin@neb.dyn.cs.kuleuven.be>
+ * @date   Fri Sep  3 13:59:43 2010
+ * 
+ * 
+ * @brief  Public header for database related types and functions.
+ *
+ * 
+ */
+#ifndef   	_DATABASE_HPP_
+#define   	_DATABASE_HPP_
 
 #include <iostream>
 #include <vector>
 #include "pattern.hpp"
 #include "element.hpp"
 
-/* Enable merging of identical transactions */ 
-#define DATABASE_MERGE_TRANS
-#define SORT_DATABASE
-#define TRACK_TIDS
-#define REMOVE_NON_CLOSED
+/* Various database options. Depending on the problem solved, these
+ options may be mandatory.  Ideally this should be dynamic options but
+ it's not. */
 
-typedef element_t tid_t; 
+#define TRACK_TIDS		/**< Enable TID tracking in ParaMiner. */
+#define DATABASE_MERGE_TRANS	/**< Enable merging of identical transactions. */
+#define SORT_DATABASE		/**< Sort elements in transactions.  */
+#define REMOVE_NON_CLOSED	/**< Remove elements that cannot be
+				   part of any closure (el-reduce)*/
 
-struct Transaction : set_t{
-  int weight;
+
+/* Basic data types in ParaMiner */
+typedef element_t tid_t;	/**< Transaction identifier type (tid). */
+
+/** 
+ * @class Transaction
+ * Used to store a transaction.
+ */
+struct Transaction : set_t{ 
+  int weight; 	    /**< Weight of the transaction (involved in support counting) */
 #ifdef TRACK_TIDS
-  set_t tids;
+  set_t tids;	    /**< Transaction id (tid) of the transaction. */
 #endif
   /* Index of the first element of the second sort */
   int limit; 
 }; 
-struct TransactionTable : std::vector<Transaction>{
-  element_t max_element;
-};
-//typedef std::vector<Transaction> TransactionTable; 
-typedef set_t Occurence; 
-typedef std::vector<Occurence> OccurenceTable; 
-typedef std::vector<element_t> SupportTable; 
 
+/** 
+ * @class TransactionTable
+ * Used to store a set of transactions (dataset).
+ */
+struct TransactionTable : std::vector<Transaction>{
+  element_t max_element;	/**< Maximum element among this TransactionTable. */
+};
+
+/** 
+ * @typedef Occurence
+ * Set of tids.
+ * Ocurrences of an element are the list of transaction ids (tid)
+ * of the transactions in which it occurrs.
+ */
+typedef set_t Occurence;
+
+/** 
+ * @typedef OccurenceTable
+ * Array of Occurrences.  
+ * Used to store the occurrences of each
+ * element of a TransactionTable (see transpose functions.) 
+ */
+typedef std::vector<Occurence> OccurenceTable;
+
+/** 
+ * @typedef SupportTable 
+ * Array of support count. Used to store the support count of a set of element. 
+ */
+typedef std::vector<element_t> SupportTable;
+
+
+
+
+
+
+
+/** 
+ * @brief Read the the file \filename and fill the TransactionTable
+ * \tt with the values in this file.
+ * 
+ * Transactions are sorted if SORT_DATABASE is defined.
+ *
+ * @param tt The TransactionTable to fill. 
+ * @param filename Name of the file containing the data. 
+ * 
+ * @return The value of the maximal element in the dataset.
+ */
 element_t read_transaction_table(TransactionTable *tt, const char *filename); 
 
-
+/** 
+ * @brief Print the transaction t on stdout. 
+ * 
+ * @param t 
+ */
 void print_transaction(const Transaction &t); 
 
+/** 
+ * @brief Print the transaction table \tt on stdout.
+ * 
+ * @param tt The TransactionTable to print.
+ */
 void print_transaction_table(const TransactionTable &tt); 
 
+/** 
+ * \brief Build the transposed (i.e. vertical) representation of the TransactionTable \tt.
+ * 
+ * Given a transaction table, build the transposed transaction table
+ * \ot that contains for each elements i the set of transactions in
+ * which it occurs in tt.
+ *
+ * After a call to transpose_tids, 
+ * (*ot)[e] contains i iff i is a tid in \tids such that tt[i] contains e. 
+ *
+ * @param tt The input transaction table. 
+ * @param ot The output, transposed transaction table. 
+ */
 void transpose(const TransactionTable &tt, TransactionTable *ot); 
-
 
 /** 
  * \brief Build the transposed (i.e. vertical) representation of the TransactionTable \tt.
@@ -122,36 +194,25 @@ void database_build_reduced(TransactionTable *new_tt, const TransactionTable &tt
 void database_occuring_elements(set_t *elements, 
 				const TransactionTable &tt, const Transaction &occurences);
 
-
-int is_included_1d(const Transaction &t, const set_t &set); 
-
-int count_inclusion_2d(const TransactionTable &tt, const set_t &set); 
-int count_inclusion_2d(const TransactionTable &tt, const Transaction &occs, const set_t &set); 
-
-void get_occurences_2d(const TransactionTable &tt, const set_t &set, Occurence *oc);
-
-int get_set_presence_1d(const Transaction &t, const set_t &set);
-
-// int membership_oracle(const set_t &set); 
-
-
-// set_t clo(const set_t &set); 
-
-/* DEPRECATED */
-set_t canonical_form(set_t set); 
-
-/* DEPRECATED */
-element_t canonical_transform_element(const set_t &set, element_t &element); 
-
-/* return the canonical form of a pattern */
-set_t canonical_form(set_t set, element_t *element = NULL);
-
-
+/** 
+ * @brief Count the support of each element in the transactions
+ * described by \occs and store it in \support array.
+ *
+ * After a call, support[i] contains the support of item i.
+ * \warning Transactions whose tid doesn't belong to \occs are ignored.  
+ * \warning The weight of each transaction containing an element i is
+ * added to the support count.
+ *
+ * @param support The output array.
+ * @param tt The TransactionTable. 
+ * @param occs List of tids in \tt that must be considered in the support count. 
+ */
 void compute_element_support(SupportTable *support, const TransactionTable &tt,
 			     const Occurence &occs); 
 
-void all_occurences(Transaction *occs, const TransactionTable &tt); 
-
+/** 
+ * @brief Print the transaction table tt. 
+ */
 void print_tt_info(const TransactionTable &tt); 
 
 
@@ -233,4 +294,4 @@ void reduce_partition(const TransactionTable &tt, const Transaction &occurrences
 		      const set_bit_t &pattern, int pattern_size, 
 		      Transaction *representative, element_t *max_element);
 
-#endif	    /* _ITEMSET_SPECIFIC_HPP_ */
+#endif	    /* _DATABASE_ */
