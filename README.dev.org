@@ -1,0 +1,50 @@
+* Developper manual
+
+** Developper documentation (doxygen)
+
+ http://membres-liglab.imag.fr/negrevergne/paraminer/doxygen/
+  
+** Checkout the source tree
+: git clone <gitrepos> paraminer
+: cd paraminer
+: git submodule init
+: git submodule update
+
+** Compile in release mode
+: ./autogen.sh
+: mkdir -p build/release; cd build/release
+: ../../configure
+: make
+   
+** Compile in debug mode
+: ./autogen.sh
+: mkdir -p build/debug; cd build/debug
+: ../../configure --enable-debug
+: make
+
+** Run test suite 
+(in build/debug, or build/release)
+
+: make check 
+
+debug test suite:
+: source tests/tests-env.sh 
+will set up the environment variable to have access to all tests scripts and testing software. 
+
+Then you can run tests individually from paraminer/tests
+
+** Release paraminer 
+make dist will create an tar.gz archive 
+
+** Editing README file
+
+Please edit doc/readme.org instead of editing the README file located
+in the archive root directory.  The doc/readme.org must then be exported to 
+- a flat (utf8) README file (stored at: <archive_root_dir>/README)
+- a hypertext file (stored at: <archive_root_dir>/doc/readme.html)
+
+The export is done using emacs org-mode.
+
+For convinience, README and doc/readme.html are both tracked in the git repository, and
+therefore they must be updated when they undergo some modifications.
+

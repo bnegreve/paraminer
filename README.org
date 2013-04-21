@@ -1,15 +1,11 @@
-ParaMiner: a generic, parallel algorithm for closed pattern mining.
-#+STYLE: <link rel="stylesheet" type="text/css" href="stylesheet.css" />
-
-License: LGPLv3 See LICENSE file.
-
-This software was designed at: Grenoble University / LIG. 
+ParaMiner is a generic, parallel algorithm for mining closed frequent
+patterns in transactional datasets.
 
 
 * Quick start 
 
 ** Download ParaMiner 
-   here: http://membres-liglab.imag.fr/negrevergne/paraminer/paraminermelinda.tgz
+   here: http://membres-liglab.imag.fr/negrevergne/paraminer/releases/paraminer-1.0.tar.gz
 
 ** Extract the archive
     : tar xzvf paraminermelinda.tgz
@@ -304,3 +300,16 @@ Conference on (pp. 521-528). IEEE.
 [ 7 ] Anne Laurent, Benjamin Négrevergne, Nicolas Sicard, and Alexandre
 Termier. Pgp-mc: Towards a multicore parallel approach for mining
 gradual patterns. In DASFAA, pages 78-84, 2010.
+* Authors and license 
+
+Authors: 
+- Benjamin Negrevergne
+- Alexandre Termier
+  
+It was developped at Grenoble University / LIG. 
+
+License: ParaMiner is distributed under the LGPLv3 See LICENSE file in source directory for more informations. 
+
+
+
+
