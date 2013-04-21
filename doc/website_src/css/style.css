@@ -1,0 +1,135 @@
+A, BODY, FORM, H1, H2, H3, LI, P, PRE, SPAN, UL {
+	margin: 0px;
+	padding: 0px;
+}
+BODY {
+	background-color: #eeeeee;
+	font-family: Arial, Helvetica, sans-serif;
+	text-align: center;
+}
+
+INPUT, SELECT {
+	font-size: 12px;
+}
+
+PRE {
+	font-size: 12px;
+	margin-top: 5px;
+}
+
+#body {
+	background: white;
+	border-top: 2px solid #aaaaaa;
+	border-left: 2px solid #aaaaaa;
+	border-right: 2px solid #aaaaaa;
+	width: 700px;
+	margin: 0 auto;
+	margin-top: 5px;
+	padding: 10px;
+
+}
+
+#head {
+	background: transparent url("../img/paraminer.png") no-repeat left top;
+	text-align: left;
+	padding: 20px 0 0 205px;
+	height: 150px;
+}
+#head H1 {
+	color: #444444;
+	font-size: 22px;
+}
+#head H2 {
+	color: #888888;
+	font-size: 18px;
+	margin-left: 20px;
+}
+
+#menu {
+	background-color: #666666;
+	font-size: 12px;
+}
+#menu A {
+	color: white;
+	font-weight: bold;
+	text-decoration: none;
+	padding: 0 10px 0 10px;
+}
+#menu A:hover {
+	background-color: white;
+	color: #666666;
+}
+
+#content {
+	min-height: 250px;
+	text-align: left;
+}
+#content .ajax {
+	color: #dd2222;
+	font-size: 22px;
+	font-weight: bold;
+}
+
+#foot {
+	color: #aaaaaa;
+	font-size: 10px;
+}
+
+.section {
+	border-bottom: 1px solid #dddddd;
+	color: #444444;
+	font-size: 14px;
+	margin-top: 10px;
+	padding-bottom: 10px;
+}
+.section A {
+	color: #664444;
+}
+.section A:hover {
+	color: #aa2222;
+	text-decoration: none;
+}
+.section CODE {
+	color: black;
+	background-color: #f2ebdc;
+	font-size: 12px;
+}
+H1 {
+	font-size: 20px;
+	margin: 0 0 0 20px;
+}
+
+H2 {
+	font-size: 20px;
+	margin: 0 0 0 5px;
+     	margin-top: 20px;
+     margin-bottom: 15px;
+}
+
+H3 {
+     	margin: 0 0 0 10px;
+	font-size: 16px;
+	margin-top: 10px;
+     	margin-bottom: 10px;
+}
+ LI {
+	margin: 0 0 0 20px;
+}
+
+PRE {
+	color: black;
+	background-color: #f2ebdc;
+	font-size: 12px;
+	margin: 5px 0 10px 0;
+	border-left: 1px solid #aaa499;
+	margin-left: 10px;
+	padding-left: 10px;
+	width: 500px;
+}
+
+.section2 {
+	border-left: 4px solid #dddddd;
+	text-align: left;
+	margin: 20px 0 0 20px;
+	padding-left: 5px;
+}

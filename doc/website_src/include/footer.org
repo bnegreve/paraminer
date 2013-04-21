@@ -1,0 +1,10 @@
+
+
+
+#+BEGIN_HTML
+
+	<div id="foot">
+	  Design: Copyright (c) 2006 Davide Rognoni, Content: Copyright 2013 Benjamin Negrevergne, Alexandre Termier. 
+	</div>
+</div> <!-- end body -->
+#+END_HTML 

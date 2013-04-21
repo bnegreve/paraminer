@@ -1,0 +1,20 @@
+
+
+
+#+BEGIN_HTML
+
+<div id="body">
+	<div id="head">
+		<h1>ParaMiner</h1>
+		<h2>Efficient Pattern Mining</h2>
+
+	</div>
+	<div id="menu">
+		<a href='#quick_start'>Quick start</a>
+	  <a href='#quick_start'>Running built-in instances</a>
+	  	  <a href='#quick_start'>Creating an instance</a>
+		<a href='#dev_doc'>Developper documentation</a>
+		<a href='#authors'>Authors</a>
+	</div>
+<br/>
+#+END_HTML 
