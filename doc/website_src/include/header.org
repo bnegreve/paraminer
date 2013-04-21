@@ -10,11 +10,12 @@
 
 	</div>
 	<div id="menu">
-		<a href='#quick_start'>Quick start</a>
-	  <a href='#quick_start'>Running built-in instances</a>
-	  	  <a href='#quick_start'>Creating an instance</a>
-		<a href='#dev_doc'>Developper documentation</a>
-		<a href='#authors'>Authors</a>
+		<a href='#Quick-start'>Quick start</a>
+	  <a href='#Running-a-built-in-instance'>Running built-in instances</a>
+	  	  <a href='#Creating-your-own-instance'>Creating an instance</a>
+		<a href='dev'>Developper doc.</a>
+		<a href='#Refs'>Plublications</a>
+		<a href='#Authors'>License</a>
 	</div>
 <br/>
 #+END_HTML 

@@ -2,7 +2,7 @@ ParaMiner is a generic, parallel algorithm for mining closed frequent
 =====================================================================
 
 Author: Benjamin Negrevergne
-Date: 2013-04-21 16:35:07 CEST
+Date: 2013-04-21 16:55:06 CEST
 
 
 patterns in transactional datasets.
@@ -30,19 +30,12 @@ Table of Contents
         3.3.1 Parsing the command line arguments
         3.3.2 Loading the dataset
         3.3.3 Invoking the search space exploration
-4 Developper manual
-    4.1 Checkout the source tree
-    4.2 Compile in release mode
-    4.3 Compile in debug mode
-    4.4 Run test suite
-    4.5 Release paraminer
-    4.6 Editing README file
-5 Bugs and bug reports
-6 Reference publications
-    6.1 Main publication:
-    6.2 Other important reads
-    6.3 Gradual itemset mining
-7 Authors and license
+4 Bugs and bug reports
+5 Publications
+    5.1 Main publication:
+    5.2 Other important reads
+    5.3 Gradual itemset mining
+6 Authors and license
 
 
 1 Quick start 
@@ -54,7 +47,7 @@ Table of Contents
 
 1.2 Extract the archive 
 ========================
-    tar xzvf paraminermelinda.tgz
+    tar xzvf paraminer-1.0.tgz
 
 1.3 Build ParaMiner 
 ====================
@@ -187,7 +180,7 @@ contain an implementation of the following C++ functions:
 
 3.1 A selection criterion 
 ==========================
-In a function called membership\_oracle(). 
+In a function called membership_oracle(). 
 The selection criterion to distingish candidate patterns from patterns.
 
 It takes as an argument a closed pattern P and a possible augmentation
@@ -274,64 +267,7 @@ So far our clogen_local_dark.cpp file looks like this:
 Once your dataset is loaded into tt, you must call the clogen() main routine with empty_set
 as an argument if you want to start the exploration from the emptyset.
 
-4 Developper manual 
---------------------
-  
-TODO: complete
-
-4.1 Checkout the source tree 
-=============================
-git clone <gitrepos> paraminer
-cd paraminer
-git submodule init
-git submodule update
-
-
-4.2 Compile in release mode 
-============================
-./autogen.sh
-mkdir -p build/release; cd build/release
-../../configure
-make
-   
-
-4.3 Compile in debug mode 
-==========================
-./autogen.sh
-mkdir -p build/debug; cd build/debug
-../../configure --enable-debug
-make
-
-4.4 Run test suite 
-===================
-(in build/debug, or build/release)
-
-make check 
-
-debug test suite:
-source tests/tests-env.sh 
-will set up the environment variable to have access to all tests scripts and testing software. 
-
-Then you can run tests individually from paraminer/tests
-
-4.5 Release paraminer 
-======================
-make dist will create an tar.gz archive 
-
-4.6 Editing README file 
-========================
-
-Please edit doc/readme.org instead of editing the README file located
-in the archive root directory.  The doc/readme.org must then be exported to 
-- a flat (utf8) README file (stored at: <archive_root_dir>/README)
-- a hypertext file (stored at: <archive_root_dir>/doc/readme.html)
-
-The export is done using emacs org-mode.
-
-For convinience, README and doc/readme.html are both tracked in the git repository, and
-therefore they must be updated when they undergo some modifications.
-
-5 Bugs and bug reports 
+4 Bugs and bug reports 
 -----------------------
 
 Repport bugs and/or comments at:
@@ -340,11 +276,10 @@ FirstName.LastName@imag.fr
 My FirstName is Benjamin
 My LastName is Negrevergne
 
-6 Reference publications 
--------------------------
-  
+5 Publications 
+---------------
 
-6.1 Main publication: 
+5.1 Main publication: 
 ======================
 
 (If you use ParaMiner for your your research, please cite this publication.)
@@ -355,7 +290,7 @@ DAMI/DMKD
 
 
 
-6.2 Other important reads 
+5.2 Other important reads 
 ==========================
 
 [ 2 ] Arimura, H., & Uno, T. (2005). A polynomial space and
@@ -382,16 +317,16 @@ Parallelizing computations and optimizing memory accesses. In High
 Performance Computing and Simulation (HPCS), 2010 International
 Conference on (pp. 521-528). IEEE.
 
-6.3 Gradual itemset mining 
+5.3 Gradual itemset mining 
 ===========================
 
 [ 7 ] Anne Laurent, Benjamin Négrevergne, Nicolas Sicard, and Alexandre
 Termier. Pgp-mc: Towards a multicore parallel approach for mining
 gradual patterns. In DASFAA, pages 78-84, 2010.
 
-7 Authors and license 
+6 Authors and license 
 ----------------------
-
+  
 Authors: 
 - Benjamin Negrevergne
 - Alexandre Termier
@@ -399,7 +334,4 @@ Authors:
 It was developped at Grenoble University / LIG. 
 
 License: ParaMiner is distributed under the LGPLv3 See LICENSE file in source directory for more informations. 
-
-
-
 

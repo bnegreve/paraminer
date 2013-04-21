@@ -3,12 +3,12 @@ patterns in transactional datasets.
 
 
 * Quick start 
-
+#<<Quick start>>
 ** Download ParaMiner 
    here: http://membres-liglab.imag.fr/negrevergne/paraminer/releases/paraminer-1.0.tar.gz
 
 ** Extract the archive
-    : tar xzvf paraminermelinda.tgz
+    : tar xzvf paraminer-1.0.tgz
 
 ** Build ParaMiner
     : cd paraminer
@@ -105,9 +105,7 @@ The results can be stored by redirecting the standard output into a file:
 ** Other built-in instances of ParaMiner
 
 *** Closed frequent relational graphs
-TODO
 *** Closed graudal itemsets
-TODO
 See [ 7 ]
 
 * Creating your own instance of ParaMiner
@@ -124,7 +122,7 @@ First start by creating a paraminer_local_periodic.cpp file which will
 contain an implementation of the following C++ functions:
 
 ** A selection criterion 
-In a function called membership\_oracle(). 
+In a function called membership_oracle(). 
 The selection criterion to distingish candidate patterns from patterns.
 
 It takes as an argument a closed pattern P and a possible augmentation
@@ -200,55 +198,6 @@ load_transaction_table (&tt, argv[1])
 Once your dataset is loaded into tt, you must call the clogen() main routine with empty_set
 as an argument if you want to start the exploration from the emptyset.
 
-* Developper manual
-  
-TODO: complete
-
-** Checkout the source tree
-: git clone <gitrepos> paraminer
-: cd paraminer
-: git submodule init
-: git submodule update
-
-
-** Compile in release mode
-: ./autogen.sh
-: mkdir -p build/release; cd build/release
-: ../../configure
-: make
-   
-** Compile in debug mode
-: ./autogen.sh
-: mkdir -p build/debug; cd build/debug
-: ../../configure --enable-debug
-: make
-
-** Run test suite 
-(in build/debug, or build/release)
-
-: make check 
-
-debug test suite:
-: source tests/tests-env.sh 
-will set up the environment variable to have access to all tests scripts and testing software. 
-
-Then you can run tests individually from paraminer/tests
-
-** Release paraminer 
-make dist will create an tar.gz archive 
-
-** Editing README file
-
-Please edit doc/readme.org instead of editing the README file located
-in the archive root directory.  The doc/readme.org must then be exported to 
-- a flat (utf8) README file (stored at: <archive_root_dir>/README)
-- a hypertext file (stored at: <archive_root_dir>/doc/readme.html)
-
-The export is done using emacs org-mode.
-
-For convinience, README and doc/readme.html are both tracked in the git repository, and
-therefore they must be updated when they undergo some modifications.
-
 * Bugs and bug reports
 
 Repport bugs and/or comments at:
@@ -257,8 +206,9 @@ FirstName.LastName@imag.fr
 My FirstName is Benjamin
 My LastName is Negrevergne
 
-* Reference publications
-  
+* Publications
+#<<Refs>>
+
 ** Main publication: 
 
 (If you use ParaMiner for your your research, please cite this publication.)
@@ -301,7 +251,8 @@ Conference on (pp. 521-528). IEEE.
 Termier. Pgp-mc: Towards a multicore parallel approach for mining
 gradual patterns. In DASFAA, pages 78-84, 2010.
 * Authors and license 
-
+#<<Authors>>
+  
 Authors: 
 - Benjamin Negrevergne
 - Alexandre Termier
@@ -309,7 +260,4 @@ Authors:
 It was developped at Grenoble University / LIG. 
 
 License: ParaMiner is distributed under the LGPLv3 See LICENSE file in source directory for more informations. 
-
-
-
 
