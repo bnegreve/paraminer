@@ -29,6 +29,7 @@ PRE {
 
 }
 
+#logos{ float:right }
 #head {
 	background: transparent url("../img/paraminer.png") no-repeat left top;
 	text-align: left;

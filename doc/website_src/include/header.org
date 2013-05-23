@@ -4,10 +4,13 @@
 #+BEGIN_HTML
 
 <div id="body">
+<div id="logos">
+<img src="img/logo_ujf.png"/>
+</div>
+
 	<div id="head">
 		<h1>ParaMiner</h1>
 		<h2>Efficient Pattern Mining</h2>
-
 	</div>
 	<div id="menu">
 		<a href='#Quick-start'>Quick start</a>
