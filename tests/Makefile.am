@@ -8,8 +8,9 @@ TESTS = test_fim_simple.sh \
 	test_fim_simple_mt.sh \
 	test_fim_full_compare.sh \
 	test_fim_full_compare_mt.sh \
-	test_crg_simple.sh \
-	test_gri_full_compare.sh
+	test_gri_full_compare.sh \
+	test_crg_simple.sh 
+
 
 EXTRA_DIST= $(TEST_BIN) $(TESTS) 
 
