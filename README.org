@@ -2,8 +2,16 @@ ParaMiner is a generic, parallel algorithm for mining closed frequent
 patterns in transactional datasets.
 
 
+The generic base of ParaMiner can be instanciated to solve different mining task. 
+This version of the code comes with 3 instances of ParaMiner:
+- ParaMinerFIM to mine frequent closed itemsets, 
+- ParaMinerCRG to mine closed relational graphs, and
+- ParaMinerGRI to mine graduals patterns. 
+
+See. [[Built-in instances of ParaMiner]] for more details about ParaMiner existing instances.
+
 * Quick start 
-#<<Quick start>>
+<<Quick start>>
 ** Download ParaMiner 
    here: [[http://people.cs.kuleuven.be/~benjamin.negrevergne/software/paraminer-1.0.tar.gz]]
 
@@ -16,51 +24,47 @@ patterns in transactional datasets.
     : make
     : make install 
 
-Optionally specify an install directory with 
+Default install directory is /usr/local. You can specify a different install directory with --prefix:
     : ./configure --prefix=<path/to/install_dir>
-Default is /usr/local (you need read/write permissions).
 
-If you do not wish to install (not recommanded), ParaMiner executable
-files can be found in the bin directory.
+If you do not wish to install, ParaMiner executable
+files can be found in the <paraminer>/src/ directory.
 
 ** Run ParaMiner
-You can now run a built-in instance to solve a standard problem
-(see. [[Running a built-in instance]]) or start writing your own
-instance (see. [[Creating your own instance]]).  
+
+You can now run a built-in instance to solve a standard pattern mining problem
+(see. [[Running a built-in instance]]) or you can start writing your own
+instance of ParaMiner (see. [[Creating an instance]]).  
 
 For example: the fim instance can be used to mine closed frequent
 itemset in a transactional dataset.
 
 #+BEGIN_EXAMPLE
-paraminer_fim data/fim/mushroom.dat 1500 -t 4
+paraminer_itemsets data/fim/mushroom.dat 1500 -t 4
 #+END_EXAMPLE
 
 Will output all the closed frequent itemsets occurring in mushroom dataset
 with an absolute frequency of at least 1500.  The -t switch specifies
-the number of threads.  See paraminer_fim -h for further details.
+the number of threads.  See paraminer_itemsets -h for further details.
 
-* Running a built-in instance of ParaMiner
-#<<Running a built-in instance>>
-
+* Built-in instances of ParaMiner
+<<Built-in instances>>
 In order to solve a pattern mining problem, you need the adequate
-instance of ParaMiner.  You can see how to use the built-in instance
-of ParaMiner to mine closed frequent itemset in [[instance fim]].  Or you
-can learn how to create your own instance of ParaMiner in [[creating
-your own instance]].
+instance of ParaMiner. 
 
-** Closed frequent itemset mining (FIM) with ParaMiner
-#<<instance fim>>
+** ParaMinerFIM for closed frequent itemset mining
+<<instance fim>>
 
-You can use this instance of ParaMiner to mine closed frequent itemset
-from a transactional dataset.
+Extract closed frequent itemset from a transactional dataset.
 
 *** Input file format 
-#<<fim input file format>>
-    
-Dataset stored within a single ASCII file.
+<<fim input file format>>
 
-- Each line is a transaction;
-- each transaction contains distincts items;
+The input file format is the standard ASCII format of the FIMI dataset repository:
+
+- The whole dataset is described by a single ASCII file; 
+- each line is a transaction;
+- each transaction contains distinct items;
 - transactions must be ordered;
 - last line must be empty.
 
@@ -74,18 +78,17 @@ e.g. test.dat
 
 is a valid dataset.
 
-*** Running the FIM instance of ParaMiner
+*** Running the ParaMinerFIM
 
 You can mine closed frequent itemsets occurring in this dataset by executing the following command:
-: paraminer_fim test.dat 2
+: ./paraminer_itemsets test.dat 2
 
 Alternatively, if you have a multi-core/parallel computer with 8
 cores, you can exploit them by executing the following command: 
-: paraminer_fim test.dat 2 -t 8
+: paraminer_itemsets test.dat 2 -t 8
 
 *** Output format
 
-The FIM implementation of ParaMiner has the following format: 
 - each line is a frequent closed itemset;
 - frequency is stored at the end of the line into brackets.
 
@@ -102,14 +105,71 @@ will generate the following output on the standard output:
 The results can be stored by redirecting the standard output into a file:
 : ./paraminer_itemsets test.dat 2 -t 1 > results.out
 
+
+** ParaMinerCRG for closed frequent connected relational graphs mining
+<<instance crg>>
+
+Extract connected relational graphs from relational graphs datasets. 
+Relational graphs (graphs with distinct labels)  
+
+*** Input format 
+
+A graph dataset is a directory containing a collection of ASCII files. 
+Each ASCII file is the description of one graph from the dataset. 
+
+The files must have the following format: 
+- the first line is the number of distinct vertexes labels in the graph dataset; 
+- each following line is a triplet <vertex id> <vertex id> <edge value> describing one edge of the graph where:
+<vertex id> are integer identifiers for the two vertexes of the edge.
+<edge value> is any real number. Edges with a value bellow the /edge
+threshold/ (mandatory argument of ParaMinerCRG) are disregarded.  This
+is typically used to simplify the overly complex graphs before the
+mining process. If unnecessary, use <edge value> = 1 for every edge.
+
+For example:
+#+BEGIN_EXAMPLE
+10 
+1 2 1 
+2 3 1 
+3 4 1 
+#+END_EXAMPLE
+
+Describes the following relational graph:
+
+    (2) -- (1)
+     |
+     |
+    (3) -- (4)
+
+An graph dataset example can be found in <paraminer_directory>/data/crg/test.
+
+*** Running ParaMinerCRG
+    
+You can mine closed connected relational graphs occurring in the example graph dataset by executing the following command:
+: ./paraminer_cgraphs  <paraminer_directory>/data/crg/test 1 1
+
+*** Output format
+
+- Each line is a list of edges that representing a connected subgraph that is frequent in the dataset.
+- The line ends with the frequency of the graph. 
+
+For example, mining the example dataset will generate the following outpout. 
+#+BEGIN_EXAMPLE
+( 1, 2 ) (2)
+( 3, 4 ) (2)
+( 1, 2 ) ( 1, 4 ) ( 2, 2 ) ( 3, 4 ) (1)
+( 1, 2 ) ( 3, 4 ) ( 2, 3 ) (1)
+4 patterns mined
+#+END_EXAMPLE   
+
+** ParaMinerGRI for gradual pattern mining
+
+See [ 7 ] for more information about gradual patterns. 
+
 ** Other built-in instances of ParaMiner
 
-*** Closed frequent relational graphs
-*** Closed graudal itemsets
-See [ 7 ]
-
-* Creating your own instance of ParaMiner
-#<<Creating your own instance>>
+* Creating a new instance of ParaMiner
+<<Creating an instance>>
 
 This section describe how to create your own instance of
 ParaMiner. You need to create a new instance if you want to mine a
@@ -207,7 +267,7 @@ My FirstName is Benjamin
 My LastName is Negrevergne
 
 * Publications
-#<<Refs>>
+<<Refs>>
 
 ** Main publication: 
 
@@ -232,7 +292,6 @@ data mining. Theoretical computer science, 411(3), 691-700.
 [ 4 ] Benjamin Negrevergne. A Generic and
 Parallel Pattern Mining Algorithm for Multi-Core Architectures. PhD
 thesis,  Grenoble University, 2011.
-url: http://membres-liglab.imag.fr/negrevergne/documents/negrevergne_phd.pdf
 
 [ 5 ] Uno, T., Kiyomi, M., & Arimura, H. (2004, November). LCM ver. 2:
 Efficient mining algorithms for frequent/closed/maximal itemsets. In
@@ -251,7 +310,7 @@ Conference on (pp. 521-528). IEEE.
 Termier. Pgp-mc: Towards a multicore parallel approach for mining
 gradual patterns. In DASFAA, pages 78-84, 2010.
 * Authors and license 
-#<<Authors>>
+<<Authors>>
   
 Authors: 
 - Benjamin Negrevergne

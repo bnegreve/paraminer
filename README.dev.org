@@ -38,8 +38,8 @@ make dist will create an tar.gz archive
 
 ** Editing README file
 
-Please edit doc/readme.org instead of editing the README file located
-in the archive root directory.  The doc/readme.org must then be exported to 
+Please DO NOT edit the README file in the archive root
+directory. Instead edit the README.org and export it as: 
 - a flat (utf8) README file (stored at: <archive_root_dir>/README)
 - a hypertext file (stored at: <archive_root_dir>/doc/readme.html)
 
@@ -48,3 +48,6 @@ The export is done using emacs org-mode.
 For convinience, README and doc/readme.html are both tracked in the git repository, and
 therefore they must be updated when they undergo some modifications.
 
+*** README.dev
+
+Please DO NOT edit README.dev, instead edit README.dev.org and export it as README.dev.

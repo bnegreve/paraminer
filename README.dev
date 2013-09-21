@@ -1,80 +1,109 @@
-                              README.dev
-                              ==========
+			 ━━━━━━━━━━━━━━━━━━━━━━
+			       README.DEV
 
-Author: Benjamin Negrevergne
-Date: 2013-04-21 16:35:54 CEST
+
+			  Benjamin Negrevergne
+			 ━━━━━━━━━━━━━━━━━━━━━━
 
 
 Table of Contents
-=================
+─────────────────
+
 1 Developper manual
-    1.1 Developper documentation (doxygen)
-    1.2 Checkout the source tree
-    1.3 Compile in release mode
-    1.4 Compile in debug mode
-    1.5 Run test suite
-    1.6 Release paraminer
-    1.7 Editing README file
+.. 1.1 Developper documentation (doxygen)
+.. 1.2 Checkout the source tree
+.. 1.3 Compile in release mode
+.. 1.4 Compile in debug mode
+.. 1.5 Run test suite
+.. 1.6 Release paraminer
+.. 1.7 Editing README file
+..... 1.7.1 README.dev
 
 
-1 Developper manual 
---------------------
+1 Developper manual
+═══════════════════
 
-1.1 Developper documentation (doxygen) 
-=======================================
+1.1 Developper documentation (doxygen)
+──────────────────────────────────────
 
- [http://membres-liglab.imag.fr/negrevergne/paraminer/doxygen/]
-  
-
-1.2 Checkout the source tree 
-=============================
-git clone <gitrepos> paraminer
-cd paraminer
-git submodule init
-git submodule update
-
-1.3 Compile in release mode 
-============================
-./autogen.sh
-mkdir -p build/release; cd build/release
-../../configure
-make
-   
-
-1.4 Compile in debug mode 
-==========================
-./autogen.sh
-mkdir -p build/debug; cd build/debug
-../../configure --enable-debug
-make
-
-1.5 Run test suite 
-===================
-(in build/debug, or build/release)
-
-make check 
-
-debug test suite:
-source tests/tests-env.sh 
-will set up the environment variable to have access to all tests scripts and testing software. 
-
-Then you can run tests individually from paraminer/tests
-
-1.6 Release paraminer 
-======================
-make dist will create an tar.gz archive 
-
-1.7 Editing README file 
-========================
-
-Please edit doc/readme.org instead of editing the README file located
-in the archive root directory.  The doc/readme.org must then be exported to 
-- a flat (utf8) README file (stored at: <archive_root_dir>/README)
-- a hypertext file (stored at: <archive_root_dir>/doc/readme.html)
-
-The export is done using emacs org-mode.
-
-For convinience, README and doc/readme.html are both tracked in the git repository, and
-therefore they must be updated when they undergo some modifications.
+  [http://membres-liglab.imag.fr/negrevergne/paraminer/doxygen/]
 
 
+1.2 Checkout the source tree
+────────────────────────────
+
+  ╭────
+  │ git clone <gitrepos> paraminer
+  │ cd paraminer
+  │ git submodule init
+  │ git submodule update
+  ╰────
+
+
+1.3 Compile in release mode
+───────────────────────────
+
+  ╭────
+  │ ./autogen.sh
+  │ mkdir -p build/release; cd build/release
+  │ ../../configure
+  │ make
+  ╰────
+
+
+1.4 Compile in debug mode
+─────────────────────────
+
+  ╭────
+  │ ./autogen.sh
+  │ mkdir -p build/debug; cd build/debug
+  │ ../../configure --enable-debug
+  │ make
+  ╰────
+
+
+1.5 Run test suite
+──────────────────
+
+  (in build/debug, or build/release)
+
+  ╭────
+  │ make check 
+  ╰────
+
+  debug test suite:
+  ╭────
+  │ source tests/tests-env.sh 
+  ╰────
+  will set up the environment variable to have access to all tests
+  scripts and testing software.
+
+  Then you can run tests individually from paraminer/tests
+
+
+1.6 Release paraminer
+─────────────────────
+
+  make dist will create an tar.gz archive
+
+
+1.7 Editing README file
+───────────────────────
+
+  Please DO NOT edit the README file in the archive root
+  directory. Instead edit the README.org and export it as:
+  • a flat (utf8) README file (stored at: <archive_root_dir>/README)
+  • a hypertext file (stored at: <archive_root_dir>/doc/readme.html)
+
+  The export is done using emacs org-mode.
+
+  For convinience, README and doc/readme.html are both tracked in the
+  git repository, and therefore they must be updated when they undergo
+  some modifications.
+
+
+1.7.1 README.dev
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  Please DO NOT edit README.dev, instead edit README.dev.org and export
+  it as README.dev.
