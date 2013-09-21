@@ -14,8 +14,8 @@
 	</div>
 	<div id="menu">
 		<a href='#Quick-start'>Quick start</a>
-	  <a href='#Running-a-built-in-instance'>Running built-in instances</a>
-	  	  <a href='#Creating-your-own-instance'>Creating an instance</a>
+	  <a href='#Built-in-instances'>Built-in instances</a>
+	  	  <a href='#Creating-an-instance'>Creating an instance</a>
 		<a href='dev'>Developper doc.</a>
 		<a href='#Refs'>Plublications</a>
 		<a href='#Authors'>License</a>

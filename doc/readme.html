@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>README</title>
-<!-- 2013-09-21 Sat 17:24 -->
+<!-- 2013-09-21 Sat 18:17 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Benjamin Negrevergne" />
@@ -165,7 +165,6 @@ for the JavaScript code in this tag.
 </ul>
 </li>
 <li><a href="#sec-2-3">2.3. ParaMinerGRI for gradual pattern mining</a></li>
-<li><a href="#sec-2-4">2.4. Other built-in instances of ParaMiner</a></li>
 </ul>
 </li>
 <li><a href="#sec-3">3. Creating a new instance of ParaMiner</a>
@@ -213,7 +212,7 @@ This version of the code comes with 3 instances of ParaMiner:
 </ul>
 
 <p>
-See. <a href="#sec-2">2</a> for more details about ParaMiner existing instances.
+See Section <a href="#sec-2">2</a> for more details about ParaMiner existing instances.
 </p>
 
 <div id="outline-container-sec-1" class="outline-2">
@@ -267,8 +266,8 @@ files can be found in the &lt;paraminer&gt;/src/ directory.
 <div class="outline-text-3" id="text-1-4">
 <p>
 You can now run a built-in instance to solve a standard pattern mining problem
-(see. <i>Running a built-in instance</i>) or you can start writing your own
-instance of ParaMiner (see. <a href="#Creating-an-instance">3</a>).  
+(see Section <a href="#Built-in-instances">2</a>) or you can start writing your own
+instance of ParaMiner (see Section <a href="#Creating-an-instance">3</a>).  
 </p>
 
 <p>
@@ -296,13 +295,25 @@ the number of threads.  See paraminer<sub>itemsets</sub> -h for further details.
 In order to solve a pattern mining problem, you need the adequate
 instance of ParaMiner. 
 </p>
+
+<p>
+This version of ParaMiner comes with 3 instances:
+</p>
+<ul class="org-ul">
+<li>ParaMinerFIM to mine frequent closed itemsets, 
+</li>
+<li>ParaMinerCRG to mine closed relational graphs, and
+</li>
+<li>ParaMinerGRI to mine graduals patterns. 
+</li>
+</ul>
 </div>
 
 <div id="outline-container-sec-2-1" class="outline-3">
 <h3 id="sec-2-1"><span class="section-number-3">2.1</span> ParaMinerFIM for closed frequent itemset mining</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
-<a id="instance-fim" name="instance-fim"></a>
+<a id="ParaMinerFIM" name="ParaMinerFIM"></a>
 </p>
 
 <p>
@@ -407,7 +418,7 @@ The results can be stored by redirecting the standard output into a file:
 <h3 id="sec-2-2"><span class="section-number-3">2.2</span> ParaMinerCRG for closed frequent connected relational graphs mining</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
-<a id="instance-crg" name="instance-crg"></a>
+<a id="ParaMinerCRG" name="ParaMinerCRG"></a>
 </p>
 
 <p>
@@ -455,24 +466,12 @@ For example:
 Describes the following relational graph:
 </p>
 
-<p>
-(2) &#x2013; (1)
-</p>
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<tbody>
-<tr>
-</tr>
-</tbody>
-<tbody>
-<tr>
-</tr>
-</tbody>
-</table>
-<p>
-(3) &#x2013; (4)
-</p>
+<pre class="example">
+(2) -- (1)
+ |
+ |
+(3) -- (4)
+</pre>
 
 <p>
 An graph dataset example can be found in &lt;paraminer<sub>directory</sub>&gt;/data/crg/test.
@@ -517,12 +516,10 @@ For example, mining the example dataset will generate the following outpout.
 <h3 id="sec-2-3"><span class="section-number-3">2.3</span> ParaMinerGRI for gradual pattern mining</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
+<a id="ParaMinerGRI" name="ParaMinerGRI"></a>
 See [ 7 ] for more information about gradual patterns. 
 </p>
 </div>
-</div>
-<div id="outline-container-sec-2-4" class="outline-3">
-<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Other built-in instances of ParaMiner</h3>
 </div>
 </div>
 <div id="outline-container-sec-3" class="outline-2">
@@ -678,7 +675,7 @@ as an argument if you want to start the exploration from the emptyset.
 <div class="outline-text-2" id="text-4">
 <p>
 Repport bugs and/or comments at:
-FirstName.LastName@imag.fr
+FirstName.LastName@cs.kuleuven.be
 </p>
 
 <p>
@@ -789,7 +786,7 @@ License: ParaMiner is distributed under the LGPLv3 See LICENSE file in source di
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Benjamin Negrevergne</p>
-<p class="date">Created: 2013-09-21 Sat 17:24</p>
+<p class="date">Created: 2013-09-21 Sat 18:17</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 23.4.1 (<a href="http://orgmode.org">Org</a> mode 8.1.2)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

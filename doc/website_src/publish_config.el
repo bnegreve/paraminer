@@ -1,4 +1,6 @@
-(require 'org-publish)
+(require 'ox-publish)
+(require 'ox-html)
+
 
 (setq org-publish-project-alist
             '(
@@ -9,10 +11,10 @@
 		:base-extension "org"
 		:publishing-directory "../website"
 		:recursive t
-		:publishing-function org-publish-org-to-html
+		:publishing-function org-html-publish-to-html
 		:headline-levels 4             ; Just the default for this project.
 		:auto-preamble t
-		:section-numbers nil
+;;		:section-numbers nil
 		:headline-levels 3
 		:table-of-contents nil
 ;;		:style "<link rel='stylesheet' type='text/css' href='css/style.css' />"

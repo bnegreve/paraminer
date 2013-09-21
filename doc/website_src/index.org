@@ -5,8 +5,8 @@
 #+DESCRIPTION: 
 #+KEYWORDS: pattern mining data mining multi core fouille de données lcm plcm 
 #+LANGUAGE:  en
-#+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t author:nil email:nil creator:nil timestamp:nil
-#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc html-style:nil
+#+OPTIONS:   H:3 num:t toc:nil \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t author:nil email:nil creator:nil timestamp:nil html-style:nil
 #+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 #+EXPORT_SELECT_TAGS: export
 #+EXPORT_EXCLUDE_TAGS: noexport
@@ -14,7 +14,7 @@
 #+LINK_HOME: 
 #+XSLT:
 
-#+STYLE:    <link rel="stylesheet" type="text/css" href="css/style.css" />
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/style.css" />
 #+INCLUDE: include/header.org org
 #+INCLUDE: ../../README.org org
 #+INCLUDE: include/footer.org org

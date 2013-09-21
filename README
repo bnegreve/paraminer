@@ -24,7 +24,6 @@ Table of Contents
 ..... 2.2.2 Running ParaMinerCRG
 ..... 2.2.3 Output format
 .. 2.3 ParaMinerGRI for gradual pattern mining
-.. 2.4 Other built-in instances of ParaMiner
 3 Creating a new instance of ParaMiner
 .. 3.1 A selection criterion
 .. 3.2 A closure operator
@@ -51,7 +50,7 @@ ParaMiner:
 • ParaMinerCRG to mine closed relational graphs, and
 • ParaMinerGRI to mine graduals patterns.
 
-See. 2 for more details about ParaMiner existing instances.
+See Section 2 for more details about ParaMiner existing instances.
 
 
 1 Quick start
@@ -99,8 +98,8 @@ See. 2 for more details about ParaMiner existing instances.
 ─────────────────
 
   You can now run a built-in instance to solve a standard pattern mining
-  problem (see. ) or you can start writing your own instance of
-  ParaMiner (see. 3).
+  problem (see Section 2) or you can start writing your own instance of
+  ParaMiner (see Section 3).
 
   For example: the fim instance can be used to mine closed frequent
   itemset in a transactional dataset.
@@ -121,6 +120,11 @@ See. 2 for more details about ParaMiner existing instances.
 
   In order to solve a pattern mining problem, you need the adequate
   instance of ParaMiner.
+
+  This version of ParaMiner comes with 3 instances:
+  • ParaMinerFIM to mine frequent closed itemsets,
+  • ParaMinerCRG to mine closed relational graphs, and
+  • ParaMinerGRI to mine graduals patterns.
 
 
 2.1 ParaMinerFIM for closed frequent itemset mining
@@ -232,9 +236,12 @@ See. 2 for more details about ParaMiner existing instances.
 
   Describes the following relational graph:
 
-  (2) – (1)
-
-  (3) – (4)
+  ╭────
+  │ (2) -- (1)
+  │  |
+  │  |
+  │ (3) -- (4)
+  ╰────
 
   An graph dataset example can be found in
   <paraminer_directory>/data/crg/test.
@@ -271,11 +278,8 @@ See. 2 for more details about ParaMiner existing instances.
 2.3 ParaMinerGRI for gradual pattern mining
 ───────────────────────────────────────────
 
+
   See [ 7 ] for more information about gradual patterns.
-
-
-2.4 Other built-in instances of ParaMiner
-─────────────────────────────────────────
 
 
 3 Creating a new instance of ParaMiner
@@ -391,7 +395,7 @@ See. 2 for more details about ParaMiner existing instances.
 4 Bugs and bug reports
 ══════════════════════
 
-  Repport bugs and/or comments at: FirstName.LastName@imag.fr
+  Repport bugs and/or comments at: FirstName.LastName@cs.kuleuven.be
 
   My FirstName is Benjamin My LastName is Negrevergne
 
