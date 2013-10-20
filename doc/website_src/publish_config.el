@@ -24,7 +24,7 @@
 	      ;; These are static files (images, pdf, etc)
 	      ("org-static"
 	        :base-directory "." ;; Change this to your local dir
-		:base-extension "css\\|js\\|png\\|svg\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|txt\\|asc"
+		:base-extension "css\\|js\\|png\\|svg\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|txt\\|asc\\|php"
 		:publishing-directory "../website"
 	        :recursive t
 		:publishing-function org-publish-attachment

@@ -8,7 +8,7 @@ OUTPUT_DIR=../website
 
 all: html 
 
-html: index.org ../../README.org include/header.org include/footer.org 
+html:  ../../README.org include/header.org include/footer.org  main.org counter.php
 	@echo "Generating HTML..."
 	@mkdir -p $(OUTPUT_DIR)
 	@$(EMACS) $(EMACS_OPTS)
