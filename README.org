@@ -13,7 +13,8 @@ See Section [[Built-in instances of ParaMiner]] for more details about ParaMiner
 * Quick start 
 <<Quick start>>
 ** Download ParaMiner 
-   here: [[http://people.cs.kuleuven.be/~benjamin.negrevergne/software/paraminer-1.0.tar.gz]]
+   here: [[http://www.lamsade.dauphine.fr/~bnegrevergne/webpage/software/paraminer/paraminer-1.0.tar.gz]]
+   (Or fetch it on github: https://github.com/bnegreve/paraminer)
 
 ** Extract the archive
     : tar xzvf paraminer-1.0.tgz
